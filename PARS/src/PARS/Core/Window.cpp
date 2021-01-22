@@ -3,17 +3,14 @@
 
 namespace PARS
 {
-    Window::Window(const std::wstring& title, UINT width, UINT height)
-        : m_Title(title)
-        , m_Width(width)
-        , m_Height(height)
+    Window::Window()
     {
         Initialize();
     }
     
     void Window::Initialize()
     {
-        m_hInstance = GetModuleHandle(NULL);
+        m_WindowInfo.m_hInstance = GetModuleHandle(NULL);
 
         WNDCLASSEXW wcex;
 
@@ -22,26 +19,26 @@ namespace PARS
         wcex.lpfnWndProc = WndProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = 0;
-        wcex.hInstance = m_hInstance;
-        wcex.hIcon = LoadIcon(m_hInstance, IDI_WINLOGO);
+        wcex.hInstance = m_WindowInfo.m_hInstance;
+        wcex.hIcon = LoadIcon(m_WindowInfo.m_hInstance, IDI_WINLOGO);
         wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
         wcex.lpszMenuName = NULL;
-        wcex.lpszClassName = m_Title.c_str();
+        wcex.lpszClassName = m_WindowInfo.m_Title.c_str();
         wcex.hIconSm = wcex.hIcon;
 
         RegisterClassExW(&wcex);
 
-        int posX = (GetSystemMetrics(SM_CXSCREEN) - m_Width) / 2; 
-        int posY = (GetSystemMetrics(SM_CYSCREEN) - m_Height) / 2;
+        int posX = (GetSystemMetrics(SM_CXSCREEN) - m_WindowInfo.m_Width) / 2;
+        int posY = (GetSystemMetrics(SM_CYSCREEN) - m_WindowInfo.m_Height) / 2;
 
-        m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_Title.c_str(), m_Title.c_str(),
+        m_WindowInfo.m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_WindowInfo.m_Title.c_str(), m_WindowInfo.m_Title.c_str(),
             WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER,
-            posX, posY, m_Width, m_Height, NULL, NULL, m_hInstance, NULL);
+            posX, posY, m_WindowInfo.m_Width, m_WindowInfo.m_Height, NULL, NULL, m_WindowInfo.m_hInstance, NULL);
 
-        ShowWindow(m_hwnd, SW_SHOW);
-        SetForegroundWindow(m_hwnd);
-        SetFocus(m_hwnd);
+        ShowWindow(m_WindowInfo.m_hwnd, SW_SHOW);
+        SetForegroundWindow(m_WindowInfo.m_hwnd);
+        SetFocus(m_WindowInfo.m_hwnd);
     }
 
     LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

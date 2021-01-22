@@ -4,24 +4,35 @@
 
 namespace PARS
 {
+	struct WindowInfo
+	{
+		std::wstring m_Title;
+		UINT m_Width, m_Height;
+		HWND m_hwnd;
+		HINSTANCE m_hInstance;
+
+		WindowInfo(const std::wstring& title = L"Physics and Rendering Simulation",
+			UINT width = 1280, UINT height = 720)
+			: m_Title(title), m_Width(width), m_Height(height)
+			, m_hwnd(NULL), m_hInstance(NULL)
+		{
+		}
+	};
+
 	class Window
 	{
 	public:
-		Window(const std::wstring& title = L"Physics and Rendering Simulation",
-			UINT width = 1280, UINT height = 720);
+		Window();
 
 		virtual ~Window() = default;
 
 		void Initialize();
 		
 	private:
-		std::wstring m_Title;
-		UINT m_Width, m_Height;
-		HWND m_hwnd;
-		HINSTANCE m_hInstance;
+		WindowInfo m_WindowInfo;
 
 	public:
-		HINSTANCE GetHInstance() const { return m_hInstance; }
+		const WindowInfo& GetWindowInfo() const { return m_WindowInfo; }
 	};
 
 
