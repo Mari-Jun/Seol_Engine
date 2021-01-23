@@ -24,7 +24,7 @@ namespace PARS
 		bool result = m_Renderer->Initialize(m_Window->GetWindowInfo());
 		if (!result)
 		{
-			PARS_CORE_ERROR("Could not initialize Renderer");
+			PARS_ERROR("Could not initialize Renderer");
 			return false;
 		}
 

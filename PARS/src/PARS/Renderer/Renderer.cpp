@@ -19,7 +19,7 @@ namespace PARS
 		bool result = m_DirectX12->Initailize();
 		if (!result)
 		{
-			PARS_CORE_ERROR("Could not initialize DirectX12");
+			PARS_ERROR("Could not initialize DirectX12");
 			return false;
 		}
 		

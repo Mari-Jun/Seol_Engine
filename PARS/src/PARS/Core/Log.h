@@ -11,24 +11,19 @@ namespace PARS
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetDefaultLogger() { return s_DefaultLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetTrackingLogger() { return s_TrackingLogger; }
 	private:
-		static std::shared_ptr<spdlog::logger> s_CoreLogger;
-		static std::shared_ptr<spdlog::logger> s_ClientLogger;
+		static std::shared_ptr<spdlog::logger> s_DefaultLogger;
+		static std::shared_ptr<spdlog::logger> s_TrackingLogger;
 	};
 }
 
-// Core log macros
-#define PARS_CORE_TRACE(...)    ::PARS::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define PARS_CORE_INFO(...)     ::PARS::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define PARS_CORE_WARN(...)     ::PARS::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define PARS_CORE_ERROR(...)    ::PARS::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define PARS_CORE_FATAL(...)    ::PARS::Log::GetCoreLogger()->fatal(__VA_ARGS__)
 
-// Client log macros
-#define PARS_TRACE(...)	      ::PARS::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define PARS_INFO(...)	      ::PARS::Log::GetClientLogger()->info(__VA_ARGS__)
-#define PARS_WARN(...)	      ::PARS::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define PARS_ERROR(...)	      ::PARS::Log::GetClientLogger()->error(__VA_ARGS__)
-#define PARS_FATAL(...)	      ::PARS::Log::GetClientLogger()->fatal(__VA_ARGS__)
+
+//log macros
+#define PARS_TRACE(...)			::PARS::Log::GetDefaultLogger()->trace(__VA_ARGS__)
+#define PARS_INFO(...)			::PARS::Log::GetDefaultLogger()->info(__VA_ARGS__)
+#define PARS_WARN(...)			SPDLOG_LOGGER_WARN(::PARS::Log::GetTrackingLogger(), __VA_ARGS__)
+#define PARS_ERROR(...)			SPDLOG_LOGGER_ERROR(::PARS::Log::GetTrackingLogger(), __VA_ARGS__)
+#define PARS_CRITICAL(...)		SPDLOG_LOGGER_CRITICAL(::PARS::Log::GetTrackingLogger(), __VA_ARGS__)
