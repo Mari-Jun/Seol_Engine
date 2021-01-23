@@ -41,6 +41,12 @@ namespace PARS
         SetFocus(m_WindowInfo.m_hwnd);
     }
 
+    void Window::AddFpsToWindowName(UINT fps)
+    {
+        std::wstring name = m_WindowInfo.m_Title + L" (FPS : " + std::to_wstring(fps) + L")";
+        SetWindowTextW(m_WindowInfo.m_hwnd, name.c_str());
+    }
+
     LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)

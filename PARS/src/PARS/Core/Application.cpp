@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
+#include "PARS/Core/Timer.h"
 #include "PARS/Renderer/Renderer.h"
 #include "PARS/Core/Application.h"
 
@@ -20,8 +21,16 @@ namespace PARS
 	{
 		m_Window = CreateUPtr<Window>();
 
+		m_Timer = CreateUPtr<Timer>();
+		bool result = m_Timer->Initialize();
+		if (!result)
+		{
+			PARS_ERROR("Could not initialize Timer");
+			return false;
+		}
+
 		m_Renderer = CreateUPtr<Renderer>();
-		bool result = m_Renderer->Initialize(m_Window->GetWindowInfo());
+		result = m_Renderer->Initialize(m_Window->GetWindowInfo());
 		if (!result)
 		{
 			PARS_ERROR("Could not initialize Renderer");
@@ -40,7 +49,7 @@ namespace PARS
 	{
 		MSG msg;
 
-		while (GetMessage(&msg, nullptr, 0, 0))
+		while (true)
 		{
 			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -51,6 +60,10 @@ namespace PARS
 			}
 			else
 			{
+				m_Timer->Tick();
+
+				m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());
+
 				m_Renderer->Run();
 			}
 		}

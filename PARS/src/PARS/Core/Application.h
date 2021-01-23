@@ -6,6 +6,7 @@ namespace PARS
 {
 	//forward declaration
 	class Window;
+	class Timer;
 	class Renderer;
 
 
@@ -21,6 +22,7 @@ namespace PARS
 
 	private:
 		UPtr<Window> m_Window;
+		UPtr<Timer> m_Timer;
 		UPtr<Renderer> m_Renderer;
 	};
 
