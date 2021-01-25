@@ -7,7 +7,7 @@ project "PARS"
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
-	pchheader "stdafx.h", "input.h"
+	pchheader "stdafx.h"
 	pchsource "src/stdafx.cpp"
 
 	

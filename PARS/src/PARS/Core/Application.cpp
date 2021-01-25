@@ -85,7 +85,7 @@ namespace PARS
 	}
 
 	void Application::Draw()
-	{
+	{		
 		m_Renderer->Draw();
 	}
 }

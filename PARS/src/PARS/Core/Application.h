@@ -9,7 +9,6 @@ namespace PARS
 	class Timer;
 	class Renderer;
 
-
 	class Application
 	{
 	public:
