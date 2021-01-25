@@ -30,18 +30,12 @@ namespace PARS
 		m_DirectX12->ShutDown();
 	}
 
-	void Renderer::Run()
+	void Renderer::Draw()
 	{
 		m_DirectX12->BeginScene();
 
 		//render code
-		Draw();
-		
-		m_DirectX12->EndScene();
-	}
 
-	bool Renderer::Draw()
-	{
-		return true;
+		m_DirectX12->EndScene();
 	}
 }

@@ -21,6 +21,12 @@ namespace PARS
 		void Run();
 
 	private:
+		void ProcessInput();
+		void Update();
+		void Draw();
+
+	private:
+		bool m_Running;
 		UPtr<Window> m_Window;
 		UPtr<Timer> m_Timer;
 		UPtr<Renderer> m_Renderer;

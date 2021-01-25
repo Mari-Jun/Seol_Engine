@@ -40,3 +40,4 @@ using Microsoft::WRL::ComPtr;
 
 
 #include "PARS/Core/Log.h"
+#include "PARS/Input/Input.h"

@@ -15,10 +15,7 @@ namespace PARS
 	
 		bool Initialize(const WindowInfo& info);
 		void ShutDown();
-		void Run();
-
-	private:
-		bool Draw();
+		void Draw();
 
 	private:
 		UPtr<DirectX12> m_DirectX12;

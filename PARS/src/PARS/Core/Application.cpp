@@ -8,6 +8,7 @@
 namespace PARS
 {
 	Application::Application()
+		: m_Running(true)
 	{
 		
 	}
@@ -28,7 +29,7 @@ namespace PARS
 			PARS_ERROR("Could not initialize Timer");
 			return false;
 		}
-
+	
 		m_Renderer = CreateUPtr<Renderer>();
 		result = m_Renderer->Initialize(m_Window->GetWindowInfo());
 		if (!result)
@@ -49,7 +50,7 @@ namespace PARS
 	{
 		MSG msg;
 
-		while (true)
+		while (m_Running)
 		{
 			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -60,12 +61,31 @@ namespace PARS
 			}
 			else
 			{
-				m_Timer->Tick();
-
-				m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());
-
-				m_Renderer->Run();
+				ProcessInput();
+				Update();
+				Draw();
 			}
 		}
+	}
+
+	void Application::ProcessInput()
+	{
+		static int num = 0;
+		if (Input::IsKeyPressed(PARS_KEY_UARROW))
+		{
+			PARS_INFO("{0}", ++num);
+		}
+	}
+
+	void Application::Update()
+	{
+		m_Timer->Tick();
+
+		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());
+	}
+
+	void Application::Draw()
+	{
+		m_Renderer->Draw();
 	}
 }

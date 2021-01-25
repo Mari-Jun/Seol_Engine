@@ -11,8 +11,8 @@ namespace PARS
 		bool Initialize();
 		void Tick();
 
-		float GetDeltaTime() { return m_DeltaTime; }
-		UINT GetFrameRate() { return m_FrameRate; }
+		float GetDeltaTime() const { return m_DeltaTime; }
+		UINT GetFrameRate() const { return m_FrameRate; }
 
 	private:
 		INT64 m_Frequncy = 0;
