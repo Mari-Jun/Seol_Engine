@@ -7,8 +7,7 @@ namespace PARS
 	class Vec2
 	{
 	public:
-		float x;
-		float y;
+		float x, y;
 
 		Vec2() : x(0.0f), y(0.0f) {}
 		Vec2(float inX, float inY)
@@ -34,21 +33,18 @@ namespace PARS
 
 		friend std::ostream& operator<<(std::ostream& os, const Vec2& vec);
 
-		void NormalizeSelf();
+		void Normalize();
 		static Vec2 Normalize(const Vec2& vec);
-		Vec2 Normalize() const;
 
 		float LengthSq() const;
 		float Length() const;
 
 		static float Dot(const Vec2& vec1, const Vec2& vec2);
-		float Dot(const Vec2& vec) const;
 		static Vec2 Reflect(const Vec2& v, const Vec2& n);
-		Vec2 Reflect(const Vec2& n) const;
+		static Vec2 Lerp(const Vec2& vec1, const Vec2& vec2, float f);
 
-		void TransformSelf(const Mat3& mat, float w = 1.0f);
+		void Transform(const Mat3& mat, float w = 1.0f);
 		static Vec2 Transform(const Vec2& vec, const Mat3& mat, float w = 1.0f);
-		Vec2 Transform(const Mat3& mat, float w = 1.0f) const;
 		
 		std::string ToString() const;
 

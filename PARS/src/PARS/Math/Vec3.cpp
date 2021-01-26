@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Math/Vec3.h"
+#include "PARS/Math/Mat4.h"
+#include "PARS/Math/Quaternion.h"
 
 namespace PARS
 {
@@ -107,7 +109,7 @@ namespace PARS
 		return os << vec.ToString();
 	}
 
-	void Vec3::NormalizeSelf()
+	void Vec3::Normalize()
 	{
 		float length = Length();
 		x /= length;
@@ -115,9 +117,9 @@ namespace PARS
 		z /= length;
 	}
 
-	Vec3 Vec3::Normalize() const
+	Vec3 Vec3::Normalize(const Vec3& vec)
 	{
-		Vec3 result(*this);
+		Vec3 result(vec);
 		result.Normalize();
 		return result;
 	}
@@ -132,17 +134,17 @@ namespace PARS
 		return (Math::Sqrt(LengthSq()));
 	}
 
-	float Vec3::Dot(const Vec3& vec) const
+	float Vec3::Dot(const Vec3& vec1, const Vec3& vec2)
 	{
-		return (x * vec.x + y * vec.y + z * vec.z);
+		return (vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z);
 	}
 
-	Vec3 Vec3::Cross(const Vec3& vec, bool normalize) const
+	Vec3 Vec3::Cross(const Vec3& vec1, const Vec3& vec2, bool normalize)
 	{
 		Vec3 result(
-			y * vec.z - z * vec.y,
-			z * vec.x - x * vec.z,
-			x * vec.y - y * vec.x);
+			vec1.y * vec2.z - vec1.z * vec2.y,
+			vec1.z * vec2.x - vec1.x * vec2.z,
+			vec1.x * vec2.y - vec1.y * vec2.x);
 		if (normalize)
 		{
 			result.Normalize();
@@ -150,9 +152,37 @@ namespace PARS
 		return result;
 	}
 
-	Vec3 Vec3::Reflect(const Vec3 n) const
+	Vec3 Vec3::Reflect(const Vec3& v, const Vec3& n)
 	{
-		return *this - 2.0f * (*this).Dot(n) * n;
+		return v - 2.0f * Vec3::Dot(v, n) * n;
+	}
+
+	Vec3 Vec3::Lerp(const Vec3& vec1, const Vec3& vec2, float f)
+	{
+		return Vec3(vec1 + f * (vec2 - vec1));
+	}
+
+	void Vec3::Transform(const Mat4& mat, float w)
+	{
+		x = x * mat.mat[0][0] + y * mat.mat[1][0] + z * mat.mat[2][0] + w * mat.mat[3][0];
+		y = x * mat.mat[0][1] + y * mat.mat[1][1] + z * mat.mat[2][1] + w * mat.mat[3][1];
+		z = x * mat.mat[0][2] + y * mat.mat[1][2] + z * mat.mat[2][2] + w * mat.mat[3][2];
+	}
+
+	Vec3 Vec3::Transform(const Vec3& vec, const Mat4& mat, float w)
+	{
+		auto result(vec);
+		result.Transform(mat, w);
+		return result;
+	}
+
+	void Vec3::Transform(const Quaternion& q)
+	{
+	}
+
+	Vec3 Vec3::Transform(const Vec3& vec, const Quaternion& q)
+	{
+		return Vec3();
 	}
 
 	std::string Vec3::ToString() const

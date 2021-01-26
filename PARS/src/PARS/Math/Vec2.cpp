@@ -103,7 +103,7 @@ namespace PARS
 		return os << vec.ToString();
 	}
 
-	void Vec2::NormalizeSelf()
+	void Vec2::Normalize()
 	{
 		float length = Length();
 		x /= length;
@@ -113,15 +113,10 @@ namespace PARS
 	Vec2 Vec2::Normalize(const Vec2& vec)
 	{
 		Vec2 result(vec);
-		result.NormalizeSelf();
+		result.Normalize();
 		return result;
 	}
 
-	Vec2 Vec2::Normalize() const
-	{
-		return Vec2::Normalize(*this);
-	}
-	
 	float Vec2::LengthSq() const
 	{
 		return (x * x + y * y);
@@ -137,9 +132,9 @@ namespace PARS
 		return (vec1.x * vec2.x + vec1.y * vec2.y);
 	}
 
-	float Vec2::Dot(const Vec2& vec) const
+	Vec2 Vec2::Lerp(const Vec2& vec1, const Vec2& vec2, float f)
 	{
-		return Vec2::Dot(*this, vec);
+		return Vec2(vec1 + f * (vec2 - vec1));
 	}
 
 	Vec2 Vec2::Reflect(const Vec2& v, const Vec2& n)
@@ -147,12 +142,7 @@ namespace PARS
 		return v - 2.0f * Vec2::Dot(v, n) * n;
 	}
 
-	Vec2 Vec2::Reflect(const Vec2& n) const
-	{
-		return Vec2::Reflect(*this, n);
-	}
-
-	void Vec2::TransformSelf(const Mat3& mat, float w)
+	void Vec2::Transform(const Mat3& mat, float w)
 	{
 		x = x * mat.mat[0][0] + y * mat.mat[1][0] + w * mat.mat[2][0];
 		y = x * mat.mat[0][1] + y * mat.mat[1][1] + w * mat.mat[2][1];
@@ -161,13 +151,8 @@ namespace PARS
 	Vec2 Vec2::Transform(const Vec2& vec, const Mat3& mat, float w)
 	{
 		Vec2 result(vec);
-		result.TransformSelf(mat, w);
+		result.Transform(mat, w);
 		return result;
-	}
-
-	Vec2 Vec2::Transform(const Mat3& mat, float w) const
-	{
-		return Vec2::Transform(*this, mat, w);
 	}
 
 	std::string Vec2::ToString() const

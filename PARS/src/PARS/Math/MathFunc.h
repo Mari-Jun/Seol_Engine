@@ -62,6 +62,11 @@ namespace PARS::Math
 		return atan2f(y, x);
 	}
 
+	inline float Cot(float angle)
+	{
+		return 1.0f / Tan(angle);
+	}
+
 	inline float Sqrt(float value)
 	{
 		return sqrtf(value);

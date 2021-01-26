@@ -66,6 +66,7 @@ namespace PARS
 				Draw();
 			}
 		}
+
 	}
 
 	void Application::ProcessInput()
@@ -73,7 +74,18 @@ namespace PARS
 		static int num = 0;
 		if (Input::IsKeyPressed(PARS_KEY_UARROW))
 		{
-			PARS_INFO("{0}", ++num);
+			Mat4 m1 = { 1, 0, 0, 1, 0, 1, 0, 2, 0, 0, 1, 3, 0, 0, 0, 1 };
+			Mat4 m2 = { 2,0, 0,0, 0,2,0,0, 0,0,2,0, 0,0,0,1 };
+			m1 = m1 * m2;
+			PARS_INFO(m1);
+
+			m1.Invert();
+			PARS_INFO(m1);
+
+			Vec3 v1 = { 1, 2, 3 };
+			Vec3 v2 = { 3, 2, 1 };
+			Vec3 v3 = v1 + v2;
+			PARS_INFO(v3);
 		}
 	}
 
@@ -85,7 +97,7 @@ namespace PARS
 	}
 
 	void Application::Draw()
-	{		
+	{	
 		m_Renderer->Draw();
 	}
 }

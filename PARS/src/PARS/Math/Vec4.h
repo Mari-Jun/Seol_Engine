@@ -5,10 +5,7 @@ namespace PARS
 	class Vec4
 	{
 	public:
-		float x;
-		float y;
-		float z;
-		float w;
+		float x, y, z, w;
 
 		Vec4() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) {}
 		Vec4(float inX, float inY, float inZ, float inW)
