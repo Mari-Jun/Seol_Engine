@@ -1,95 +1,54 @@
 #pragma once
-#include "stdafx.h"
 
 namespace PARS
 {
-	using Vec4 = XMFLOAT4;
-
-	inline Vec4 operator+=(const Vec4& lhs, const Vec4& rhs)
+	class Vec4
 	{
-		return Vec4(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w);
-	}
+	public:
+		float x;
+		float y;
+		float z;
+		float w;
 
-	inline Vec4 operator+(const Vec4& lhs, const Vec4& rhs)
-	{
-		auto result(lhs);
-		result += rhs;
-		return result;
-	}
+		Vec4() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) {}
+		Vec4(float inX, float inY, float inZ, float inW)
+			: x(inX), y(inY), z(inZ), w(inW) {}
 
-	inline Vec4 operator-=(const Vec4& lhs, const Vec4& rhs)
-	{
-		return Vec4(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w);
-	}
+		friend Vec4 operator+(const Vec4& lhs, const Vec4& rhs);
+		friend Vec4 operator-(const Vec4& lhs, const Vec4& rhs);
+		friend Vec4 operator*(const Vec4& lhs, const Vec4& rhs);
+		friend Vec4 operator*(const Vec4& lhs, float scalar);
+		friend Vec4 operator*(float scalar, const Vec4& rhs);
 
-	inline Vec4 operator-(const Vec4& lhs, const Vec4& rhs)
-	{
-		auto result(lhs);
-		result -= rhs;
-		return result;
-	}
+		Vec4& operator+=(const Vec4& rhs);
+		Vec4& operator-=(const Vec4& rhs);
+		Vec4& operator*=(const Vec4& rhs);
+		Vec4& operator*=(float scalar);
 
-	inline Vec4 operator*=(const Vec4& lhs, float scalar)
-	{
-		return Vec4(lhs.x * scalar, lhs.y * scalar, lhs.z * scalar, lhs.w * scalar);
-	}
+		friend bool operator==(const Vec4& lhs, const Vec4& rhs);
+		friend bool operator!=(const Vec4& lhs, const Vec4& rhs);
 
-	inline Vec4 operator*(const Vec4& lhs, float scalar)
-	{
-		return lhs *= scalar;
-	}
+		friend std::ostream& operator<<(std::ostream& os, const Vec4& vec);
 
-	inline Vec4 operator*(float scalar, const Vec4& rhs)
-	{
-		return rhs *= scalar;
-	}
+		std::string ToString() const;
 
-	inline bool operator==(const Vec4& lhs, const Vec4& rhs)
-	{
-		return Math::NearZero(lhs.x - rhs.x)
-			&& Math::NearZero(lhs.y - rhs.y)
-			&& Math::NearZero(lhs.z - rhs.z);
-	}
-
-	inline bool operator!=(const Vec4& lhs, const Vec4& rhs)
-	{
-		return !(lhs == rhs);
-	}
-
-	namespace VEC4
-	{
-		static constexpr Vec4 Zero{ 0.0f, 0.0f, 0.0f, 0.0f};	
-
-		inline std::string ToString(const Vec4& vec)
-		{
-			std::stringstream result;
-			result << "Vec4 : {" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << "}";
-			return result.str();
-		}
-	}
-
-	inline std::ostream& operator<<(std::ostream& os, const Vec4& vec)
-	{
-		return os << VEC4::ToString(vec);
-	}
+		static const Vec4 Zero;
+	};
 
 	namespace COLOR
 	{
-		static constexpr Vec4 Black		{ 0.0f, 0.0f, 0.0f, 1.0f };
-		static constexpr Vec4 White		{ 1.0f, 1.0f, 1.0f, 1.0f };
-		static constexpr Vec4 Red		{ 1.0f, 0.0f, 0.0f, 1.0f };
-		static constexpr Vec4 Green		{ 0.0f, 1.0f, 0.0f, 1.0f };
-		static constexpr Vec4 Blue		{ 0.0f, 0.0f, 1.0f, 1.0f };
-		static constexpr Vec4 Yellow	{ 1.0f, 1.0f, 0.0f, 1.0f };
-		static constexpr Vec4 Cyan		{ 0.0f, 1.0f, 1.0f, 1.0f };
-		static constexpr Vec4 Megenta	{ 1.0f, 0.0f, 1.0f, 1.0f };
+		static const Vec4 Black{ 0.0f, 0.0f, 0.0f, 1.0f };
+		static const Vec4 White{ 1.0f, 1.0f, 1.0f, 1.0f };
+		static const Vec4 Red{ 1.0f, 0.0f, 0.0f, 1.0f };
+		static const Vec4 Green{ 0.0f, 1.0f, 0.0f, 1.0f };
+		static const Vec4 Blue{ 0.0f, 0.0f, 1.0f, 1.0f };
+		static const Vec4 Yellow{ 1.0f, 1.0f, 0.0f, 1.0f };
+		static const Vec4 Cyan{ 0.0f, 1.0f, 1.0f, 1.0f };
+		static const Vec4 Megenta{ 1.0f, 0.0f, 1.0f, 1.0f };
 
 		inline Vec4 RgbToVec4(float r, float g, float b, float a = 1.0f)
 		{
 			return Vec4(r / 256.0f, g / 256.0f, b / 256.0f, a);
 		}
 	}
-
-	
 }
-
