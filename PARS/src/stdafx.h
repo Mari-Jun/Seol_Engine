@@ -2,6 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
 #include <Windows.h>
+#include <windowsx.h>
 
 #include <wrl.h>
 #include <shellapi.h>
@@ -37,7 +38,6 @@ using Microsoft::WRL::ComPtr;
 #include <array>
 #include <unordered_map>
 #include <unordered_set>
-
 
 #include "PARS/Core/Log.h"
 #include "PARS/Math/Math.h"

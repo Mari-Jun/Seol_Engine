@@ -6,7 +6,7 @@ namespace PARS
 {
 	InputManager* Input::s_InputManager = nullptr;
 
-	InputManager::InputManager()
+	InputManager::InputManager(HWND hwnd) : m_hwnd(hwnd)
 	{
 		Input::s_InputManager = this;
 
@@ -28,34 +28,80 @@ namespace PARS
 
 		POINT mousePos;
 		GetCursorPos(&mousePos);
-		m_XPos = mousePos.x, m_YPos = mousePos.y;
+		m_MousePosition.first = mousePos.x, m_MousePosition.second = mousePos.y;
 	}
 
-	bool InputManager::IsKeyPressed(UINT key)
+	bool InputManager::IsKeyPressed(UINT key) const
 	{
 		if (key >= MAX_KEYS) return false;
 		return m_KeyState[key];
 	}
 
-	bool InputManager::IsMouseClicked(UINT button)
+	bool InputManager::IsKeyFirstPressed(UINT key) const
+	{
+		return IsKeyPressed(key) && !m_LastKeyState[key];
+	}
+
+	bool InputManager::IsMouseClicked(UINT button) const
 	{
 		if (button >= MAX_BUTTONS) return false;
 		return m_MouseButtonState[button];
 	}
 
-	void InputManager::GetMousePosition(int& x, int& y)
+	bool InputManager::IsMouseFirstClicked(UINT button) const
 	{
-		x = m_XPos, y = m_YPos;
+		return IsMouseClicked(button) && !m_LastMouseButtonState[button];
 	}
 
-	void InputManager::KeyCallback(UINT message, WPARAM key, LPARAM flags)
+	const Pos2& InputManager::GetMousePosition() const
 	{
-		bool pressed = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
-		m_KeyState[key] = pressed;
+		return m_MousePosition;
 	}
 
-	void InputManager::MouseButtonCallback(int button, int x, int y)
-	{
+    void KeyCallback(InputManager* manager, UINT message, WPARAM key, LPARAM flags)
+    {
+        bool pressed = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
+        manager->m_KeyState[key] = pressed;
+    }
 
-	}
+    void MouseButtonCallback(InputManager* manager, int button, int x, int y)
+    {
+        bool down = false;
+        switch (button)
+        {
+        case WM_LBUTTONDOWN:
+            SetCapture(manager->m_hwnd);
+            button = PARS_MOUSE_LBUTTON;
+            down = true;
+            break;
+        case WM_LBUTTONUP:
+            ReleaseCapture();
+            button = PARS_MOUSE_LBUTTON;
+            down = false;
+            break;
+        case WM_RBUTTONDOWN:
+            SetCapture(manager->m_hwnd);
+            button = PARS_MOUSE_RBUTTON;
+            down = true;
+            break;
+        case WM_RBUTTONUP:
+            ReleaseCapture();
+            button = PARS_MOUSE_RBUTTON;
+            down = false;
+            break;
+        case WM_MBUTTONDOWN:
+            SetCapture(manager->m_hwnd);
+            button = PARS_MOUSE_MBUTTON;
+            down = true;
+            break;
+        case WM_MBUTTONUP:
+            ReleaseCapture();
+            button = PARS_MOUSE_MBUTTON;
+            down = false;
+            break;
+        }
+        manager->m_MouseButtonState[button] = down;
+        manager->m_MousePosition.first = x;
+        manager->m_MousePosition.second = y;
+    }
 }

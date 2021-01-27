@@ -11,7 +11,7 @@ namespace PARS
     
     void Window::Initialize()
     {
-        m_InputManager = CreateUPtr<InputManager>();
+        m_InputManager = CreateUPtr<InputManager>(m_WindowInfo.m_hwnd);
 
         m_WindowInfo.m_hInstance = GetModuleHandle(NULL);
 
@@ -66,8 +66,16 @@ namespace PARS
         case WM_KEYUP:
         case WM_SYSKEYDOWN:
         case WM_SYSKEYUP:
-            manager->KeyCallback(message, wParam, lParam);
-            break;         
+            KeyCallback(manager, message, wParam, lParam);
+            break;        
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+            MouseButtonCallback(manager, message, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
         case WM_DESTROY:
             PostQuitMessage(0);
             break;
@@ -80,5 +88,7 @@ namespace PARS
 
         return result;
     }
+
+    
 }
 

@@ -15,9 +15,9 @@ namespace PARS
 
 	public:
 		inline static bool IsKeyPressed(UINT key) { return s_InputManager->IsKeyPressed(key); }
-		inline static bool IsKeyPressedFirst(UINT key) { return s_InputManager->IsKeyPressedFirst(key); }
+		inline static bool IsKeyFirstPressed(UINT key) { return s_InputManager->IsKeyFirstPressed(key); }
 		inline static bool IsMouseClicked(UINT button) { return s_InputManager->IsMouseClicked(button); }
-		inline static bool IsMouseClickedFirst(UINT button) { return s_InputManager->IsMouseClickedFirst(button); }
+		inline static bool IsMouseFirstClicked(UINT button) { return s_InputManager->IsMouseFirstClicked(button); }
 
 		inline static InputManager* GetInputManager() { return s_InputManager; }
 	};

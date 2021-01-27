@@ -72,7 +72,7 @@ namespace PARS
 	void Application::ProcessInput()
 	{
 		static int num = 0;
-		if (Input::IsKeyPressed(PARS_KEY_UARROW))
+		if (Input::IsKeyFirstPressed(PARS_KEY_UARROW))
 		{
 			static Vec3 vec1{ 1, 0, 0 };
 			Quaternion q(Vec3::AxisY, Math::ToRadians(90));
@@ -84,8 +84,8 @@ namespace PARS
 	void Application::Update()
 	{
 		m_Timer->Tick();
-
-		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());
+		m_Window->Update();
+		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());		
 	}
 
 	void Application::Draw()
