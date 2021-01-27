@@ -178,11 +178,15 @@ namespace PARS
 
 	void Vec3::Transform(const Quaternion& q)
 	{
+		Vec3 qv(q.x, q.y, q.z);
+		*this += 2.0f * Vec3::Cross(qv, Vec3::Cross(qv, *this, false) + q.w * *this, false);
 	}
 
 	Vec3 Vec3::Transform(const Vec3& vec, const Quaternion& q)
 	{
-		return Vec3();
+		auto result(vec);
+		result.Transform(q);
+		return result;
 	}
 
 	std::string Vec3::ToString() const

@@ -72,6 +72,11 @@ namespace PARS::Math
 		return sqrtf(value);
 	}
 
+	inline float Lerp(float a, float b, float f)
+	{
+		return a + f * (b - a);
+	}
+
 	template <typename T>
 	T Max(const T& a, const T& b)
 	{

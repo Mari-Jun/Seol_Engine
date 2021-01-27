@@ -8,3 +8,5 @@
 
 #include "PARS/Math/Mat3.h"
 #include "PARS/Math/Mat4.h"
+
+#include "PARS/Math/Quaternion.h"

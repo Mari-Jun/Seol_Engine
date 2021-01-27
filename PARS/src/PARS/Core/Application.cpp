@@ -74,18 +74,10 @@ namespace PARS
 		static int num = 0;
 		if (Input::IsKeyPressed(PARS_KEY_UARROW))
 		{
-			Mat4 m1 = { 1, 0, 0, 1, 0, 1, 0, 2, 0, 0, 1, 3, 0, 0, 0, 1 };
-			Mat4 m2 = { 2,0, 0,0, 0,2,0,0, 0,0,2,0, 0,0,0,1 };
-			m1 = m1 * m2;
-			PARS_INFO(m1);
-
-			m1.Invert();
-			PARS_INFO(m1);
-
-			Vec3 v1 = { 1, 2, 3 };
-			Vec3 v2 = { 3, 2, 1 };
-			Vec3 v3 = v1 + v2;
-			PARS_INFO(v3);
+			static Vec3 vec1{ 1, 0, 0 };
+			Quaternion q(Vec3::AxisY, Math::ToRadians(90));
+			vec1.Transform(q);
+			PARS_INFO(vec1);			
 		}
 	}
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Math/Mat4.h"
+#include "PARS/Math/Quaternion.h"
 
 namespace PARS
 {
@@ -122,7 +123,28 @@ namespace PARS
 
 	Mat4 Mat4::CreateRotationFromQuaternion(const Quaternion& q)
 	{
-		return Mat4();
+		Mat4 result;
+		result.mat[0][0] = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+		result.mat[0][1] = 2.0f * (q.x * q.y + q.w * q.z);
+		result.mat[0][2] = 2.0f * (q.x * q.z - q.w * q.y);
+		result.mat[0][3] = 0.0f;
+
+		result.mat[1][0] = 2.0f * (q.x * q.y - q.w * q.z);
+		result.mat[1][1] = 1.0f - 2.0f * (q.x * q.x + q.z * q.z);
+		result.mat[1][2] = 2.0f * (q.y * q.z + q.w * q.x);
+		result.mat[1][3] = 0.0f;
+
+		result.mat[2][0] = 2.0f * (q.x * q.z + q.w * q.y);
+		result.mat[2][1] = 2.0f * (q.y * q.z - q.w * q.x);
+		result.mat[2][2] = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+		result.mat[2][3] = 0.0f;
+
+		result.mat[3][0] = 0.0f;
+		result.mat[3][1] = 0.0f;
+		result.mat[3][2] = 0.0f;
+		result.mat[3][3] = 1.0f;
+
+		return result;
 	}
 
 	Mat4 Mat4::CreateTranslation(float x, float y, float z)
