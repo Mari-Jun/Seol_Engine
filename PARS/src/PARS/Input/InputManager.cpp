@@ -53,11 +53,6 @@ namespace PARS
 		return IsMouseClicked(button) && !m_LastMouseButtonState[button];
 	}
 
-	const Pos2& InputManager::GetMousePosition() const
-	{
-		return m_MousePosition;
-	}
-
     void KeyCallback(InputManager* manager, UINT message, WPARAM key, LPARAM flags)
     {
         bool pressed = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);

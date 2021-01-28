@@ -7,6 +7,8 @@ namespace PARS
 	//forward declaration
 	class Window;
 	class Timer;
+	class LayerManager;
+	class Layer;
 	class Renderer;
 
 	class Application
@@ -15,9 +17,12 @@ namespace PARS
 		Application();
 		virtual ~Application();
 
-		bool Initialize();
+		virtual bool Initialize();
 		void ShutDown();
 		void Run();
+
+	public:
+		void AddLayer(const SPtr<Layer>& layer);
 
 	private:
 		void ProcessInput();
@@ -28,6 +33,7 @@ namespace PARS
 		bool m_Running;
 		UPtr<Window> m_Window;
 		UPtr<Timer> m_Timer;
+		UPtr<LayerManager> m_LayerManager;
 		UPtr<Renderer> m_Renderer;
 	};
 

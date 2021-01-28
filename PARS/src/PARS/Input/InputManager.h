@@ -24,7 +24,7 @@ namespace PARS
 		bool IsKeyFirstPressed(UINT key) const;
 		bool IsMouseClicked(UINT button) const;
 		bool IsMouseFirstClicked(UINT button) const;
-		const Pos2& GetMousePosition() const;
+		const Pos2& GetMousePosition() const { return m_MousePosition; }
 
 	public:
 		friend void KeyCallback(InputManager* manager, UINT message, WPARAM key, LPARAM flags);

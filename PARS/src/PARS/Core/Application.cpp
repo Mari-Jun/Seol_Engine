@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
 #include "PARS/Core/Timer.h"
+#include "PARS/Layer/LayerManager.h"
 #include "PARS/Renderer/Renderer.h"
 #include "PARS/Core/Application.h"
 
@@ -29,6 +30,8 @@ namespace PARS
 			PARS_ERROR("Could not initialize Timer");
 			return false;
 		}
+
+		m_LayerManager = CreateUPtr<LayerManager>();
 	
 		m_Renderer = CreateUPtr<Renderer>();
 		result = m_Renderer->Initialize(m_Window->GetWindowInfo());
@@ -69,6 +72,12 @@ namespace PARS
 
 	}
 
+	void Application::AddLayer(const SPtr<Layer>& layer)
+	{
+		m_LayerManager->AddLayer(layer);
+		layer->Initialize();
+	}
+
 	void Application::ProcessInput()
 	{
 		static int num = 0;
@@ -86,6 +95,8 @@ namespace PARS
 		m_Timer->Tick();
 		m_Window->Update();
 		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());		
+
+		m_LayerManager->Update();
 	}
 
 	void Application::Draw()
