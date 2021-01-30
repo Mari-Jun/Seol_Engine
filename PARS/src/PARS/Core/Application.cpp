@@ -51,6 +51,7 @@ namespace PARS
 	void Application::ShutDown()
 	{
 		m_Renderer->ShutDown();
+		m_Window->Shutdown();
 	}
 
 	void Application::Run()

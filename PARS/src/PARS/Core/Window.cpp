@@ -44,6 +44,12 @@ namespace PARS
         SetFocus(m_WindowInfo.m_hwnd);
     }
 
+    void Window::Shutdown()
+    {
+        DestroyWindow(m_WindowInfo.m_hwnd);
+        UnregisterClass(m_Title.c_str(), m_WindowInfo.m_hInstance);
+    }
+
     void Window::Update()
     {
         m_InputManager->Update();

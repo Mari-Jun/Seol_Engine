@@ -29,6 +29,9 @@ namespace PARS
 	}
 	void Renderer::ShutDown()
 	{
+		m_DirectX12->WaitForGpuCompelete();
+		m_ImGuiLayer->Shutdown();
+		m_ImGuiLayer.reset();
 		m_DirectX12->ShutDown();
 	}
 

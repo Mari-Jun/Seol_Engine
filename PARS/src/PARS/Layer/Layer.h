@@ -23,6 +23,7 @@ namespace PARS
 		LayerState GetLayerState() const { return m_LayerState; }
 
 		void SetStateDead() { m_LayerState = LayerState::Dead; }
+		bool IsDeadLayer() { return m_LayerState == LayerState::Dead; }
 
 	protected:
 		std::string m_LayerName;

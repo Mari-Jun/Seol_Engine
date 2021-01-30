@@ -27,6 +27,13 @@ namespace PARS
 
 		ImGui::StyleColorsDark();
 
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
 		const auto& device = m_DirectX12.lock()->GetDevice();
 		const auto& srvHeap = m_DirectX12.lock()->GetSrvHeap();
 
@@ -38,6 +45,10 @@ namespace PARS
 
 	void ImGuiLayer::Shutdown()
 	{
+		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+		SetStateDead();
 	}
 
 	void ImGuiLayer::Update()

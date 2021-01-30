@@ -7,7 +7,7 @@ namespace PARS
 	{
 		for (auto layer : m_Layers)
 		{
-			if (layer != nullptr)
+			if (layer != nullptr && !layer->IsDeadLayer())
 			{
 				layer->Shutdown();
 			}

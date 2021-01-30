@@ -24,6 +24,8 @@ namespace PARS
 		
 		void SetViewAndScissor();
 
+	public:
+
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
 

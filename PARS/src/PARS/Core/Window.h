@@ -26,6 +26,7 @@ namespace PARS
 		virtual ~Window() = default;
 
 		void Initialize();
+		void Shutdown();
 		void Update();
 		void AddFpsToWindowName(UINT fps);
 		
