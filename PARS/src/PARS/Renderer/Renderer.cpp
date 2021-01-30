@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
+#include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Renderer/Renderer.h"
 
 namespace PARS
 {
-	Renderer::Renderer()
+	Renderer::Renderer(const WindowInfo& info)
+		: m_WindowInfo(info)
 	{
 	}
 
@@ -13,9 +15,9 @@ namespace PARS
 	{
 	}
 
-	bool Renderer::Initialize(const WindowInfo& info)
+	bool Renderer::Initialize()
 	{
-		m_DirectX12 = CreateUPtr<DirectX12>(info);
+		m_DirectX12 = CreateSPtr<DirectX12>(m_WindowInfo);
 		bool result = m_DirectX12->Initailize();
 		if (!result)
 		{
@@ -35,7 +37,14 @@ namespace PARS
 		m_DirectX12->BeginScene();
 
 		//render code
+		m_ImGuiLayer->Draw();
 
 		m_DirectX12->EndScene();
+	}
+
+	const SPtr<ImGuiLayer>& Renderer::CreateImGui()
+	{
+		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_WindowInfo, m_DirectX12);
+		return m_ImGuiLayer;
 	}
 }

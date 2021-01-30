@@ -23,7 +23,7 @@ namespace PARS
 
 		CreateSwapChain();
 
-		result = CreateRtvDsvHeap();
+		result = CreateHeaps();
 		if (!result) return false;
 
 		result = CreateRenderTargetViews();
@@ -49,6 +49,7 @@ namespace PARS
 			if (rtvBuffer != nullptr) rtvBuffer->Release();
 		}
 		if (m_RtvDescriptorHeap != nullptr) m_RtvDescriptorHeap->Release();
+		if (m_SrvDescriptorHeap != nullptr) m_SrvDescriptorHeap->Release();
 		if (m_SwapChain != nullptr) m_SwapChain->Release();
 		if (m_CommandList != nullptr) m_CommandList->Release();
 		if (m_CommandAllocator != nullptr) m_CommandAllocator->Release();
@@ -107,7 +108,10 @@ namespace PARS
 
 		//create an event handle to use for frame synchronization
 		result = m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
-		m_FenceValue = 0;
+		for (int i = 0; i < m_SwapChainBufferCount; ++i)
+		{
+			m_FenceValue[i] = 0;
+		}
 		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
 		//check 4X MSAA
@@ -151,37 +155,30 @@ namespace PARS
 
 	void DirectX12::CreateSwapChain()
 	{
-		DXGI_SWAP_CHAIN_DESC1 scDesc;
+		DXGI_SWAP_CHAIN_DESC scDesc;
 		ZeroMemory(&scDesc, sizeof(scDesc));
-		scDesc.Width = m_WindowInfo.m_Width;
-		scDesc.Height = m_WindowInfo.m_Height;
-		scDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		scDesc.BufferDesc.Width = m_WindowInfo.m_Width;
+		scDesc.BufferDesc.Height = m_WindowInfo.m_Height;
+		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		scDesc.BufferDesc.RefreshRate.Numerator = 60;
+		scDesc.BufferDesc.RefreshRate.Denominator = 1;
+		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		scDesc.BufferCount = m_SwapChainBufferCount;
+		scDesc.OutputWindow = m_WindowInfo.m_hwnd;
 		scDesc.SampleDesc.Count = m_Msaa4xEnable ? 4 : 1;
 		scDesc.SampleDesc.Quality = m_Msaa4xEnable ? m_Msaa4xQuality - 1 : 0;
-		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.BufferCount = m_SwapChainBufferCount;
-		scDesc.Scaling = DXGI_SCALING_NONE;
-		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		scDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		scDesc.Flags = 0;
+		scDesc.Windowed = TRUE;
+		scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		DXGI_SWAP_CHAIN_FULLSCREEN_DESC scFullDesc;
-		ZeroMemory(&scFullDesc, sizeof(scFullDesc));
-		scFullDesc.RefreshRate.Numerator = 60;
-		scFullDesc.RefreshRate.Denominator = 1;
-		scFullDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		scFullDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		scFullDesc.Windowed = true;
-
-		m_Factory->CreateSwapChainForHwnd(m_CommandQueue, m_WindowInfo.m_hwnd, &scDesc, &scFullDesc, nullptr,
-			(IDXGISwapChain1**)(&m_SwapChain));
+		m_Factory->CreateSwapChain(m_CommandQueue, &scDesc,	(IDXGISwapChain**)(&m_SwapChain));
 
 		m_CurrentSwapChainBuffer = m_SwapChain->GetCurrentBackBufferIndex();
 
 		m_Factory->MakeWindowAssociation(m_WindowInfo.m_hwnd, DXGI_MWA_NO_ALT_ENTER);
 	}
 
-	bool DirectX12::CreateRtvDsvHeap()
+	bool DirectX12::CreateHeaps()
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC rtvDHDesc;
 		ZeroMemory(&rtvDHDesc, sizeof(rtvDHDesc));
@@ -202,6 +199,16 @@ namespace PARS
 		result = m_Device->CreateDescriptorHeap(&dsvDHDesc, IID_PPV_ARGS(&m_DsvDescriptorHeap));
 		if (FAILED(result)) return false;
 		m_DsvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+
+		D3D12_DESCRIPTOR_HEAP_DESC srvDHDesc;
+		ZeroMemory(&srvDHDesc, sizeof(srvDHDesc));
+		srvDHDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		srvDHDesc.NumDescriptors = 1;
+		srvDHDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		srvDHDesc.NodeMask = 0;
+		result = m_Device->CreateDescriptorHeap(&srvDHDesc, IID_PPV_ARGS(&m_SrvDescriptorHeap));
+		if (FAILED(result)) return false;
+		m_SrvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		return true;
 	}
@@ -271,15 +278,39 @@ namespace PARS
 
 	void DirectX12::WaitForGpuCompelete()
 	{
-		m_FenceValue++;
+		UINT64 fenceValue = ++m_FenceValue[m_CurrentSwapChainBuffer];
 
-		HRESULT result = m_CommandQueue->Signal(m_Fence, m_FenceValue);
+		HRESULT result = m_CommandQueue->Signal(m_Fence, fenceValue);
 
-		if (m_Fence->GetCompletedValue() < m_FenceValue)
+		if (m_Fence->GetCompletedValue() < fenceValue)
 		{
-			result = m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
+			result = m_Fence->SetEventOnCompletion(fenceValue, m_FenceEvent);
 			WaitForSingleObject(m_FenceEvent, INFINITE);
 		}
+	}
+
+	void DirectX12::MoveToNextFrame()
+	{
+		m_CurrentSwapChainBuffer = m_SwapChain->GetCurrentBackBufferIndex();
+
+		WaitForGpuCompelete();
+	}
+
+	ID3D12Resource* DirectX12::GetCurrentBackBuffer() const
+	{
+		return m_RenderTargetBuffers[m_CurrentSwapChainBuffer];
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE DirectX12::GetCurrentBackBufferView() const
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		rtvHandle.ptr += (m_CurrentSwapChainBuffer * m_RtvDescriptorSize);
+		return rtvHandle;
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE DirectX12::GetDepthStencilView() const
+	{
+		return m_DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	}
 
 	void DirectX12::BeginScene(const XMFLOAT4& color)
@@ -292,7 +323,7 @@ namespace PARS
 		D3D12_RESOURCE_BARRIER resourceBarrier;
 		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		resourceBarrier.Transition.pResource = m_RenderTargetBuffers[m_CurrentSwapChainBuffer];
+		resourceBarrier.Transition.pResource = GetCurrentBackBuffer();
 		resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 		resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -302,18 +333,21 @@ namespace PARS
 		m_CommandList->RSSetViewports(1, &m_Viewport);
 		m_CommandList->RSSetScissorRects(1, &m_ScissorRect);
 
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetCurrentBackBufferView();
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetDepthStencilView();
+
 		//Clear render target view
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		rtvHandle.ptr += (m_CurrentSwapChainBuffer * m_RtvDescriptorSize);
 		float clearColor[4] = { color.x, color.y, color.z, color.w };
 		m_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 		//Clear depth stencil view
-		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		m_CommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 		//Connect RTV and DSV to OM
 		m_CommandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
+
+		ID3D12DescriptorHeap* descriptorHeaps[] = { m_SrvDescriptorHeap };
+		m_CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 
 	void DirectX12::EndScene()
@@ -322,7 +356,7 @@ namespace PARS
 		D3D12_RESOURCE_BARRIER resourceBarrier;
 		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		resourceBarrier.Transition.pResource = m_RenderTargetBuffers[m_CurrentSwapChainBuffer];
+		resourceBarrier.Transition.pResource = GetCurrentBackBuffer();
 		resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -337,8 +371,8 @@ namespace PARS
 
 		WaitForGpuCompelete();
 
-		m_SwapChain->Present(0, 0);
+		m_SwapChain->Present(1, 0);
 
-		m_CurrentSwapChainBuffer = m_SwapChain->GetCurrentBackBufferIndex();
+		MoveToNextFrame();		
 	}
 }

@@ -10,7 +10,6 @@ public:
 
 	void Update() override
 	{
-		PARS_INFO("Hello World");
 		static int count = 0;
 		if (++count == 100)
 		{

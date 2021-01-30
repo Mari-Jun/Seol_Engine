@@ -3,6 +3,7 @@
 #include "PARS/Core/Timer.h"
 #include "PARS/Layer/LayerManager.h"
 #include "PARS/Renderer/Renderer.h"
+#include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Core/Application.h"
 
 
@@ -33,13 +34,16 @@ namespace PARS
 
 		m_LayerManager = CreateUPtr<LayerManager>();
 	
-		m_Renderer = CreateUPtr<Renderer>();
-		result = m_Renderer->Initialize(m_Window->GetWindowInfo());
+		m_Renderer = CreateUPtr<Renderer>(m_Window->GetWindowInfo());
+		result = m_Renderer->Initialize();
 		if (!result)
 		{
 			PARS_ERROR("Could not initialize Renderer");
 			return false;
 		}
+
+		//Create ImGui layer
+		AddLayer(m_Renderer->CreateImGui());
 
 		return true;
 	}

@@ -11,7 +11,7 @@ namespace PARS
 		HWND m_hwnd;
 		HINSTANCE m_hInstance;
 
-		WindowInfo(	UINT width = 1280, UINT height = 720)
+		WindowInfo(	UINT width = 1600, UINT height = 900)
 			: m_Width(width), m_Height(height)
 			, m_hwnd(NULL), m_hInstance(NULL)
 		{

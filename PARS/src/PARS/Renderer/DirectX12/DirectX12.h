@@ -18,15 +18,24 @@ namespace PARS
 		bool CreateCommandObjects();
 		void CreateSwapChain();
 
-		bool CreateRtvDsvHeap();
+		bool CreateHeaps();
 		bool CreateRenderTargetViews();
 		void CreateDepthStecilView();
 		
 		void SetViewAndScissor();
 
 		void WaitForGpuCompelete();
+		void MoveToNextFrame();
 
 	public:
+		ID3D12Device* GetDevice() { return m_Device; }
+		ID3D12GraphicsCommandList* GetCommandList() { return m_CommandList; }
+		ID3D12DescriptorHeap* GetSrvHeap() { return m_SrvDescriptorHeap; }
+
+		ID3D12Resource* GetCurrentBackBuffer() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+
 		void BeginScene(const XMFLOAT4& color = { 0.0f, 0.0f, 0.0f, 1.0f });
 		void EndScene();
 
@@ -37,8 +46,11 @@ namespace PARS
 		IDXGISwapChain3* m_SwapChain = nullptr;
 		ID3D12Device* m_Device = nullptr;
 
+		static constexpr UINT m_SwapChainBufferCount = 2;
+		int m_CurrentSwapChainBuffer = 0;
+
 		ID3D12Fence* m_Fence = nullptr;
-		UINT64 m_FenceValue = 0;
+		UINT64 m_FenceValue[m_SwapChainBufferCount] = { 0, };
 		HANDLE m_FenceEvent = NULL;
 
 		bool m_Msaa4xEnable = false;
@@ -48,9 +60,6 @@ namespace PARS
 		ID3D12CommandAllocator* m_CommandAllocator = nullptr;
 		ID3D12GraphicsCommandList* m_CommandList = nullptr;
 
-		static constexpr int m_SwapChainBufferCount = 2;
-		int m_CurrentSwapChainBuffer = 0;
-
 		ID3D12Resource* m_RenderTargetBuffers[m_SwapChainBufferCount] = { nullptr, };
 		ID3D12DescriptorHeap* m_RtvDescriptorHeap = nullptr;
 		UINT m_RtvDescriptorSize = 0;
@@ -58,6 +67,9 @@ namespace PARS
 		ID3D12Resource* m_DepthStencilBuffer = nullptr;
 		ID3D12DescriptorHeap* m_DsvDescriptorHeap = nullptr;
 		UINT m_DsvDescriptorSize = 0;
+
+		ID3D12DescriptorHeap* m_SrvDescriptorHeap = nullptr;
+		UINT m_SrvDescriptorSize = 0;
 
 		D3D12_VIEWPORT m_Viewport;
 		D3D12_RECT m_ScissorRect;

@@ -11,7 +11,7 @@ workspace "Physics_And_Rendering_Simulation"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
-IncludeDir["ImGui"] = "%{wks.location/PARS/vendor/imgui"
+IncludeDir["ImGui"] = "%{wks.location}/PARS/vendor/imgui"
 
 group "Dependencies"
 	include "PARS/vendor/imgui"

@@ -16,7 +16,8 @@ project "App"
 	includedirs
 	{
 		"%{wks.location}/PARS/vendor/spdlog/include",
-		"%{wks.location}/PARS/src"
+		"%{wks.location}/PARS/src",
+		"%{wks.location}/PARS/vendor"
 	}
 	
 	links

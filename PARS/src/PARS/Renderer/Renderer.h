@@ -6,19 +6,25 @@ namespace PARS
 {
 	struct WindowInfo;
 	class DirectX12;
+	class ImGuiLayer;
 
 	class Renderer
 	{
 	public:
-		Renderer();
+		Renderer(const WindowInfo& info);
 		virtual ~Renderer();
 	
-		bool Initialize(const WindowInfo& info);
+		bool Initialize();
 		void ShutDown();
 		void Draw();
 
+	public:
+		const SPtr<ImGuiLayer>& CreateImGui();
+
 	private:
-		UPtr<DirectX12> m_DirectX12;
+		WindowInfo m_WindowInfo;
+		SPtr<DirectX12> m_DirectX12;
+		SPtr<ImGuiLayer> m_ImGuiLayer;
 	};
 }
 
