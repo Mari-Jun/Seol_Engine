@@ -1,6 +1,5 @@
 #pragma once
 
-#include "PARS/Core/Core.h"
 #include "PARS/Layer/Layer.h"
 
 namespace PARS

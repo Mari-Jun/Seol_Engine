@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
 #include "PARS/Core/Timer.h"
+#include "PARS/Level/LevelManager.h"
 #include "PARS/Layer/LayerManager.h"
 #include "PARS/Renderer/Renderer.h"
 #include "PARS/ImGui/ImGuiLayer.h"
@@ -32,6 +33,8 @@ namespace PARS
 			return false;
 		}
 
+		m_LevelManager = CreateUPtr<LevelManager>();
+
 		m_LayerManager = CreateUPtr<LayerManager>();
 	
 		m_Renderer = CreateUPtr<Renderer>();
@@ -51,6 +54,7 @@ namespace PARS
 	void Application::ShutDown()
 	{
 		m_LayerManager->Shutdown();
+		m_LevelManager->Shutdown();
 		m_Renderer->ShutDown();
 		m_Window->Shutdown();
 	}
@@ -78,6 +82,12 @@ namespace PARS
 
 	}
 
+	void Application::AddLevel(const SPtr<class Level>& level)
+	{
+		m_LevelManager->AddLevel(level);
+		level->Initialize();
+	}
+
 	void Application::AddLayer(const SPtr<Layer>& layer)
 	{
 		m_LayerManager->AddLayer(layer);
@@ -102,6 +112,7 @@ namespace PARS
 		m_Window->Update();
 		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());		
 
+		m_LevelManager->Update();
 		m_LayerManager->Update();
 	}
 
