@@ -1,9 +1,9 @@
 #include <PARS.h>
 
-class SimulationApp : public PARS::Application
+class App : public PARS::Application
 {
 public:
-	SimulationApp()
+	App()
 	{
 		
 	}
@@ -15,7 +15,7 @@ public:
 		return result;
 	}
 	
-	~SimulationApp()
+	~App()
 	{
 
 	}
@@ -23,5 +23,5 @@ public:
 
 PARS::Application* PARS::CreateApplication()
 {
-	return new SimulationApp();
+	return new App();
 }

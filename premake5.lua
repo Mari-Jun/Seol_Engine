@@ -1,6 +1,6 @@
 workspace "Physics_And_Rendering_Simulation"
 	architecture "x64"
-	startproject "Simulation"
+	startproject "App"
 
 	configurations
 	{
@@ -18,4 +18,4 @@ group "Dependencies"
 group ""
 
 include "PARS"
-include "Simulation"
+include "App"
