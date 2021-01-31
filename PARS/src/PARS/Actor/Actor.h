@@ -5,6 +5,8 @@
 
 namespace PARS
 {
+	class ComponentManager;
+
 	class Actor
 	{
 	public:
@@ -16,16 +18,17 @@ namespace PARS
 		Actor();
 		virtual ~Actor() = default;
 
+		void InitializeActor();
+		void ShutdownActor();
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
 		virtual void ActorInput() {}
 		void Update(float deltaTime);
-		void UpdateComponents(float deltaTime);
 		virtual void UpdateActor(float deltaTime) {}
 
 		void UpdateWorldMatrix();
 
-		void AddComponent();
+		void AddComponent(const SPtr<class Component>& component);
 
 	protected:
 		ActorState m_ActorState;
@@ -36,9 +39,9 @@ namespace PARS
 		Quaternion m_Rotation = Quaternion::Identity;
 		float m_Scale = 1.0f;
 		bool m_RechangeWorldMatrix = true;
-		
-		std::vector<SPtr<class Component>> m_Components;
 
+		UPtr<ComponentManager> m_ComponentManager;
+		
 	public:
 		ActorState GetActorState() const { return m_ActorState; }
 		void SetActorState(ActorState state) { m_ActorState = state; }

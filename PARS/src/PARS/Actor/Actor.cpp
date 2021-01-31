@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Actor/Actor.h"
+#include "PARS/Component/ComponentManager.h"
 
 namespace PARS
 {
@@ -8,19 +9,26 @@ namespace PARS
 	{
 	}
 
+	void Actor::InitializeActor()
+	{
+		m_ComponentManager = CreateUPtr<ComponentManager>();
+		Initialize();
+	}
+
+	void Actor::ShutdownActor()
+	{
+		Shutdown();
+		m_ComponentManager->Shutdown();
+	}
+
 	void Actor::Update(float deltaTime)
 	{
 		UpdateWorldMatrix();
 
-		UpdateComponents(deltaTime);
+		m_ComponentManager->Update(deltaTime);
 		UpdateActor(deltaTime);
 		
 		UpdateWorldMatrix();
-	}
-
-	void Actor::UpdateComponents(float deltaTime)
-	{
-
 	}
 
 	void Actor::UpdateWorldMatrix()
@@ -36,5 +44,10 @@ namespace PARS
 
 			m_RechangeWorldMatrix = false;
 		}
+	}
+
+	void Actor::AddComponent(const SPtr<class Component>& component)
+	{
+		m_ComponentManager->AddComponent(component);
 	}
 }

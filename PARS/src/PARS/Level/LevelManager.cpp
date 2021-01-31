@@ -50,7 +50,7 @@ namespace PARS
 		{
 			if (level != nullptr)
 			{
-				level->Shutdown();
+				level->ShutdownLevel();
 			}
 		}
 	}
@@ -58,7 +58,7 @@ namespace PARS
 	void LevelManager::AddLevel(const SPtr<Level>& level)
 	{
 		m_Levels.emplace_back(level);
-		level->Initialize();
+		level->InitializeLevel();
 	}
 
 	void LevelManager::RemoveLevel(const WPtr<Level>& level)
@@ -68,7 +68,7 @@ namespace PARS
 			{return level.lock() == le.lock(); });
 		if (iter != m_Levels.end())
 		{
-			level.lock()->Shutdown();
+			level.lock()->ShutdownLevel();
 			m_Levels.erase(iter);
 		}
 	}

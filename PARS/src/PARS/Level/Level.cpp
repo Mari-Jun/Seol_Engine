@@ -16,13 +16,15 @@ namespace PARS
 	{
 	}
 
-	void Level::Initialize()
+	void Level::InitializeLevel()
 	{
 		m_ActorManager = CreateUPtr<ActorManager>();
+		Initialize();
 	}
 
-	void Level::Shutdown()
+	void Level::ShutdownLevel()
 	{
+		Shutdown();
 		m_ActorManager->Shutdown();
 	}
 
@@ -40,7 +42,6 @@ namespace PARS
 	void Level::AddActor(const SPtr<class Actor>& actor)
 	{
 		m_ActorManager->AddActor(actor);
-		actor->Initialize();
 	}
 
 	void Level::AddLayer(const SPtr<class Layer>& layer)

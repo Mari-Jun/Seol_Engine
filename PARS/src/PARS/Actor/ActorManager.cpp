@@ -53,7 +53,7 @@ namespace PARS
 		{
 			if (actor != nullptr)
 			{
-				actor->Shutdown();
+				actor->ShutdownActor();
 			}
 		}
 	}
@@ -68,6 +68,7 @@ namespace PARS
 		{
 			m_Actors.emplace_back(actor);
 		}
+		actor->InitializeActor();
 	}
 
 	void ActorManager::RemoveActor(const WPtr<Actor>& actor)
@@ -77,7 +78,7 @@ namespace PARS
 			{return actor.lock() == ac.lock(); });
 		if (iter != m_ReadyActors.end())
 		{
-			actor.lock()->Shutdown();
+			actor.lock()->ShutdownActor();
 			m_ReadyActors.erase(iter);
 		}
 
@@ -86,7 +87,7 @@ namespace PARS
 			{return actor.lock() == ac.lock(); });
 		if (iter != m_Actors.end())
 		{
-			actor.lock()->Shutdown();
+			actor.lock()->ShutdownActor();
 			m_Actors.erase(iter);
 		}
 	}
