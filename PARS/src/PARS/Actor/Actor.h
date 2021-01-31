@@ -25,6 +25,8 @@ namespace PARS
 
 		void UpdateWorldMatrix();
 
+		void AddComponent();
+
 	protected:
 		ActorState m_ActorState;
 
@@ -34,6 +36,8 @@ namespace PARS
 		Quaternion m_Rotation = Quaternion::Identity;
 		float m_Scale = 1.0f;
 		bool m_RechangeWorldMatrix = true;
+		
+		std::vector<SPtr<class Component>> m_Components;
 
 	public:
 		ActorState GetActorState() const { return m_ActorState; }

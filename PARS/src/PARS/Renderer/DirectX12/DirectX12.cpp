@@ -84,6 +84,7 @@ namespace PARS
 
 		hResult = m_SwapChain->ResizeBuffers(m_SwapChainBufferCount, m_WindowInfo->m_Width, m_WindowInfo->m_Height,
 			DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		if (FAILED(hResult)) return false;
 
 		m_CurrentSwapChainBuffer = 0;
 
@@ -113,6 +114,8 @@ namespace PARS
 		WaitForGpuCompelete();
 
 		SetViewAndScissor();
+
+		return true;
 	}
 
 	bool DirectX12::CreateDevice()
