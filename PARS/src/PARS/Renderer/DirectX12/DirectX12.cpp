@@ -7,6 +7,7 @@ namespace PARS
 	DirectX12::DirectX12(const WindowInfo& info)
 		: m_WindowInfo(info)
 	{
+		
 	}
 
 	DirectX12::~DirectX12()
@@ -26,13 +27,11 @@ namespace PARS
 		result = CreateHeaps();
 		if (!result) return false;
 
-		result = CreateRenderTargetViews();
+		result = ResizeWindow();
 		if (!result) return false;
-
-		CreateDepthStecilView();
-
-		SetViewAndScissor();
 		
+		s_Instance = this;
+
 		return true;
 	}
 
@@ -65,6 +64,52 @@ namespace PARS
 		giDebug->Release();
 #endif
 
+	}
+
+	bool DirectX12::ResizeWindow()
+	{
+		WaitForGpuCompelete();
+
+		HRESULT hResult = m_CommandList->Reset(m_CommandAllocator, nullptr);
+		if (FAILED(hResult)) return false;
+
+		for (UINT i = 0; i < m_SwapChainBufferCount; ++i)
+		{
+			if(m_RenderTargetBuffers[i]!=nullptr) m_RenderTargetBuffers[i]->Release();
+		}
+		if (m_DepthStencilBuffer != nullptr) m_DepthStencilBuffer->Release();
+
+		hResult = m_SwapChain->ResizeBuffers(m_SwapChainBufferCount, m_WindowInfo.m_Width, m_WindowInfo.m_Height,
+			DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+
+		m_CurrentSwapChainBuffer = 0;
+
+		bool result = CreateRenderTargetViews();
+		if (!result) return false;
+
+		result = CreateDepthStecilView();
+		if (!result) return false;
+
+		D3D12_RESOURCE_BARRIER resourceBarrier;
+		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		resourceBarrier.Transition.pResource = m_DepthStencilBuffer;
+		resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+		resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_CommandList->ResourceBarrier(1, &resourceBarrier);
+
+		//Done recording commands
+		hResult = m_CommandList->Close();
+		if (FAILED(hResult)) return false;
+
+		//Add the command list to queue for excution
+		ID3D12CommandList* commandLists[] = { m_CommandList };
+		m_CommandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+		WaitForGpuCompelete();
+
+		SetViewAndScissor();
 	}
 
 	bool DirectX12::CreateDevice()
@@ -162,13 +207,15 @@ namespace PARS
 		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scDesc.BufferDesc.RefreshRate.Numerator = 60;
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
-		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		scDesc.BufferCount = m_SwapChainBufferCount;
-		scDesc.OutputWindow = m_WindowInfo.m_hwnd;
+		scDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		scDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 		scDesc.SampleDesc.Count = m_Msaa4xEnable ? 4 : 1;
 		scDesc.SampleDesc.Quality = m_Msaa4xEnable ? m_Msaa4xQuality - 1 : 0;
+		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		scDesc.BufferCount = m_SwapChainBufferCount;
+		scDesc.OutputWindow = m_WindowInfo.m_hwnd;
 		scDesc.Windowed = TRUE;
+		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		m_Factory->CreateSwapChain(m_CommandQueue, &scDesc,	(IDXGISwapChain**)(&m_SwapChain));
@@ -227,7 +274,7 @@ namespace PARS
 		return true;
 	}
 
-	void DirectX12::CreateDepthStecilView()
+	bool DirectX12::CreateDepthStecilView()
 	{
 		D3D12_RESOURCE_DESC dsvDesc;
 		ZeroMemory(&dsvDesc, sizeof(dsvDesc));
@@ -257,11 +304,14 @@ namespace PARS
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &dsvDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		HRESULT result = m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &dsvDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&clearValue, IID_PPV_ARGS(&m_DepthStencilBuffer));
+		if (FAILED(result)) return false;
 
 		D3D12_CPU_DESCRIPTOR_HANDLE cpuDescriptorHandle = m_DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		m_Device->CreateDepthStencilView(m_DepthStencilBuffer, nullptr, cpuDescriptorHandle);
+
+		return true;
 	}
 
 	void DirectX12::SetViewAndScissor()
@@ -375,4 +425,6 @@ namespace PARS
 
 		MoveToNextFrame();		
 	}
+
+	DirectX12* DirectX12::s_Instance = nullptr;
 }

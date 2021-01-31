@@ -29,7 +29,6 @@ namespace PARS
 	}
 	void Renderer::ShutDown()
 	{
-		m_DirectX12->WaitForGpuCompelete();
 		m_ImGuiLayer->Shutdown();
 		m_ImGuiLayer.reset();
 		m_DirectX12->ShutDown();
@@ -47,7 +46,7 @@ namespace PARS
 
 	const SPtr<ImGuiLayer>& Renderer::CreateImGui()
 	{
-		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_WindowInfo, m_DirectX12);
+		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_WindowInfo);
 		return m_ImGuiLayer;
 	}
 }

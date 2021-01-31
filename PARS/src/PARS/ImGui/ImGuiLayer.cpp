@@ -1,17 +1,15 @@
 #include "stdafx.h"
-#include "PARS/Core/Window.h"
-#include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/ImGui/ImGuiLayer.h"	
 
 #include "imgui.h"
-#include "PARS/ImGui/imgui_impl_win32.h"
-#include "PARS/ImGui/imgui_impl_dx12.h"
+#include "examples/imgui_impl_win32.h"
+#include "examples/imgui_impl_dx12.h"
 
 namespace PARS
 {
-	ImGuiLayer::ImGuiLayer(const WindowInfo& info, const WPtr<DirectX12>& directX12)
+	ImGuiLayer::ImGuiLayer(const WindowInfo& info)
 		: Layer("ImGuiLayer")
-		, m_WindowInfo(info), m_DirectX12(directX12)
+		, m_WindowInfo(info)
 	{
 		PARS_ERROR("SSS");
 	}
@@ -34,8 +32,9 @@ namespace PARS
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		const auto& device = m_DirectX12.lock()->GetDevice();
-		const auto& srvHeap = m_DirectX12.lock()->GetSrvHeap();
+		const auto& directX12 = DirectX12::GetDirectX12();
+		const auto& device = directX12->GetDevice();
+		const auto& srvHeap = directX12->GetSrvHeap();
 
 		ImGui_ImplWin32_Init(m_WindowInfo.m_hwnd);
 		ImGui_ImplDX12_Init(device, 2, DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,
@@ -57,15 +56,36 @@ namespace PARS
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
+		static bool show_demo_window = true;
+		static bool show_another_window = false;
+		static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		static float f = 0.0f;
+		static int counter = 0;
+
+		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		ImGui::Checkbox("Another Window", &show_another_window);
+
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			counter++;
+		ImGui::SameLine();
+		ImGui::Text("counter = %d", counter);
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
 	}
 	
 
 	void ImGuiLayer::Draw()
 	{
+		const auto& directX12 = DirectX12::GetDirectX12();
 
-		ID3D12GraphicsCommandList* commandList = m_DirectX12.lock()->GetCommandList();
+		ID3D12GraphicsCommandList* commandList = directX12->GetCommandList();
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);		
 

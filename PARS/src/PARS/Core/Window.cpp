@@ -1,8 +1,18 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
+#include "PARS/Renderer/DirectX12/DirectX12.h"
+
+#include "imgui.h"
+#include "examples/imgui_impl_win32.h"
+#include "examples/imgui_impl_dx12.h"
+
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace PARS
 {
+    WindowInfo Window::m_WindowInfo;
+
     Window::Window(const std::wstring& title)
         : m_Title(title)
     {
@@ -61,13 +71,27 @@ namespace PARS
         SetWindowTextW(m_WindowInfo.m_hwnd, name.c_str());
     }
 
-    LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+    LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
+            return true;
+
         LRESULT result = NULL;
-        auto manager = Input::GetInputManager();
+        const auto manager = Input::GetInputManager();
+        const auto directX = DirectX12::GetDirectX12();
 
         switch (message)
         {
+        case WM_SIZE:
+        {
+            m_WindowInfo.m_Width = LOWORD(lParam);
+            m_WindowInfo.m_Height = HIWORD(lParam);
+            if (directX != nullptr)
+            {                
+                directX->ResizeWindow();
+            }
+        }
+        break;
         case WM_KEYDOWN:
         case WM_KEYUP:
         case WM_SYSKEYDOWN:
@@ -94,7 +118,5 @@ namespace PARS
 
         return result;
     }
-
-    
 }
 

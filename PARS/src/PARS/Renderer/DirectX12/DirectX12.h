@@ -6,12 +6,17 @@ namespace PARS
 
 	class DirectX12
 	{
+	private:
+		static DirectX12* s_Instance;
+
 	public:
 		DirectX12(const WindowInfo& info);
 		virtual ~DirectX12();
 
 		bool Initailize();
 		void ShutDown();
+
+		bool ResizeWindow();
 
 	private:
 		bool CreateDevice();
@@ -20,16 +25,16 @@ namespace PARS
 
 		bool CreateHeaps();
 		bool CreateRenderTargetViews();
-		void CreateDepthStecilView();
+		bool CreateDepthStecilView();
 		
 		void SetViewAndScissor();
-
-	public:
 
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
 
 	public:
+		inline static DirectX12* GetDirectX12() { return s_Instance; }
+
 		ID3D12Device* GetDevice() { return m_Device; }
 		ID3D12GraphicsCommandList* GetCommandList() { return m_CommandList; }
 		ID3D12DescriptorHeap* GetSrvHeap() { return m_SrvDescriptorHeap; }
@@ -75,8 +80,8 @@ namespace PARS
 
 		D3D12_VIEWPORT m_Viewport;
 		D3D12_RECT m_ScissorRect;
-
 	};
+
 }
 
 

@@ -32,13 +32,13 @@ namespace PARS
 		
 	private:
 		std::wstring m_Title;
-		WindowInfo m_WindowInfo;
+		static WindowInfo m_WindowInfo;
 		UPtr<InputManager> m_InputManager;
 
 	public:
 		const WindowInfo& GetWindowInfo() const { return m_WindowInfo; }
-	};
 
-	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+		static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+	};	
 }
 
