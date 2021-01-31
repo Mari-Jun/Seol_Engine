@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/ImGui/ImGuiLayer.h"	
+#include "PARS/Renderer/DirectX12/DirectX12.h"
 
 #include "imgui.h"
 #include "examples/imgui_impl_win32.h"
@@ -7,11 +8,10 @@
 
 namespace PARS
 {
-	ImGuiLayer::ImGuiLayer(const WindowInfo& info)
+	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
-		, m_WindowInfo(info)
 	{
-		PARS_ERROR("SSS");
+		
 	}
 
 	void ImGuiLayer::Initialize()
@@ -32,11 +32,12 @@ namespace PARS
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
+		const auto& windowInfo = Window::GetWindowInfo();
 		const auto& directX12 = DirectX12::GetDirectX12();
 		const auto& device = directX12->GetDevice();
 		const auto& srvHeap = directX12->GetSrvHeap();
 
-		ImGui_ImplWin32_Init(m_WindowInfo.m_hwnd);
+		ImGui_ImplWin32_Init(windowInfo->m_hwnd);
 		ImGui_ImplDX12_Init(device, 2, DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,
 			srvHeap->GetCPUDescriptorHandleForHeapStart(),
 			srvHeap->GetGPUDescriptorHandleForHeapStart());
@@ -47,7 +48,6 @@ namespace PARS
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
-		SetStateDead();
 	}
 
 	void ImGuiLayer::Update()

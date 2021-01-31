@@ -31,8 +31,6 @@ public:
 	{
 		bool result = Application::Initialize();
 
-		PARS_INFO("Hellof");
-
 		AddLayer(PARS::CreateSPtr<ExampleLayer>());
 
 		return result;

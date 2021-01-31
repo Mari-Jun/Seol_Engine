@@ -4,8 +4,7 @@
 
 namespace PARS
 {
-	DirectX12::DirectX12(const WindowInfo& info)
-		: m_WindowInfo(info)
+	DirectX12::DirectX12()
 	{
 		
 	}
@@ -16,6 +15,8 @@ namespace PARS
 	
 	bool DirectX12::Initailize()
 	{
+		m_WindowInfo = Window::GetWindowInfo();
+
 		bool result = CreateDevice();
 		if (!result) return false;
 
@@ -68,6 +69,8 @@ namespace PARS
 
 	bool DirectX12::ResizeWindow()
 	{
+		m_WindowInfo = Window::GetWindowInfo();
+
 		WaitForGpuCompelete();
 
 		HRESULT hResult = m_CommandList->Reset(m_CommandAllocator, nullptr);
@@ -79,7 +82,7 @@ namespace PARS
 		}
 		if (m_DepthStencilBuffer != nullptr) m_DepthStencilBuffer->Release();
 
-		hResult = m_SwapChain->ResizeBuffers(m_SwapChainBufferCount, m_WindowInfo.m_Width, m_WindowInfo.m_Height,
+		hResult = m_SwapChain->ResizeBuffers(m_SwapChainBufferCount, m_WindowInfo->m_Width, m_WindowInfo->m_Height,
 			DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 
 		m_CurrentSwapChainBuffer = 0;
@@ -202,8 +205,8 @@ namespace PARS
 	{
 		DXGI_SWAP_CHAIN_DESC scDesc;
 		ZeroMemory(&scDesc, sizeof(scDesc));
-		scDesc.BufferDesc.Width = m_WindowInfo.m_Width;
-		scDesc.BufferDesc.Height = m_WindowInfo.m_Height;
+		scDesc.BufferDesc.Width = m_WindowInfo->m_Width;
+		scDesc.BufferDesc.Height = m_WindowInfo->m_Height;
 		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scDesc.BufferDesc.RefreshRate.Numerator = 60;
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -213,7 +216,7 @@ namespace PARS
 		scDesc.SampleDesc.Quality = m_Msaa4xEnable ? m_Msaa4xQuality - 1 : 0;
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scDesc.BufferCount = m_SwapChainBufferCount;
-		scDesc.OutputWindow = m_WindowInfo.m_hwnd;
+		scDesc.OutputWindow = m_WindowInfo->m_hwnd;
 		scDesc.Windowed = TRUE;
 		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -222,7 +225,7 @@ namespace PARS
 
 		m_CurrentSwapChainBuffer = m_SwapChain->GetCurrentBackBufferIndex();
 
-		m_Factory->MakeWindowAssociation(m_WindowInfo.m_hwnd, DXGI_MWA_NO_ALT_ENTER);
+		m_Factory->MakeWindowAssociation(m_WindowInfo->m_hwnd, DXGI_MWA_NO_ALT_ENTER);
 	}
 
 	bool DirectX12::CreateHeaps()
@@ -280,8 +283,8 @@ namespace PARS
 		ZeroMemory(&dsvDesc, sizeof(dsvDesc));
 		dsvDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		dsvDesc.Alignment = 0;
-		dsvDesc.Width = m_WindowInfo.m_Width;
-		dsvDesc.Height = m_WindowInfo.m_Height;
+		dsvDesc.Width = m_WindowInfo->m_Width;
+		dsvDesc.Height = m_WindowInfo->m_Height;
 		dsvDesc.DepthOrArraySize = 1;
 		dsvDesc.MipLevels = 1;
 		dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -318,12 +321,12 @@ namespace PARS
 	{
 		m_Viewport.TopLeftX = 0;
 		m_Viewport.TopLeftY = 0;
-		m_Viewport.Width = static_cast<float>(m_WindowInfo.m_Width);
-		m_Viewport.Height = static_cast<float>(m_WindowInfo.m_Height);
+		m_Viewport.Width = static_cast<float>(m_WindowInfo->m_Width);
+		m_Viewport.Height = static_cast<float>(m_WindowInfo->m_Height);
 		m_Viewport.MaxDepth = 1.0f;
 		m_Viewport.MinDepth = 0.0f;
 
-		m_ScissorRect = { 0, 0, static_cast<LONG>(m_WindowInfo.m_Width), static_cast<LONG>(m_WindowInfo.m_Height) };
+		m_ScissorRect = { 0, 0, static_cast<LONG>(m_WindowInfo->m_Width), static_cast<LONG>(m_WindowInfo->m_Height) };
 	}
 
 	void DirectX12::WaitForGpuCompelete()

@@ -31,12 +31,12 @@ namespace PARS
 		void AddFpsToWindowName(UINT fps);
 		
 	private:
-		std::wstring m_Title;
-		static WindowInfo m_WindowInfo;
+		static UPtr<WindowInfo> s_WindowInfo;
+		std::wstring m_Title;		
 		UPtr<InputManager> m_InputManager;
 
 	public:
-		const WindowInfo& GetWindowInfo() const { return m_WindowInfo; }
+		inline static WindowInfo* GetWindowInfo() { return s_WindowInfo.get(); }
 
 		static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	};	

@@ -9,9 +9,10 @@ namespace PARS
 	{
 	public:
 		LayerManager() = default;
-		~LayerManager();
+		~LayerManager() = default;
 
 		void Update();
+		void Shutdown();
 
 		void AddLayer(const SPtr<Layer>& layer);
 		void RemoveLayer(const WPtr<Layer>& layer);

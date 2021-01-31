@@ -10,7 +10,7 @@ namespace PARS
 		static DirectX12* s_Instance;
 
 	public:
-		DirectX12(const WindowInfo& info);
+		DirectX12();
 		virtual ~DirectX12();
 
 		bool Initailize();
@@ -47,7 +47,7 @@ namespace PARS
 		void EndScene();
 
 	private:
-		WindowInfo m_WindowInfo;
+		WindowInfo* m_WindowInfo = nullptr;
 
 		IDXGIFactory4* m_Factory = nullptr;
 		IDXGISwapChain3* m_SwapChain = nullptr;

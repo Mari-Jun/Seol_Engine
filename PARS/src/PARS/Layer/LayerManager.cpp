@@ -3,17 +3,6 @@
 
 namespace PARS
 {
-	LayerManager::~LayerManager()
-	{
-		for (auto layer : m_Layers)
-		{
-			if (layer != nullptr && !layer->IsDeadLayer())
-			{
-				layer->Shutdown();
-			}
-		}
-	}
-
 	void LayerManager::Update()
 	{
 		for (const auto& layer : m_Layers)
@@ -33,6 +22,17 @@ namespace PARS
 		for (auto& layer : deadLayers)
 		{
 			RemoveLayer(layer);
+		}
+	}
+
+	void LayerManager::Shutdown()
+	{
+		for (auto layer : m_Layers)
+		{
+			if (layer != nullptr)
+			{
+				layer->Shutdown();
+			}
 		}
 	}
 

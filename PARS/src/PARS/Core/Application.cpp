@@ -34,7 +34,7 @@ namespace PARS
 
 		m_LayerManager = CreateUPtr<LayerManager>();
 	
-		m_Renderer = CreateUPtr<Renderer>(m_Window->GetWindowInfo());
+		m_Renderer = CreateUPtr<Renderer>();
 		result = m_Renderer->Initialize();
 		if (!result)
 		{
@@ -50,6 +50,7 @@ namespace PARS
 
 	void Application::ShutDown()
 	{
+		m_LayerManager->Shutdown();
 		m_Renderer->ShutDown();
 		m_Window->Shutdown();
 	}

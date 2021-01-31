@@ -11,7 +11,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace PARS
 {
-    WindowInfo Window::m_WindowInfo;
+    UPtr<WindowInfo> Window::s_WindowInfo = nullptr;
 
     Window::Window(const std::wstring& title)
         : m_Title(title)
@@ -21,9 +21,11 @@ namespace PARS
     
     void Window::Initialize()
     {
-        m_InputManager = CreateUPtr<InputManager>(m_WindowInfo.m_hwnd);
+        s_WindowInfo = CreateUPtr<WindowInfo>();
 
-        m_WindowInfo.m_hInstance = GetModuleHandle(NULL);
+        m_InputManager = CreateUPtr<InputManager>(s_WindowInfo->m_hwnd);
+
+        s_WindowInfo->m_hInstance = GetModuleHandle(NULL);
 
         WNDCLASSEXW wcex;
 
@@ -32,8 +34,8 @@ namespace PARS
         wcex.lpfnWndProc = WndProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = 0;
-        wcex.hInstance = m_WindowInfo.m_hInstance;
-        wcex.hIcon = LoadIcon(m_WindowInfo.m_hInstance, IDI_WINLOGO);
+        wcex.hInstance = s_WindowInfo->m_hInstance;
+        wcex.hIcon = LoadIcon(s_WindowInfo->m_hInstance, IDI_WINLOGO);
         wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
         wcex.lpszMenuName = NULL;
@@ -42,22 +44,22 @@ namespace PARS
 
         RegisterClassExW(&wcex);
 
-        int posX = (GetSystemMetrics(SM_CXSCREEN) - m_WindowInfo.m_Width) / 2;
-        int posY = (GetSystemMetrics(SM_CYSCREEN) - m_WindowInfo.m_Height) / 2;
+        int posX = (GetSystemMetrics(SM_CXSCREEN) - s_WindowInfo->m_Width) / 2;
+        int posY = (GetSystemMetrics(SM_CYSCREEN) - s_WindowInfo->m_Height) / 2;
 
-        m_WindowInfo.m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_Title.c_str(), m_Title.c_str(),
-            WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER,
-            posX, posY, m_WindowInfo.m_Width, m_WindowInfo.m_Height, NULL, NULL, m_WindowInfo.m_hInstance, NULL);
+        s_WindowInfo->m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_Title.c_str(), m_Title.c_str(),
+            WS_OVERLAPPEDWINDOW,
+            posX, posY, s_WindowInfo->m_Width, s_WindowInfo->m_Height, NULL, NULL, s_WindowInfo->m_hInstance, NULL);
 
-        ShowWindow(m_WindowInfo.m_hwnd, SW_SHOW);
-        SetForegroundWindow(m_WindowInfo.m_hwnd);
-        SetFocus(m_WindowInfo.m_hwnd);
+        ShowWindow(s_WindowInfo->m_hwnd, SW_SHOW);
+        SetForegroundWindow(s_WindowInfo->m_hwnd);
+        SetFocus(s_WindowInfo->m_hwnd);
     }
 
     void Window::Shutdown()
     {
-        DestroyWindow(m_WindowInfo.m_hwnd);
-        UnregisterClass(m_Title.c_str(), m_WindowInfo.m_hInstance);
+        DestroyWindow(s_WindowInfo->m_hwnd);
+        UnregisterClass(m_Title.c_str(), s_WindowInfo->m_hInstance);
     }
 
     void Window::Update()
@@ -68,7 +70,7 @@ namespace PARS
     void Window::AddFpsToWindowName(UINT fps)
     {
         std::wstring name = m_Title + L" (FPS : " + std::to_wstring(fps) + L")";
-        SetWindowTextW(m_WindowInfo.m_hwnd, name.c_str());
+        SetWindowTextW(s_WindowInfo->m_hwnd, name.c_str());
     }
 
     LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -84,8 +86,8 @@ namespace PARS
         {
         case WM_SIZE:
         {
-            m_WindowInfo.m_Width = LOWORD(lParam);
-            m_WindowInfo.m_Height = HIWORD(lParam);
+            s_WindowInfo->m_Width = LOWORD(lParam);
+            s_WindowInfo->m_Height = HIWORD(lParam);
             if (directX != nullptr)
             {                
                 directX->ResizeWindow();

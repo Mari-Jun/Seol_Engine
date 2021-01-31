@@ -6,8 +6,7 @@
 
 namespace PARS
 {
-	Renderer::Renderer(const WindowInfo& info)
-		: m_WindowInfo(info)
+	Renderer::Renderer()
 	{
 	}
 
@@ -17,7 +16,7 @@ namespace PARS
 
 	bool Renderer::Initialize()
 	{
-		m_DirectX12 = CreateSPtr<DirectX12>(m_WindowInfo);
+		m_DirectX12 = CreateSPtr<DirectX12>();
 		bool result = m_DirectX12->Initailize();
 		if (!result)
 		{
@@ -29,8 +28,6 @@ namespace PARS
 	}
 	void Renderer::ShutDown()
 	{
-		m_ImGuiLayer->Shutdown();
-		m_ImGuiLayer.reset();
 		m_DirectX12->ShutDown();
 	}
 
@@ -46,7 +43,7 @@ namespace PARS
 
 	const SPtr<ImGuiLayer>& Renderer::CreateImGui()
 	{
-		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_WindowInfo);
+		m_ImGuiLayer = CreateSPtr<ImGuiLayer>();
 		return m_ImGuiLayer;
 	}
 }
