@@ -85,24 +85,18 @@ namespace PARS
 	void Application::AddLevel(const SPtr<class Level>& level)
 	{
 		m_LevelManager->AddLevel(level);
-		level->Initialize();
 	}
 
 	void Application::AddLayer(const SPtr<Layer>& layer)
 	{
 		m_LayerManager->AddLayer(layer);
-		layer->Initialize();
 	}
 
 	void Application::ProcessInput()
 	{
-		static int num = 0;
 		if (Input::IsKeyFirstPressed(PARS_KEY_UARROW))
 		{
-			static Vec3 vec1{ 1, 0, 0 };
-			Quaternion q(Vec3::AxisY, Math::ToRadians(90));
-			vec1.Transform(q);
-			PARS_INFO(vec1);			
+				
 		}
 	}
 
@@ -112,7 +106,7 @@ namespace PARS
 		m_Window->Update();
 		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());		
 
-		m_LevelManager->Update();
+		m_LevelManager->Update(m_Timer->GetDeltaTime());
 		m_LayerManager->Update();
 	}
 

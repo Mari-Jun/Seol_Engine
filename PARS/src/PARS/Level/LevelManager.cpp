@@ -3,23 +3,42 @@
 
 namespace PARS
 {
-	void LevelManager::Update()
+	LevelManager::LevelManager()
+	{
+		s_Instance = this;
+	}
+
+	void LevelManager::ProcessInput()
 	{
 		for (const auto& level : m_Levels)
 		{
-			level->Update();
-		}
-
-		std::vector<SPtr<Level>> deadLevels;
-		for (auto& level : m_Levels)
-		{
-			if (level->GetLevelState() == Level::LevelState::Dead)
+			if (level->GetLevelState() == Level::LevelState::Active)
 			{
-				deadLevels.push_back(level);
+				level->LevelInput();
+			}
+		}
+	}
+
+	void LevelManager::Update(float deltaTime)
+	{
+		for (const auto& level : m_Levels)
+		{
+			if (level->GetLevelState() == Level::LevelState::Active)
+			{
+				level->Update(deltaTime);
 			}
 		}
 
-		for (auto& level : deadLevels)
+		std::vector<SPtr<Level>> deadLevels;
+		for (auto level : m_Levels)
+		{
+			if (level->GetLevelState() == Level::LevelState::Dead)
+			{
+				deadLevels.emplace_back(level);
+			}
+		}
+
+		for (auto level : deadLevels)
 		{
 			RemoveLevel(level);
 		}
@@ -39,17 +58,20 @@ namespace PARS
 	void LevelManager::AddLevel(const SPtr<Level>& level)
 	{
 		m_Levels.emplace_back(level);
+		level->Initialize();
 	}
 
 	void LevelManager::RemoveLevel(const WPtr<Level>& level)
 	{
 		auto iter = std::find_if(m_Levels.begin(), m_Levels.end(),
-			[&level](const WPtr<Level>& ly)
-			{return level.lock() == ly.lock(); });
+			[&level](const WPtr<Level>& le)
+			{return level.lock() == le.lock(); });
 		if (iter != m_Levels.end())
 		{
 			level.lock()->Shutdown();
 			m_Levels.erase(iter);
 		}
 	}
+
+	LevelManager* LevelManager::s_Instance = nullptr;
 }

@@ -4,6 +4,8 @@
 
 namespace PARS
 {
+	class ActorManager;
+
 	class Level
 	{
 	public:
@@ -15,19 +17,28 @@ namespace PARS
 		Level(const std::string& name = "Defualt_Level");
 		virtual ~Level();
 
-		virtual void Initialize() {}
-		virtual void Shutdown() {}
-		virtual void Update() {}
+		virtual void Initialize();			//override this function, please enter "Level::Initailze()" at first
+		virtual void Shutdown();			//override this function, please enter "Level::Shutdown()" at last
+		virtual void LevelInput() {}
+		void Update(float deltaTime);
+		void UpdateActorManager(float deltaTime);
+		virtual void UpdateLevel(float deltaTime) {};
 
-		const std::string& GetLevelName() const { return m_LevelName; }
-		LevelState GetLevelState() const { return m_LevelState; }
-
-		void SetStateDead() { m_LevelState = LevelState::Dead; }
-		bool IsDeadLayer() { return m_LevelState == LevelState::Dead; }
+		void AddActor(const SPtr<class Actor>& level);
+		void AddLayer(const SPtr<class Layer>& layer);
 
 	protected:
 		std::string m_LevelName;
 		LevelState m_LevelState;
+
+	private:
+		UPtr<ActorManager> m_ActorManager;
+
+	public:
+		const std::string& GetLevelName() const { return m_LevelName; }
+		LevelState GetLevelState() const { return m_LevelState; }
+		void SetLevelState(LevelState state) { m_LevelState = state; }
+		void SetStateDead() { m_LevelState = LevelState::Dead; }
 	};
 }
 

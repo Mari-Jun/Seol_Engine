@@ -3,6 +3,11 @@
 
 namespace PARS
 {
+	LayerManager::LayerManager()
+	{
+		s_Instance = this;
+	}
+
 	void LayerManager::Update()
 	{
 		for (const auto& layer : m_Layers)
@@ -11,7 +16,7 @@ namespace PARS
 		}
 
 		std::vector<SPtr<Layer>> deadLayers;
-		for (auto& layer : m_Layers)
+		for (auto layer : m_Layers)
 		{
 			if (layer->GetLayerState() == Layer::LayerState::Dead)
 			{
@@ -19,7 +24,7 @@ namespace PARS
 			}
 		}
 
-		for (auto& layer : deadLayers)
+		for (auto layer : deadLayers)
 		{
 			RemoveLayer(layer);
 		}
@@ -39,6 +44,7 @@ namespace PARS
 	void LayerManager::AddLayer(const SPtr<Layer>& layer)
 	{
 		m_Layers.emplace_back(layer);
+		layer->Initialize();
 	}
 
 	void LayerManager::RemoveLayer(const WPtr<Layer>& layer)
@@ -52,4 +58,6 @@ namespace PARS
 			m_Layers.erase(iter);
 		}
 	}
+
+	LayerManager* LayerManager::s_Instance = nullptr;
 }

@@ -1,24 +1,27 @@
 #pragma once
 
-#include "PARS/Core/Core.h"
 #include "PARS/Level/Level.h"
 
 namespace PARS
 {
-	class LevelManager
+	class LevelManager final
 	{
 	public:
-		LevelManager() = default;
+		LevelManager();
 		~LevelManager() = default;
 
-		void Update();
+		void ProcessInput();
+		void Update(float deltaTime);
 		void Shutdown();
 
-		void AddLevel(const SPtr<Level>& Level);
-		void RemoveLevel(const WPtr<Level>& Level);
+		void AddLevel(const SPtr<Level>& level);
+		void RemoveLevel(const WPtr<Level>& level);
+
+		inline static LevelManager& GetLevelManager() { return *s_Instance; }
 
 	private:
 		std::vector<SPtr<Level>> m_Levels;
+		static LevelManager* s_Instance;
 	};
 }
 
