@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "PARS/Math/MathFunc.h"
 #include "PARS/Math/Vec4.h"
 
 namespace PARS

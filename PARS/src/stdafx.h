@@ -40,6 +40,5 @@ using Microsoft::WRL::ComPtr;
 #include <unordered_set>
 
 #include "PARS/Core/Log.h"
-#include "PARS/Math/Math.h"
 
 

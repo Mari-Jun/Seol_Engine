@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "PARS/Math/MathFunc.h"
 #include "PARS/Math/Vec3.h"
 #include "PARS/Math/Mat4.h"
 #include "PARS/Math/Quaternion.h"
