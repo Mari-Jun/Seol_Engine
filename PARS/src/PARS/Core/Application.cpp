@@ -94,9 +94,9 @@ namespace PARS
 
 	void Application::ProcessInput()
 	{
-		if (Input::IsKeyFirstPressed(PARS_KEY_UARROW))
+		if (Input::IsKeyFirstPressed(PARS_KEY_ESCAPE))
 		{
-				
+			m_Running = false;
 		}
 	}
 

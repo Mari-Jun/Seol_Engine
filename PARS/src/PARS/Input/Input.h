@@ -36,6 +36,7 @@ namespace PARS
 #define PARS_KEY_ALT			0x12
 #define PARS_KEY_PAUSE			0x13
 #define PARS_KEY_CAPSLOCK		0x14
+#define PARS_KEY_ESCAPE			0x1B
 
 #define PARS_KEY_SPACE			0x20
 #define PARS_KEY_PAGEUP			0x21
