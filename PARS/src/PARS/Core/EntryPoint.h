@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		PARS_INFO("Physics and Rendering Simulation");
+		PARS_INFO("Welcome to Physics and Rendering Simulation");
 		app->Run();
 		app->ShutDown();
 	}
