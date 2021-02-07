@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PARS/Math/Math.h"
+
 namespace PARS
 {
 	struct WindowInfo;
@@ -43,7 +45,8 @@ namespace PARS
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
 
-		void BeginScene(const XMFLOAT4& color = { 0.0f, 0.0f, 0.0f, 1.0f });
+	public:
+		void BeginScene(const Vec4& color);
 		void EndScene();
 
 	private:

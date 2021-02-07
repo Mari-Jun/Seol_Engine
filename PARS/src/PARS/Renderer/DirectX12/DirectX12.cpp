@@ -369,7 +369,7 @@ namespace PARS
 		return m_DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	}
 
-	void DirectX12::BeginScene(const XMFLOAT4& color)
+	void DirectX12::BeginScene(const Vec4& color)
 	{
 		//Reset CommandAllocator, CommandList
 		HRESULT result = m_CommandAllocator->Reset();

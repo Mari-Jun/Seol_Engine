@@ -17,10 +17,10 @@ namespace PARS
 		Level(const std::string& name = "Defualt_Level");
 		virtual ~Level();
 
-		void InitializeLevel();		
-		void ShutdownLevel();
-		virtual void Initialize() {}
-		virtual	void Shutdown() {}
+		virtual void InitializeLevel() {}
+		virtual	void ShutdownLevel() {}
+		void Initialize();		
+		void Shutdown();
 		virtual void LevelInput() {}
 		void Update(float deltaTime);
 		void UpdateActorManager(float deltaTime);

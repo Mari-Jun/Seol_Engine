@@ -8,8 +8,4 @@ namespace PARS
 		, m_LayerState(LayerState::Active)
 	{
 	}
-
-	Layer::~Layer()
-	{
-	}
 }

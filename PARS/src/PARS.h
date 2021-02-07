@@ -7,4 +7,6 @@
 #include "PARS/Level/Level.h"
 #include "PARS/Actor/Actor.h"
 
-#include "PARS/Core/EntryPoint.h"
+#include "PARS/Renderer/Renderer.h"
+
+#include "PARS/Math/Math.h"

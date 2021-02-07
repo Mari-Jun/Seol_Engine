@@ -17,7 +17,7 @@ namespace PARS
 		void AddLevel(const SPtr<Level>& level);
 		void RemoveLevel(const WPtr<Level>& level);
 
-		inline static LevelManager& GetLevelManager() { return *s_Instance; }
+		inline static LevelManager* GetLevelManager() { return s_Instance; }
 
 	private:
 		std::vector<SPtr<Level>> m_Levels;

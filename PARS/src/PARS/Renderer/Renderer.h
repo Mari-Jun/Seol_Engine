@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Math/Math.h"
 
 namespace PARS
 {
@@ -20,8 +21,11 @@ namespace PARS
 	public:
 		const SPtr<ImGuiLayer>& CreateImGui();
 
+		static void SetClearColor(const Vec4& color) { s_ClearColor = color; }
+
 	private:
-		SPtr<DirectX12> m_DirectX12;
+		static Vec4 s_ClearColor;
+		UPtr<DirectX12> m_DirectX12;
 		SPtr<ImGuiLayer> m_ImGuiLayer;
 	};
 }

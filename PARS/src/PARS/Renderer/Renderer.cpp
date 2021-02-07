@@ -6,6 +6,8 @@
 
 namespace PARS
 {
+	Vec4 Renderer::s_ClearColor = COLOR::Black;
+
 	Renderer::Renderer()
 	{
 	}
@@ -16,7 +18,7 @@ namespace PARS
 
 	bool Renderer::Initialize()
 	{
-		m_DirectX12 = CreateSPtr<DirectX12>();
+		m_DirectX12 = CreateUPtr<DirectX12>();
 		bool result = m_DirectX12->Initailize();
 		if (!result)
 		{
@@ -26,6 +28,7 @@ namespace PARS
 		
 		return true;
 	}
+
 	void Renderer::ShutDown()
 	{
 		m_DirectX12->ShutDown();
@@ -33,7 +36,7 @@ namespace PARS
 
 	void Renderer::Draw()
 	{
-		m_DirectX12->BeginScene();
+		m_DirectX12->BeginScene(s_ClearColor);
 
 		//render code
 		m_ImGuiLayer->Draw();

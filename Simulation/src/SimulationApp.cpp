@@ -1,4 +1,6 @@
 #include <PARS.h>
+#include "PARS/Core/EntryPoint.h"
+#include "Level0/ClearColor/ClearColorLevel.h"
 
 class SimulationApp : public PARS::Application
 {
@@ -11,6 +13,8 @@ public:
 	bool Initialize() override
 	{
 		bool result = Application::Initialize();
+
+		AddLevel(PARS::CreateSPtr<PARS::ClearColorLevel>());
 
 		return result;
 	}

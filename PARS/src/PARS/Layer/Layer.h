@@ -13,7 +13,7 @@ namespace PARS
 		};
 
 		Layer(const std::string& name = "Defualt_Layer");
-		virtual ~Layer();
+		virtual ~Layer() = default;
 
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
