@@ -18,9 +18,15 @@ namespace PARS
 		bool open = true;
 		ImGui::Begin(m_LayerName.c_str(), &open);
 
-		static Vec4 clearColor;
+		static Vec4 clearColor = COLOR::Black;
 		ImGui::ColorEdit3("clear color", (float*)&clearColor);
 		Renderer::SetClearColor(clearColor);
+
+		ImGui::Separator();
+		if (ImGui::Button("Return To Menu", ImVec2(150, 50)))
+		{
+			open = false;
+		}
 
 		ImGui::End();
 

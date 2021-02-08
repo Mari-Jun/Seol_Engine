@@ -6,7 +6,7 @@
 
 namespace PARS
 {
-	Vec4 Renderer::s_ClearColor = COLOR::Black;
+	Vec4 Renderer::s_ClearColor = COLOR::Gray;
 
 	Renderer::Renderer()
 	{

@@ -35,6 +35,7 @@ namespace PARS
 	namespace COLOR
 	{
 		static const Vec4 Black{ 0.0f, 0.0f, 0.0f, 1.0f };
+		static const Vec4 Gray{ 0.5f, 0.5f, 0.5f, 1.0f };
 		static const Vec4 White{ 1.0f, 1.0f, 1.0f, 1.0f };
 		static const Vec4 Red{ 1.0f, 0.0f, 0.0f, 1.0f };
 		static const Vec4 Green{ 0.0f, 1.0f, 0.0f, 1.0f };

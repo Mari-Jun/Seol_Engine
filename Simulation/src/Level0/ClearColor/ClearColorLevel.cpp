@@ -4,7 +4,7 @@
 namespace PARS
 {
 	ClearColorLevel::ClearColorLevel()
-		: Level("Clear Color Level")
+		: Level("Clear Color")
 	{
 	}
 
@@ -27,6 +27,5 @@ namespace PARS
 	void ClearColorLevel::DestroyLevel()
 	{
 		SetLevelState(LevelState::Dead);
-		PARS_INFO("Destroy Level");
 	}
 }
