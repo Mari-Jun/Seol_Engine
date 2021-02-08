@@ -10,6 +10,7 @@ namespace PARS
 		: m_LevelName(name)
 		, m_LevelState(LevelState::Active)
 	{
+		
 	}
 
 	Level::~Level()
@@ -39,12 +40,12 @@ namespace PARS
 		m_ActorManager->Update(deltaTime);
 	}
 
-	void Level::AddActor(const SPtr<class Actor>& actor)
+	void Level::AddActor(const SPtr<Actor>& actor)
 	{
 		m_ActorManager->AddActor(actor);
 	}
 
-	void Level::AddLayer(const SPtr<class Layer>& layer)
+	void Level::AddLayer(const SPtr<Layer>& layer)
 	{
 		auto layerManger = LayerManager::GetLayerManager();
 		layerManger->AddLayer(layer);

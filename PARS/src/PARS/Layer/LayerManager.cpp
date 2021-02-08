@@ -10,10 +10,21 @@ namespace PARS
 
 	void LayerManager::Update()
 	{
+		m_IsUpdateLayers = true;
 		for (const auto& layer : m_Layers)
 		{
-			layer->Update();
+			if (layer->GetLayerState() == Layer::LayerState::Active)
+			{
+				layer->Update();
+			}
 		}
+		m_IsUpdateLayers = false;
+
+		for (auto layer : m_ReadyLayers)
+		{
+			m_Layers.emplace_back(layer);
+		}
+		m_ReadyLayers.clear();
 
 		std::vector<SPtr<Layer>> deadLayers;
 		for (auto layer : m_Layers)
@@ -43,13 +54,29 @@ namespace PARS
 
 	void LayerManager::AddLayer(const SPtr<Layer>& layer)
 	{
-		m_Layers.emplace_back(layer);
+		if (m_IsUpdateLayers)
+		{
+			m_ReadyLayers.emplace_back(layer);
+		}
+		else
+		{
+			m_Layers.emplace_back(layer);
+		}
 		layer->Initialize();
 	}
 
 	void LayerManager::RemoveLayer(const WPtr<Layer>& layer)
 	{
-		auto iter = std::find_if(m_Layers.begin(), m_Layers.end(),
+		auto iter = std::find_if(m_ReadyLayers.begin(), m_ReadyLayers.end(),
+			[&layer](const WPtr<Layer>& ly)
+			{return layer.lock() == ly.lock(); });
+		if (iter != m_ReadyLayers.end())
+		{
+			layer.lock()->Shutdown();
+			m_ReadyLayers.erase(iter);
+		}
+
+		iter = std::find_if(m_Layers.begin(), m_Layers.end(),
 			[&layer](const WPtr<Layer>& ly)
 			{return layer.lock() == ly.lock(); });
 		if (iter != m_Layers.end())

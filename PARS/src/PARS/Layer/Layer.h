@@ -19,15 +19,18 @@ namespace PARS
 		virtual void Shutdown() {}
 		virtual void Update() {}
 
+		void AddLevel(const SPtr<class Level>& level);
+
+	protected:
+		std::string m_LayerName;
+		LayerState m_LayerState;
+
+	public:
 		const std::string& GetLayerName() const { return m_LayerName; }
 		LayerState GetLayerState() const { return m_LayerState; }
 
 		void SetStateDead() { m_LayerState = LayerState::Dead; }
 		bool IsDeadLayer() { return m_LayerState == LayerState::Dead; }
-
-	protected:
-		std::string m_LayerName;
-		LayerState m_LayerState;
 	};
 }
 

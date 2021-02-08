@@ -8,13 +8,25 @@ namespace PARS
 	{
 	}
 
+	ClearColorLevel::~ClearColorLevel()
+	{
+	}
+
 	void ClearColorLevel::InitializeLevel()
 	{
-		AddLayer(PARS::CreateSPtr<PARS::ClearColorLayer>());
+		auto layer = PARS::CreateSPtr<PARS::ClearColorLayer>();
+		layer->OnDestroy([this]() {DestroyLevel(); });
+		AddLayer(layer);
 	}
 
 	void ClearColorLevel::UpdateLevel(float deltaTime)
 	{
 	
+	}
+
+	void ClearColorLevel::DestroyLevel()
+	{
+		SetLevelState(LevelState::Dead);
+		PARS_INFO("Destroy Level");
 	}
 }

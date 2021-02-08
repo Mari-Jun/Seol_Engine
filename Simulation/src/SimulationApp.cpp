@@ -1,5 +1,6 @@
 #include <PARS.h>
 #include "PARS/Core/EntryPoint.h"
+#include "EditorLayer.h"
 #include "Level0/ClearColor/ClearColorLevel.h"
 
 class SimulationApp : public PARS::Application
@@ -14,7 +15,7 @@ public:
 	{
 		bool result = Application::Initialize();
 
-		AddLevel(PARS::CreateSPtr<PARS::ClearColorLevel>());
+		AddLayer(PARS::CreateSPtr<PARS::EditorLayer>());
 
 		return result;
 	}

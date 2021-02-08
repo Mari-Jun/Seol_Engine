@@ -8,9 +8,15 @@ namespace PARS
 	{
 	public:
 		ClearColorLayer();
-		virtual ~ClearColorLayer() = default;
+		virtual ~ClearColorLayer();
 
 		void Update() override;
+		void Shutdown() override;
+
+		void OnDestroy(std::function<void()> func) { f_Destroy = func; }
+
+	private:
+		std::function<void()> f_Destroy;
 	};
 }
 

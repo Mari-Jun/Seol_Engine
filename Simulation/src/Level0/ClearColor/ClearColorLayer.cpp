@@ -9,14 +9,30 @@ namespace PARS
 	
 	}
 
+	ClearColorLayer::~ClearColorLayer()
+	{
+	}
+
 	void ClearColorLayer::Update()
 	{
-		ImGui::Begin("Clear Color");
+		bool open = true;
+		ImGui::Begin(m_LayerName.c_str(), &open);
 
 		static Vec4 clearColor;
 		ImGui::ColorEdit3("clear color", (float*)&clearColor);
 		Renderer::SetClearColor(clearColor);
 
 		ImGui::End();
+
+		if (!open)
+		{
+			SetStateDead();
+		}
+	}
+
+	void ClearColorLayer::Shutdown()
+	{
+		Renderer::SetClearColor(COLOR::Black);
+		f_Destroy();
 	}
 }

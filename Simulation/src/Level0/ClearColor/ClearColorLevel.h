@@ -8,11 +8,13 @@ namespace PARS
 	{
 	public:
 		ClearColorLevel();
-		virtual ~ClearColorLevel() = default;
+		virtual ~ClearColorLevel();
 
 		void InitializeLevel() override;
 		void UpdateLevel(float deltaTime) override;
 
+	private:
+		void DestroyLevel();
 	};
 }
 

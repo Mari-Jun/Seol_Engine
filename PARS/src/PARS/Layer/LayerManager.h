@@ -19,6 +19,8 @@ namespace PARS
 		inline static LayerManager* GetLayerManager() { return s_Instance; }
 
 	private:
+		bool m_IsUpdateLayers = false;
+		std::vector<SPtr<Layer>> m_ReadyLayers;
 		std::vector<SPtr<Layer>> m_Layers;
 		static LayerManager* s_Instance;
 	};
