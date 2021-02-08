@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Actor/ActorManager.h"
 #include "PARS/Level/Level.h"
-
 #include "PARS/Layer/LayerManager.h"
 
 namespace PARS
@@ -49,5 +48,22 @@ namespace PARS
 	{
 		auto layerManger = LayerManager::GetLayerManager();
 		layerManger->AddLayer(layer);
+		m_Layers.emplace_back(layer);
+	}
+
+	void Level::SetLayerActive()
+	{
+		for (const auto& layer : m_Layers)
+		{
+			layer.lock()->SetLayerState(Layer::LayerState::Active);
+		}
+	}
+
+	void Level::SetLayerHide()
+	{
+		for (const auto& layer : m_Layers)
+		{
+			layer.lock()->SetLayerState(Layer::LayerState::Hide);
+		}
 	}
 }

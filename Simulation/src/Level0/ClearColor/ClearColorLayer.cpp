@@ -26,7 +26,7 @@ namespace PARS
 
 		if (!open)
 		{
-			SetStateDead();
+			Destroy();
 		}
 	}
 

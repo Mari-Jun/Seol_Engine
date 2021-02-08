@@ -35,6 +35,8 @@ using Microsoft::WRL::ComPtr;
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <stack>
+#include <queue>
 #include <array>
 #include <unordered_map>
 #include <unordered_set>

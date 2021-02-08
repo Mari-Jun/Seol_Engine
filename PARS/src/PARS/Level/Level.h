@@ -35,12 +35,16 @@ namespace PARS
 
 	private:
 		UPtr<ActorManager> m_ActorManager;
+		std::vector<WPtr<class Layer>> m_Layers;
 
 	public:
 		const std::string& GetLevelName() const { return m_LevelName; }
 		LevelState GetLevelState() const { return m_LevelState; }
 		void SetLevelState(LevelState state) { m_LevelState = state; }
-		void SetStateDead() { m_LevelState = LevelState::Dead; }
+
+		void SetLayerActive();
+		void SetLayerHide();
+		void Destroy() { m_LevelState = LevelState::Dead; }
 	};
 }
 

@@ -20,7 +20,9 @@ namespace PARS
 		inline static LevelManager* GetLevelManager() { return s_Instance; }
 
 	private:
-		std::vector<SPtr<Level>> m_Levels;
+		bool m_IsUpdateLevels = false;
+		SPtr<Level> m_ReadyLevels = nullptr;
+		std::stack<SPtr<Level>> m_Levels;
 		static LevelManager* s_Instance;
 	};
 }

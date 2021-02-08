@@ -9,7 +9,7 @@ namespace PARS
 	public:
 		enum class LayerState
 		{
-			Active, Dead
+			Active, Hide, Dead
 		};
 
 		Layer(const std::string& name = "Defualt_Layer");
@@ -28,9 +28,9 @@ namespace PARS
 	public:
 		const std::string& GetLayerName() const { return m_LayerName; }
 		LayerState GetLayerState() const { return m_LayerState; }
+		void SetLayerState(LayerState state) { m_LayerState = state; }
 
-		void SetStateDead() { m_LayerState = LayerState::Dead; }
-		bool IsDeadLayer() { return m_LayerState == LayerState::Dead; }
+		void Destroy() { m_LayerState = LayerState::Dead; }
 	};
 }
 
