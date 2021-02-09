@@ -38,6 +38,7 @@ using Microsoft::WRL::ComPtr;
 #include <stack>
 #include <queue>
 #include <array>
+#include <charconv>
 #include <unordered_map>
 #include <unordered_set>
 

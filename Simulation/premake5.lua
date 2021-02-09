@@ -17,7 +17,8 @@ project "Simulation"
 	{
 		"%{wks.location}/PARS/vendor/spdlog/include",
 		"%{wks.location}/PARS/src",
-		"%{wks.location}/PARS/vendor"
+		"%{wks.location}/PARS/vendor",
+		"%{wks.location}/Simulation/src"
 	}
 	
 	links

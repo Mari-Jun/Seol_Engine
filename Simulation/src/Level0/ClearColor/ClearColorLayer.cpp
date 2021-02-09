@@ -18,7 +18,7 @@ namespace PARS
 		bool open = true;
 		ImGui::Begin(m_LayerName.c_str(), &open);
 
-		static Vec4 clearColor = COLOR::Black;
+		static Vec4 clearColor;
 		ImGui::ColorEdit3("clear color", (float*)&clearColor);
 		Renderer::SetClearColor(clearColor);
 
@@ -38,7 +38,7 @@ namespace PARS
 
 	void ClearColorLayer::Shutdown()
 	{
-		Renderer::SetClearColor(COLOR::Black);
+		Renderer::SetClearColor(COLOR::Gray);
 		f_Destroy();
 	}
 }
