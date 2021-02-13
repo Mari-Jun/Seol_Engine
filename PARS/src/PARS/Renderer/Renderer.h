@@ -25,7 +25,7 @@ namespace PARS
 
 	private:
 		static Vec4 s_ClearColor;
-		UPtr<DirectX12> m_DirectX12;
+		SPtr<DirectX12> m_DirectX12;
 		SPtr<ImGuiLayer> m_ImGuiLayer;
 	};
 }

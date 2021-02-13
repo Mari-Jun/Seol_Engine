@@ -18,7 +18,7 @@ namespace PARS
 
 	bool Renderer::Initialize()
 	{
-		m_DirectX12 = CreateUPtr<DirectX12>();
+		m_DirectX12 = CreateSPtr<DirectX12>();
 		bool result = m_DirectX12->Initailize();
 		if (!result)
 		{
@@ -46,7 +46,7 @@ namespace PARS
 
 	const SPtr<ImGuiLayer>& Renderer::CreateImGui()
 	{
-		m_ImGuiLayer = CreateSPtr<ImGuiLayer>();
+		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_DirectX12);
 		return m_ImGuiLayer;
 	}
 }

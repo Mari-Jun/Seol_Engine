@@ -8,8 +8,9 @@
 
 namespace PARS
 {
-	ImGuiLayer::ImGuiLayer()
+	ImGuiLayer::ImGuiLayer(SPtr<class DirectX12>& directX)
 		: Layer("ImGuiLayer")
+		, m_DirectX12(directX)
 	{
 		
 	}
@@ -33,12 +34,10 @@ namespace PARS
 		}
 
 		const auto& windowInfo = Window::GetWindowInfo();
-		const auto& directX12 = DirectX12::GetDirectX12();
-		const auto& device = directX12->GetDevice();
-		const auto& srvHeap = directX12->GetSrvHeap();
+		const auto& srvHeap = m_DirectX12->GetSrvHeap();
 
 		ImGui_ImplWin32_Init(windowInfo->m_hwnd);
-		ImGui_ImplDX12_Init(device, 2, DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,
+		ImGui_ImplDX12_Init(m_DirectX12->GetDevice(), 2, DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,
 			srvHeap->GetCPUDescriptorHandleForHeapStart(),
 			srvHeap->GetGPUDescriptorHandleForHeapStart());
 	}
@@ -60,9 +59,7 @@ namespace PARS
 
 	void ImGuiLayer::Draw()
 	{
-		const auto& directX12 = DirectX12::GetDirectX12();
-
-		ID3D12GraphicsCommandList* commandList = directX12->GetCommandList();
+		ID3D12GraphicsCommandList* commandList = m_DirectX12->GetCommandList();
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);		
 
