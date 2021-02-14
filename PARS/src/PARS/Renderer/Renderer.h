@@ -6,6 +6,7 @@
 namespace PARS
 {
 	class DirectX12;
+	class RenderFactory;
 	class ImGuiLayer;
 
 	class Renderer
@@ -26,6 +27,7 @@ namespace PARS
 	private:
 		static Vec4 s_ClearColor;
 		SPtr<DirectX12> m_DirectX12;
+		UPtr<RenderFactory> m_RenderFactory;
 		SPtr<ImGuiLayer> m_ImGuiLayer;
 	};
 }

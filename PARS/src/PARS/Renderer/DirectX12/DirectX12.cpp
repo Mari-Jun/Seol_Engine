@@ -49,7 +49,7 @@ namespace PARS
 			if (rtvBuffer != nullptr) rtvBuffer->Release();
 		}
 		if (m_RtvDescriptorHeap != nullptr) m_RtvDescriptorHeap->Release();
-		if (m_SrvDescriptorHeap != nullptr) m_SrvDescriptorHeap->Release();
+		if (m_CbvSrvUavDescriptorHeap != nullptr) m_CbvSrvUavDescriptorHeap->Release();
 		if (m_SwapChain != nullptr) m_SwapChain->Release();
 		if (m_CommandList != nullptr) m_CommandList->Release();
 		if (m_CommandAllocator != nullptr) m_CommandAllocator->Release();
@@ -253,15 +253,15 @@ namespace PARS
 		if (FAILED(result)) return false;
 		m_DsvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
-		D3D12_DESCRIPTOR_HEAP_DESC srvDHDesc;
-		ZeroMemory(&srvDHDesc, sizeof(srvDHDesc));
-		srvDHDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		srvDHDesc.NumDescriptors = 1;
-		srvDHDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		srvDHDesc.NodeMask = 0;
-		result = m_Device->CreateDescriptorHeap(&srvDHDesc, IID_PPV_ARGS(&m_SrvDescriptorHeap));
+		D3D12_DESCRIPTOR_HEAP_DESC csuDHDesc;
+		ZeroMemory(&csuDHDesc, sizeof(csuDHDesc));
+		csuDHDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		csuDHDesc.NumDescriptors = 1;
+		csuDHDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		csuDHDesc.NodeMask = 0;
+		result = m_Device->CreateDescriptorHeap(&csuDHDesc, IID_PPV_ARGS(&m_CbvSrvUavDescriptorHeap));
 		if (FAILED(result)) return false;
-		m_SrvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		m_CbvSrvUavDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		return true;
 	}
@@ -310,7 +310,14 @@ namespace PARS
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		HRESULT result = m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &dsvDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsViewDesc;
+		dsViewDesc.Flags = D3D12_DSV_FLAG_NONE;
+		dsViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		dsViewDesc.Texture2D.MipSlice = 0;
+		m_Device->CreateDepthStencilView(m_DepthStencilBuffer, &dsViewDesc, GetDepthStencilView());
+
+		HRESULT result = m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &dsvDesc, D3D12_RESOURCE_STATE_COMMON,
 			&clearValue, IID_PPV_ARGS(&m_DepthStencilBuffer));
 		if (FAILED(result)) return false;
 
@@ -402,7 +409,7 @@ namespace PARS
 		//Connect RTV and DSV to OM
 		m_CommandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
 
-		ID3D12DescriptorHeap* descriptorHeaps[] = { m_SrvDescriptorHeap };
+		ID3D12DescriptorHeap* descriptorHeaps[] = { m_CbvSrvUavDescriptorHeap };
 		m_CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 

@@ -2,6 +2,7 @@
 #include "PARS/Core/Window.h"
 #include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
+#include "PARS/Renderer/RenderFactory.h"
 #include "PARS/Renderer/Renderer.h"
 
 namespace PARS
@@ -25,12 +26,21 @@ namespace PARS
 			PARS_ERROR("Could not initialize DirectX12");
 			return false;
 		}
+
+		m_RenderFactory = CreateUPtr<RenderFactory>(m_DirectX12);
+		result = m_RenderFactory->Initialize();
+		if (!result)
+		{
+			PARS_ERROR("Could not initialize RenderFactory");
+			return false;
+		}
 		
 		return true;
 	}
 
 	void Renderer::ShutDown()
 	{
+		m_RenderFactory->Shutdown();
 		m_DirectX12->ShutDown();
 	}
 
@@ -39,6 +49,7 @@ namespace PARS
 		m_DirectX12->BeginScene(s_ClearColor);
 
 		//render code
+		m_RenderFactory->DrawDefualtShader();
 		m_ImGuiLayer->Draw();
 
 		m_DirectX12->EndScene();

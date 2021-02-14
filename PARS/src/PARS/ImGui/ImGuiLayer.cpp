@@ -34,7 +34,7 @@ namespace PARS
 		}
 
 		const auto& windowInfo = Window::GetWindowInfo();
-		const auto& srvHeap = m_DirectX12->GetSrvHeap();
+		const auto& srvHeap = m_DirectX12->GetCbvSrvUavHeap();
 
 		ImGui_ImplWin32_Init(windowInfo->m_hwnd);
 		ImGui_ImplDX12_Init(m_DirectX12->GetDevice(), 2, DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,

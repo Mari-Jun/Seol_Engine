@@ -31,19 +31,25 @@ namespace PARS
 		
 		void SetViewAndScissor();
 
+	public:
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
-
+	
 	public:
 		inline static DirectX12* GetDirectX12() { return s_Instance; }
 
 		ID3D12Device* GetDevice() { return m_Device; }
+		ID3D12CommandQueue* GetCommandQueue() { return m_CommandQueue; }
+		ID3D12CommandAllocator* GetCommandAllocator() { return m_CommandAllocator; }
 		ID3D12GraphicsCommandList* GetCommandList() { return m_CommandList; }
-		ID3D12DescriptorHeap* GetSrvHeap() { return m_SrvDescriptorHeap; }
+		ID3D12DescriptorHeap* GetCbvSrvUavHeap() { return m_CbvSrvUavDescriptorHeap; }
 
 		ID3D12Resource* GetCurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+
+		bool IsMass4xEnable() const { return m_Msaa4xEnable; }
+		UINT GetMsaa4xQuality() const { return m_Msaa4xQuality; }
 
 	public:
 		void BeginScene(const Vec4& color);
@@ -78,8 +84,8 @@ namespace PARS
 		ID3D12DescriptorHeap* m_DsvDescriptorHeap = nullptr;
 		UINT m_DsvDescriptorSize = 0;
 
-		ID3D12DescriptorHeap* m_SrvDescriptorHeap = nullptr;
-		UINT m_SrvDescriptorSize = 0;
+		ID3D12DescriptorHeap* m_CbvSrvUavDescriptorHeap = nullptr;
+		UINT m_CbvSrvUavDescriptorSize = 0;
 
 		D3D12_VIEWPORT m_Viewport;
 		D3D12_RECT m_ScissorRect;
