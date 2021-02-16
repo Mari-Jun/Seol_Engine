@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PARS/Renderer/Core/RenderComponentFactory.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
 
 namespace PARS
@@ -10,26 +11,26 @@ namespace PARS
 		static RenderFactory* s_Instance;
 
 	public:
-		RenderFactory(SPtr<DirectX12>& directX);
+		RenderFactory(const SPtr<DirectX12>& directX);
 		~RenderFactory() = default;
 		
 		bool Initialize();
 		void Shutdown();
-
-		void DrawDefualtShader();
+		void Draw();
 		
 	private:
 		bool CreateRootSignatures();
 		void CreateShaders();
-		void CreateShader(std::string&& signatureType, std::string&& shaderName, UPtr<Shader>&& shader);
+		void CreateShader(std::string&& signatureType, ShaderType type, UPtr<Shader>&& shader);
 
 	public:
 		inline static RenderFactory* GetRenderFactory() { return s_Instance; }
 
 	private:
 		SPtr<DirectX12> m_DirectX12;
+		UPtr<RenderComponentFactory> m_RenderCompFactory;
 		std::unordered_map<std::string, ID3D12RootSignature*> m_RootSignatures;
-		std::unordered_map<std::string, UPtr<Shader>> m_Shaders;
+		std::unordered_map<ShaderType, UPtr<Shader>> m_Shaders;
 	};
 }
 

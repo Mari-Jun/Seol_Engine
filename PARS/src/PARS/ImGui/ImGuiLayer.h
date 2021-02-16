@@ -8,7 +8,7 @@ namespace PARS
 	class ImGuiLayer final : public Layer
 	{
 	public:
-		ImGuiLayer(SPtr<class DirectX12>& directX);
+		ImGuiLayer(const SPtr<class DirectX12>& directX);
 		~ImGuiLayer() = default;
 		
 		void Initialize() override;

@@ -3,8 +3,9 @@
 
 namespace PARS
 {
-	Component::Component(int updateOrder)
-		: m_UpdateOrder(updateOrder)
+	Component::Component(const WPtr<Actor>& owner, int updateOrder)
+		: m_Owner(owner)
+		, m_UpdateOrder(updateOrder)
 	{
 	}
 }

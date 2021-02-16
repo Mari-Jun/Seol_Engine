@@ -8,7 +8,7 @@
 
 namespace PARS
 {
-	ImGuiLayer::ImGuiLayer(SPtr<class DirectX12>& directX)
+	ImGuiLayer::ImGuiLayer(const SPtr<class DirectX12>& directX)
 		: Layer("ImGuiLayer")
 		, m_DirectX12(directX)
 	{

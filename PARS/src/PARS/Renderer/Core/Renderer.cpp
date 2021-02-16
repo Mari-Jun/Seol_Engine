@@ -2,8 +2,8 @@
 #include "PARS/Core/Window.h"
 #include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
-#include "PARS/Renderer/RenderFactory.h"
-#include "PARS/Renderer/Renderer.h"
+#include "PARS/Renderer/Core/RenderFactory.h"
+#include "PARS/Renderer/Core/Renderer.h"
 
 namespace PARS
 {
@@ -49,7 +49,7 @@ namespace PARS
 		m_DirectX12->BeginScene(s_ClearColor);
 
 		//render code
-		m_RenderFactory->DrawDefualtShader();
+		m_RenderFactory->Draw();
 		m_ImGuiLayer->Draw();
 
 		m_DirectX12->EndScene();

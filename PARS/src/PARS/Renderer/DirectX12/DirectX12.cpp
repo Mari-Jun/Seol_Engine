@@ -31,7 +31,7 @@ namespace PARS
 		result = ResizeWindow();
 		if (!result) return false;
 		
-		s_Instance = this;
+		s_Instance = shared_from_this();
 
 		return true;
 	}
@@ -439,5 +439,5 @@ namespace PARS
 		MoveToNextFrame();		
 	}
 
-	DirectX12* DirectX12::s_Instance = nullptr;
+	SPtr<DirectX12> DirectX12::s_Instance = nullptr;
 }

@@ -20,6 +20,7 @@ project "PARS"
 	includedirs
 	{
 		"src",
+		"vendor/d3d12_Helper/include/directx",
 		"vendor/spdlog/include",
 		"%{IncludeDir.ImGui}"
 	}

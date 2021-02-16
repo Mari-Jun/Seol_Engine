@@ -3,7 +3,7 @@
 #include "PARS/Core/Timer.h"
 #include "PARS/Level/LevelManager.h"
 #include "PARS/Layer/LayerManager.h"
-#include "PARS/Renderer/Renderer.h"
+#include "PARS/Renderer/Core/Renderer.h"
 #include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Core/Application.h"
 

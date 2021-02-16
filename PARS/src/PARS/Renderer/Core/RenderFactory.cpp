@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "PARS/Renderer/RenderFactory.h"
+#include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Renderer/Shader/ColorShader.h"
 
 namespace PARS
 {
-	RenderFactory::RenderFactory(SPtr<DirectX12>& directX)
+	RenderFactory::RenderFactory(const SPtr<DirectX12>& directX)
 		: m_DirectX12(directX)
 	{
 		
@@ -12,23 +12,18 @@ namespace PARS
 
 	bool RenderFactory::Initialize()
 	{
-		auto commandQueue = m_DirectX12->GetCommandQueue();
-		auto commandList = m_DirectX12->GetCommandList();
-		auto commandAllocator = m_DirectX12->GetCommandAllocator();
-
-		commandList->Reset(commandAllocator, nullptr);
+		m_RenderCompFactory = CreateUPtr<RenderComponentFactory>(m_DirectX12);
+		if (!m_RenderCompFactory->Initialize())
+		{
+			PARS_ERROR("Could not initialize RenderComponentFactory");
+			return false;
+		}
 
 		if (!CreateRootSignatures()) return false;
 
 		CreateShaders();
 
 		s_Instance = this;
-
-		commandList->Close();
-		ID3D12CommandList* commandLists[] = { commandList };
-		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
-
-		m_DirectX12->WaitForGpuCompelete();
 
 		return true;
 	}
@@ -47,18 +42,21 @@ namespace PARS
 				iter->second->Release();
 			}
 		}
+
+		m_RenderCompFactory->Shutdown();
 	}
 
-	void RenderFactory::DrawDefualtShader()
+	void RenderFactory::Draw()
 	{
 		auto commandList = m_DirectX12->GetCommandList();
 		commandList->SetGraphicsRootSignature(m_RootSignatures["Default"]);
+
+		m_Shaders[ShaderType::Color]->Draw();
+		m_RenderCompFactory->Draw(ShaderType::Color);
 	}
 
 	bool RenderFactory::CreateRootSignatures()
 	{
-		
-		//매개변수가 없는 RootSignature 생성
 		ID3D12RootSignature* defaultRootSignature = nullptr;
 
 		D3D12_ROOT_SIGNATURE_DESC rsDesc;
@@ -96,14 +94,14 @@ namespace PARS
 
 	void RenderFactory::CreateShaders()
 	{
-		CreateShader("Default", "Color", CreateUPtr<ColorShader>(m_DirectX12));		
+		CreateShader("Default", ShaderType::Color, CreateUPtr<ColorShader>(m_DirectX12));		
 	}
 
-	void RenderFactory::CreateShader(std::string&& signatureType, std::string&& shaderName, UPtr<Shader>&& shader)
+	void RenderFactory::CreateShader(std::string&& signatureType, ShaderType type, UPtr<Shader>&& shader)
 	{
 		if (m_RootSignatures[signatureType] !=nullptr && shader->Initialize(m_RootSignatures[signatureType]))
 		{
-			m_Shaders.insert({ shaderName, std::move(shader) });
+			m_Shaders.insert({ type, std::move(shader) });
 		}
 	}
 

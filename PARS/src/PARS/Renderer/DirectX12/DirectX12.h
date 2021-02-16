@@ -1,15 +1,16 @@
 #pragma once
 
+#include "PARS/Core/Core.h"
 #include "PARS/Math/Math.h"
 
 namespace PARS
 {
 	struct WindowInfo;
 
-	class DirectX12
+	class DirectX12 : public std::enable_shared_from_this<DirectX12>
 	{
 	private:
-		static DirectX12* s_Instance;
+		static SPtr<DirectX12> s_Instance;
 
 	public:
 		DirectX12();
@@ -36,7 +37,7 @@ namespace PARS
 		void MoveToNextFrame();
 	
 	public:
-		inline static DirectX12* GetDirectX12() { return s_Instance; }
+		inline static  SPtr<DirectX12> GetDirectX12() { return s_Instance; }
 
 		ID3D12Device* GetDevice() { return m_Device; }
 		ID3D12CommandQueue* GetCommandQueue() { return m_CommandQueue; }
