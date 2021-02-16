@@ -29,4 +29,9 @@ namespace PARS
 	{
 		m_Mesh->SetBuffer(device, commandList);
 	}
+
+	void MeshComponent::ReleaseUploadBuffers()
+	{
+		m_Mesh->ReleaseUploadBuffers();
+	}
 }

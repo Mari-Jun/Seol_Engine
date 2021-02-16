@@ -16,6 +16,7 @@ namespace PARS
 		virtual void Shutdown() override;
 		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
+		virtual void ReleaseUploadBuffers();
 
 	public:
 		enum class FileType

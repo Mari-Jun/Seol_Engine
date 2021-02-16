@@ -15,6 +15,7 @@ namespace PARS
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}		
+		virtual void ReleaseUploadBuffers();
 
 	protected:
 		ID3D12Resource* m_VertexBuffer = nullptr;

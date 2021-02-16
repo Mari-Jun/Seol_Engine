@@ -26,6 +26,15 @@ namespace PARS
 		m_PrimitiveTopology = topology;
 	}
 
+	void Mesh::ReleaseUploadBuffers()
+	{
+		if (m_VertexUploadBuffer != nullptr)
+		{
+			m_VertexUploadBuffer->Release();
+			m_VertexUploadBuffer = nullptr;
+		}
+	}
+
 	DiffuseMesh::DiffuseMesh()
 	{
 	}

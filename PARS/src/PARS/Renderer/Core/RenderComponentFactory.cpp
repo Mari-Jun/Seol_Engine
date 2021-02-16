@@ -32,14 +32,9 @@ namespace PARS
 
 			for (auto& comps : m_PrepareComponents)
 			{
-				auto iter = m_RenderComponents.emplace(std::move(comps));
-				if (!iter.second)
+				for (auto& comp : comps.second)
 				{
-					for (auto& comp : comps.second)
-					{
-						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
-						iter.first->second.emplace_back(std::move(comp));
-					}
+					comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
 				}
 			}
 
@@ -48,6 +43,19 @@ namespace PARS
 			commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 			m_DirectX12->WaitForGpuCompelete();
+
+			for (auto& comps : m_PrepareComponents)
+			{
+				auto iter = m_RenderComponents.emplace(std::move(comps));
+				if (!iter.second)
+				{
+					for (auto& comp : comps.second)
+					{
+						comp->ReleaseUploadBuffers();
+						iter.first->second.emplace_back(std::move(comp));
+					}
+				}
+			}
 
 			m_PrepareComponents.clear();
 		}
