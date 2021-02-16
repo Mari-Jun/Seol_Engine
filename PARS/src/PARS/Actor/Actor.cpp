@@ -7,11 +7,11 @@ namespace PARS
 	Actor::Actor()
 		: m_ActorState(ActorState::Active)
 	{
+		m_ComponentManager = CreateUPtr<ComponentManager>();
 	}
 
 	void Actor::InitializeActor()
 	{
-		m_ComponentManager = CreateUPtr<ComponentManager>();
 		Initialize();
 	}
 
@@ -49,5 +49,6 @@ namespace PARS
 	void Actor::AddComponent(const SPtr<class Component>& component)
 	{
 		m_ComponentManager->AddComponent(component);
+		component->SetOwner(weak_from_this());
 	}
 }

@@ -4,8 +4,7 @@
 
 namespace PARS
 {
-	MeshComponent::MeshComponent(const WPtr<Actor>& owner)
-		: RenderComponent(owner)
+	MeshComponent::MeshComponent()
 	{
 		
 	}

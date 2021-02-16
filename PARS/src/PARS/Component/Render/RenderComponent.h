@@ -8,7 +8,7 @@ namespace PARS
 	class RenderComponent : public Component
 	{
 	public:
-		RenderComponent(const WPtr<Actor>& owner, int updateOrder = 200);
+		RenderComponent(int updateOrder = 200);
 		virtual ~RenderComponent() = default;
 
 		virtual void Initialize();

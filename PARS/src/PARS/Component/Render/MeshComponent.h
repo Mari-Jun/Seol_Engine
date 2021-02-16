@@ -9,7 +9,7 @@ namespace PARS
 	class MeshComponent : public RenderComponent
 	{
 	public:
-		MeshComponent(const WPtr<Actor>& owner);
+		MeshComponent();
 		virtual ~MeshComponent() = default;
 
 		virtual void Initialize() override;

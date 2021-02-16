@@ -3,8 +3,8 @@
 
 namespace PARS
 {
-	RenderComponent::RenderComponent(const WPtr<Actor>& owner, int updateOrder)
-		: Component(owner, updateOrder)
+	RenderComponent::RenderComponent(int updateOrder)
+		: Component(updateOrder)
 		, m_RenderShaderType(ShaderType::Color)
 	{
 	}

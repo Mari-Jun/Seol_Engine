@@ -7,7 +7,7 @@ namespace PARS
 {
 	class ComponentManager;
 
-	class Actor
+	class Actor : public std::enable_shared_from_this<Actor>
 	{
 	public:
 		enum class ActorState
