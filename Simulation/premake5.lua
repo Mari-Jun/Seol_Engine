@@ -16,6 +16,7 @@ project "Simulation"
 	includedirs
 	{
 		"%{wks.location}/PARS/vendor/spdlog/include",
+		"%{wks.location}/PARS/vendor/d3d12_Helper/include/directx",
 		"%{wks.location}/PARS/src",
 		"%{wks.location}/PARS/vendor",
 		"%{wks.location}/Simulation/src"
