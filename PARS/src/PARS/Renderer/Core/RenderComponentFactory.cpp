@@ -20,6 +20,39 @@ namespace PARS
 	{
 	}
 
+	void RenderComponentFactory::PrepareDraw()
+	{
+		if (!m_PrepareComponents.empty())
+		{
+			auto commandQueue = m_DirectX12->GetCommandQueue();
+			auto commandList = m_DirectX12->GetCommandList();
+			auto commandAllocator = m_DirectX12->GetCommandAllocator();
+
+			commandList->Reset(commandAllocator, nullptr);
+
+			for (auto& comps : m_PrepareComponents)
+			{
+				auto iter = m_RenderComponents.emplace(std::move(comps));
+				if (!iter.second)
+				{
+					for (auto& comp : comps.second)
+					{
+						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
+						iter.first->second.emplace_back(std::move(comp));
+					}
+				}
+			}
+
+			commandList->Close();
+			ID3D12CommandList* commandLists[] = { commandList };
+			commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+			m_DirectX12->WaitForGpuCompelete();
+
+			m_PrepareComponents.clear();
+		}
+	}
+
 	void RenderComponentFactory::Draw(ShaderType type)
 	{
 		for (const auto& component : m_RenderComponents[type])
@@ -30,26 +63,12 @@ namespace PARS
 
 	void RenderComponentFactory::AddRenderComponent(ShaderType type, const SPtr<RenderComponent>& component)
 	{
-		//임시로 넣을때마다 초기화하고 명령대기열에 추가하자.
-		auto commandQueue = m_DirectX12->GetCommandQueue();
-		auto commandList = m_DirectX12->GetCommandList();
-		auto commandAllocator = m_DirectX12->GetCommandAllocator();
-
-		commandList->Reset(commandAllocator, nullptr);
-
-		
-		auto iter = m_RenderComponents.insert({ type, {component} });
+		auto iter = m_PrepareComponents.emplace(type, std::vector<SPtr<RenderComponent>>{component});
 		if (!iter.second)
 		{
 			iter.first->second.emplace_back(component);
 			component->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
-		}
-
-		commandList->Close();
-		ID3D12CommandList* commandLists[] = { commandList };
-		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
-
-		m_DirectX12->WaitForGpuCompelete();
+		}		
 	}
 
 	void RenderComponentFactory::RemoveRenderComponent(ShaderType type, const SPtr<RenderComponent>& component)

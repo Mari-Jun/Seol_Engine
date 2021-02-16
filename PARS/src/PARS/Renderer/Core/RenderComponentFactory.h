@@ -19,7 +19,8 @@ namespace PARS
 		~RenderComponentFactory() = default;
 
 		bool Initialize();
-		void Shutdown();
+		void Shutdown(); 
+		void PrepareDraw();
 		void Draw(ShaderType type);
 
 	public:
@@ -32,6 +33,7 @@ namespace PARS
 
 	private:
 		SPtr<class DirectX12> m_DirectX12;
+		std::unordered_map<ShaderType, std::vector<SPtr<class RenderComponent>>> m_PrepareComponents;
 		std::unordered_map<ShaderType, std::vector<SPtr<class RenderComponent>>> m_RenderComponents;
 		std::unordered_map<std::string, SPtr<class Mesh>> m_MeshCache;
 	};

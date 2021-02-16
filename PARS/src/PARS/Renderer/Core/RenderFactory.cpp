@@ -46,6 +46,11 @@ namespace PARS
 		m_RenderCompFactory->Shutdown();
 	}
 
+	void RenderFactory::PrepareDraw()
+	{
+		m_RenderCompFactory->PrepareDraw();
+	}
+
 	void RenderFactory::Draw()
 	{
 		auto commandList = m_DirectX12->GetCommandList();

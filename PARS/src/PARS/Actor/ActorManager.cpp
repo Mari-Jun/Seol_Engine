@@ -28,6 +28,7 @@ namespace PARS
 
 		for (auto actor : m_ReadyActors)
 		{
+			actor->UpdateWorldMatrix();
 			m_Actors.emplace_back(actor);
 		}
 		m_ReadyActors.clear();

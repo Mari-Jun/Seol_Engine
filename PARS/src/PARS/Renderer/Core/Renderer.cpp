@@ -46,6 +46,8 @@ namespace PARS
 
 	void Renderer::Draw()
 	{
+		m_RenderFactory->PrepareDraw();
+
 		m_DirectX12->BeginScene(s_ClearColor);
 
 		//render code
