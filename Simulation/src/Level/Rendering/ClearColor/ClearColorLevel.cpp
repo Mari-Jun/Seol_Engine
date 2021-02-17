@@ -16,7 +16,7 @@ namespace PARS
 	{
 		auto layer = PARS::CreateSPtr<PARS::ClearColorLayer>();
 		layer->OnDestroy([this]() {DestroyLevel(); });
-		AddLayer(layer);
+		AddLayer(layer);	
 	}
 
 	void ClearColorLevel::UpdateLevel(float deltaTime)
