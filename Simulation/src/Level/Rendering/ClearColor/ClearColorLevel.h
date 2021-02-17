@@ -12,9 +12,6 @@ namespace PARS
 
 		void InitializeLevel() override;
 		void UpdateLevel(float deltaTime) override;
-
-	private:
-		void DestroyLevel();
 	};
 }
 

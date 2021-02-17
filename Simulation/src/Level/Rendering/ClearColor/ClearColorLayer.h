@@ -1,22 +1,17 @@
 #pragma once
 
 #include <PARS.h>
+#include "Level/Core/BasicLayer.h"	
 
 namespace PARS
 {
-	class ClearColorLayer : public Layer
+	class ClearColorLayer : public BasicLayer
 	{
 	public:
 		ClearColorLayer();
-		virtual ~ClearColorLayer();
+		virtual ~ClearColorLayer() = default;
 
-		void Update() override;
-		void Shutdown() override;
-
-		void OnDestroy(std::function<void()> func) { f_Destroy = func; }
-
-	private:
-		std::function<void()> f_Destroy;
+		void UpdateGUI() override;
 	};
 }
 
