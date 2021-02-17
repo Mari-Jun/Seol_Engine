@@ -19,7 +19,7 @@ namespace PARS
 		virtual void ReleaseUploadBuffers() {}
 
 	protected:
-		virtual void ChangeComponentItem();
+		void ChangeComponentItem();
 
 	protected:
 		ShaderType m_RenderShaderType;

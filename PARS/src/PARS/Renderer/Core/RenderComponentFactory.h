@@ -31,7 +31,8 @@ namespace PARS
 		void RemoveRenderComponent(ShaderType type, const SPtr<class RenderComponent>& component);
 		void MoveToPrepareComponent(ShaderType type, const SPtr<class RenderComponent>& component);
 
-		SPtr<class Mesh> GetMesh(std::string&& fileName);
+		SPtr<class Mesh> GetMesh(std::string&& fileName) const;
+		void SaveMesh(std::string&& fileName, const SPtr<class Mesh>& mesh);
 
 	private:
 		SPtr<class DirectX12> m_DirectX12;

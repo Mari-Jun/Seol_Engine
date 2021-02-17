@@ -108,9 +108,22 @@ namespace PARS
 		AddRenderComponent(type, component);
 	}
 
-	SPtr<class Mesh> RenderComponentFactory::GetMesh(std::string&& fileName)
+	SPtr<Mesh> RenderComponentFactory::GetMesh(std::string&& fileName) const
 	{
-		return SPtr<class Mesh>();
+		SPtr<Mesh> mesh = nullptr;
+
+		auto iter = m_MeshCache.find(fileName);
+		if (iter != m_MeshCache.end())
+		{
+			mesh = iter->second;
+		}
+
+		return mesh;
+	}
+
+	void RenderComponentFactory::SaveMesh(std::string&& fileName, const SPtr<class Mesh>& mesh)
+	{
+		m_MeshCache.emplace(fileName, mesh);
 	}
 
 	RenderComponentFactory* RenderComponentFactory::s_Instance = nullptr;

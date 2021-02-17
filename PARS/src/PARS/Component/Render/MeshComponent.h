@@ -29,8 +29,6 @@ namespace PARS
 		template<typename T, typename ... Args>
 		constexpr void SetMesh(FileType type, std::string&& fileName, Args&& ... args)
 		{
-			//fileName은 현재 미사용 나중에 Cache기능 생성시 사용
-
 			//Mesh 교체 여부 확인
 			if (m_Mesh != nullptr)
 			{
@@ -39,19 +37,32 @@ namespace PARS
 				ChangeComponentItem();
 			}
 
-			switch (type)
-			{
-			case PARS::MeshComponent::FileType::HandMade:
-				m_Mesh = CreateSPtr<T>();
-				std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
-				break;
-			case PARS::MeshComponent::FileType::Obj:
-				//아직 미구현
-				break;
-			}
-		}
-		const SPtr<Mesh>& GetMesh() const { return m_Mesh; }
+			//이미 Load된적이 있는지 Cache데이터에서 찾는다. 
+			const auto& factory = RenderComponentFactory::GetRenderComponentFactory();
+			m_Mesh = factory->GetMesh(std::move(fileName));
 
+			if (m_Mesh == nullptr)
+			{
+				switch (type)
+				{
+				case PARS::MeshComponent::FileType::HandMade:
+					m_Mesh = CreateSPtr<T>();
+					std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
+					break;
+				case PARS::MeshComponent::FileType::Obj:
+					//아직 미구현
+					break;
+				}
+
+				//(HandMade는 Cache에 저장하지 않는다.)
+				if (type != FileType::HandMade)
+				{
+					factory->SaveMesh(std::move(fileName), m_Mesh);
+				}
+			}		
+		}
+
+		const SPtr<Mesh>& GetMesh() const { return m_Mesh; }
 
 	private:
 		SPtr<Mesh> m_Mesh = nullptr;
