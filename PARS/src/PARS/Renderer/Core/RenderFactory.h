@@ -16,8 +16,9 @@ namespace PARS
 		
 		bool Initialize();
 		void Shutdown();
-		void PrepareDraw();
+		void BeginDraw();
 		void Draw();
+		void PrepareToNextDraw();
 		
 	private:
 		bool CreateRootSignatures();

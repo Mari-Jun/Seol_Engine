@@ -20,8 +20,9 @@ namespace PARS
 
 		bool Initialize();
 		void Shutdown(); 
-		void PrepareDraw();
+		void BeginDraw();
 		void Draw(ShaderType type);
+		void PrepareToNextDraw();
 
 	public:
 		inline static RenderComponentFactory* GetRenderComponentFactory() { return s_Instance; }

@@ -46,15 +46,15 @@ namespace PARS
 
 	void Renderer::Draw()
 	{
-		m_RenderFactory->PrepareDraw();
-
 		m_DirectX12->BeginScene(s_ClearColor);
+		m_RenderFactory->BeginDraw();
 
 		//render code
 		m_RenderFactory->Draw();
 		m_ImGuiLayer->Draw();
 
 		m_DirectX12->EndScene();
+		m_RenderFactory->PrepareToNextDraw();
 	}
 
 	const SPtr<ImGuiLayer>& Renderer::CreateImGui()

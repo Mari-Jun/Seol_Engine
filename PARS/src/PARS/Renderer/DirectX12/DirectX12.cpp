@@ -310,16 +310,16 @@ namespace PARS
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
+		HRESULT result = m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &dsvDesc, D3D12_RESOURCE_STATE_COMMON,
+			&clearValue, IID_PPV_ARGS(&m_DepthStencilBuffer));
+		if (FAILED(result)) return false;
+
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsViewDesc;
 		dsViewDesc.Flags = D3D12_DSV_FLAG_NONE;
 		dsViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		dsViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		dsViewDesc.Texture2D.MipSlice = 0;
 		m_Device->CreateDepthStencilView(m_DepthStencilBuffer, &dsViewDesc, GetDepthStencilView());
-
-		HRESULT result = m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &dsvDesc, D3D12_RESOURCE_STATE_COMMON,
-			&clearValue, IID_PPV_ARGS(&m_DepthStencilBuffer));
-		if (FAILED(result)) return false;
 
 		D3D12_CPU_DESCRIPTOR_HANDLE cpuDescriptorHandle = m_DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		m_Device->CreateDepthStencilView(m_DepthStencilBuffer, nullptr, cpuDescriptorHandle);

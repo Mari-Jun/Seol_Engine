@@ -20,52 +20,56 @@ namespace PARS
 	{
 	}
 
-	void RenderComponentFactory::PrepareDraw()
+	void RenderComponentFactory::BeginDraw()
 	{
 		if (!m_PrepareComponents.empty())
 		{
-			auto commandQueue = m_DirectX12->GetCommandQueue();
-			auto commandList = m_DirectX12->GetCommandList();
-			auto commandAllocator = m_DirectX12->GetCommandAllocator();
-
-			commandList->Reset(commandAllocator, nullptr);
-
 			for (auto& comps : m_PrepareComponents)
 			{
-				for (auto& comp : comps.second)
-				{
-					comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
-				}
-			}
-
-			commandList->Close();
-			ID3D12CommandList* commandLists[] = { commandList };
-			commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
-
-			m_DirectX12->WaitForGpuCompelete();
-
-			for (auto& comps : m_PrepareComponents)
-			{
-				auto iter = m_RenderComponents.emplace(std::move(comps));
+				auto iter = m_RenderComponents.emplace(comps);
 				if (!iter.second)
 				{
 					for (auto& comp : comps.second)
 					{
-						comp->ReleaseUploadBuffers();
-						iter.first->second.emplace_back(std::move(comp));
+						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
+						iter.first->second.emplace_back(comp);
+					}
+				}
+				else
+				{
+					for (auto& comp : iter.first->second)
+					{
+						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
 					}
 				}
 			}
-
-			m_PrepareComponents.clear();
 		}
 	}
 
 	void RenderComponentFactory::Draw(ShaderType type)
 	{
-		for (const auto& component : m_RenderComponents[type])
+		auto iter = m_RenderComponents.find(type);
+		if (iter != m_RenderComponents.cend())
 		{
-			component->Draw(m_DirectX12->GetCommandList());
+			for (const auto& component : m_RenderComponents[type])
+			{
+				component->Draw(m_DirectX12->GetCommandList());
+			}
+		}
+	}
+
+	void RenderComponentFactory::PrepareToNextDraw()
+	{
+		if (!m_PrepareComponents.empty())
+		{
+			for (auto& comps : m_PrepareComponents)
+			{
+				for (auto& comp : comps.second)
+				{
+					comp->ReleaseUploadBuffers();
+				}
+			}
+			m_PrepareComponents.clear();
 		}
 	}
 

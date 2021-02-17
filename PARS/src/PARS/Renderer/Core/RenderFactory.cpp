@@ -46,9 +46,9 @@ namespace PARS
 		m_RenderCompFactory->Shutdown();
 	}
 
-	void RenderFactory::PrepareDraw()
+	void RenderFactory::BeginDraw()
 	{
-		m_RenderCompFactory->PrepareDraw();
+		m_RenderCompFactory->BeginDraw();
 	}
 
 	void RenderFactory::Draw()
@@ -58,6 +58,11 @@ namespace PARS
 
 		m_Shaders[ShaderType::Color]->Draw();
 		m_RenderCompFactory->Draw(ShaderType::Color);
+	}
+
+	void RenderFactory::PrepareToNextDraw()
+	{
+		m_RenderCompFactory->PrepareToNextDraw();
 	}
 
 	bool RenderFactory::CreateRootSignatures()
