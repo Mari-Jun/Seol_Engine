@@ -29,6 +29,7 @@ namespace PARS
 
 		void AddRenderComponent(ShaderType type, const SPtr<class RenderComponent>& component);
 		void RemoveRenderComponent(ShaderType type, const SPtr<class RenderComponent>& component);
+		void MoveToPrepareComponent(ShaderType type, const SPtr<class RenderComponent>& component);
 
 		SPtr<class Mesh> GetMesh(std::string&& fileName);
 

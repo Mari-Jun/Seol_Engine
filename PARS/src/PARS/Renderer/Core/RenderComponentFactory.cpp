@@ -102,6 +102,12 @@ namespace PARS
 		}
 	}
 
+	void RenderComponentFactory::MoveToPrepareComponent(ShaderType type, const SPtr<class RenderComponent>& component)
+	{
+		RemoveRenderComponent(type, component);
+		AddRenderComponent(type, component);
+	}
+
 	SPtr<class Mesh> RenderComponentFactory::GetMesh(std::string&& fileName)
 	{
 		return SPtr<class Mesh>();

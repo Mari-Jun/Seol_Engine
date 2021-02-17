@@ -14,8 +14,12 @@ namespace PARS
 		virtual void Initialize();
 		virtual void Shutdown();
 		virtual void Draw(ID3D12GraphicsCommandList* commandList) {}
+
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}
 		virtual void ReleaseUploadBuffers() {}
+
+	protected:
+		virtual void ChangeComponentItem();
 
 	protected:
 		ShaderType m_RenderShaderType;

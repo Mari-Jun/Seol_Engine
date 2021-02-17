@@ -20,4 +20,10 @@ namespace PARS
 		auto factory = RenderComponentFactory::GetRenderComponentFactory();
 		factory->RemoveRenderComponent(m_RenderShaderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
 	}
+
+	void RenderComponent::ChangeComponentItem()
+	{
+		auto factory = RenderComponentFactory::GetRenderComponentFactory();
+		factory->MoveToPrepareComponent(m_RenderShaderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+	}
 }

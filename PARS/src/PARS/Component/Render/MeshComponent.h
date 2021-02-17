@@ -15,6 +15,7 @@ namespace PARS
 		virtual void Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
+
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
 		virtual void ReleaseUploadBuffers();
 
@@ -29,6 +30,14 @@ namespace PARS
 		constexpr void SetMesh(FileType type, std::string&& fileName, Args&& ... args)
 		{
 			//fileName은 현재 미사용 나중에 Cache기능 생성시 사용
+
+			//Mesh 교체 여부 확인
+			if (m_Mesh != nullptr)
+			{
+				m_Mesh->Shutdown();
+				m_Mesh = nullptr;
+				ChangeComponentItem();
+			}
 
 			switch (type)
 			{
@@ -45,7 +54,7 @@ namespace PARS
 
 
 	private:
-		SPtr<Mesh> m_Mesh;
+		SPtr<Mesh> m_Mesh = nullptr;
 	};
 
 }
