@@ -22,7 +22,6 @@ namespace PARS
 	public:
 		enum class FileType
 		{
-			HandMade,
 			Obj
 		};
 
@@ -40,26 +39,32 @@ namespace PARS
 			//이미 Load된적이 있는지 Cache데이터에서 찾는다. 
 			const auto& factory = RenderComponentFactory::GetRenderComponentFactory();
 			m_Mesh = factory->GetMesh(std::move(fileName));
-
+		
 			if (m_Mesh == nullptr)
 			{
 				switch (type)
 				{
-				case PARS::MeshComponent::FileType::HandMade:
-					m_Mesh = CreateSPtr<T>();
-					std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
-					break;
 				case PARS::MeshComponent::FileType::Obj:
 					//아직 미구현
 					break;
 				}
 
-				//(HandMade는 Cache에 저장하지 않는다.)
-				if (type != FileType::HandMade)
-				{
-					factory->SaveMesh(std::move(fileName), m_Mesh);
-				}
+				factory->SaveMesh(std::move(fileName), m_Mesh);
 			}		
+		}
+
+		template<typename T, typename ... Args>
+		constexpr void SetHandMadeMesh(Args&& ... args)
+		{
+			if (m_Mesh != nullptr)
+			{
+				m_Mesh->Shutdown();
+				m_Mesh = nullptr;
+				ChangeComponentItem();
+			}
+
+			m_Mesh = CreateSPtr<T>();
+			std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
 		}
 
 		const SPtr<Mesh>& GetMesh() const { return m_Mesh; }

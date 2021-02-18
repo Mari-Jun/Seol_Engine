@@ -57,11 +57,17 @@ namespace PARS
 
 	void EditorLayer::SetLevel0()
 	{
-		m_RenderingFunctions[0].emplace_back([this]() {ShowSimulationNode(CreateSPtr<ClearColorLevel>(), "Change the background color of the window"); });
+		m_RenderingFunctions[0].emplace_back([this]() {ShowSimulationNode<ClearColorLevel>
+			("You can change the background color of the window"); 
+			});
 	}
 
 	void EditorLayer::SetLevel1()
 	{
+		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<DrawTriangleLevel>
+			("You can change the position of the vertex",
+			"You can change the color of the vertex");
+			});
 	}
 
 	void EditorLayer::SetLevel2()
@@ -125,16 +131,6 @@ namespace PARS
 			}
 			ImGui::EndChild();
 			ImGui::TreePop();
-		}
-	}
-
-	void EditorLayer::ShowSimulationNode(SPtr<Level>&& newLevel, const char* explaination)
-	{
-		ImGui::TextColored(ImVec4(1, 1, 0, 1), newLevel->GetLevelName().c_str());
-		ImGui::Text(explaination);
-		if (ImGui::Button("Start Simulation", ImVec2(-FLT_MIN, 0)))
-		{
-			AddLevel(newLevel);
 		}
 	}
 }

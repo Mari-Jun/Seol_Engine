@@ -32,7 +32,27 @@ namespace PARS
 
 		void ShowLevelHeader(int level, FList& physics, FList& rendering);
 		void ShowListNode(const char* nodeName, FList& functions);
-		void ShowSimulationNode(SPtr<Level>&& newLevel, const char* explaination);
+
+		template<typename... Args>
+		void ShowExplanation(const Args&... args)
+		{
+			(ImGui::BulletText(args), ...);
+		}
+		template<typename T, typename ... Args>
+		void ShowSimulationNode(Args&& ... args)
+		{
+			auto newLevel = CreateSPtr<T>();
+
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), newLevel->GetLevelName().c_str());
+
+			ShowExplanation(args...);
+
+			if (ImGui::Button("Start Simulation", ImVec2(-FLT_MIN, 0)))
+			{
+				AddLevel(newLevel);
+			}
+		}
+		
 
 	private:
 		FLevelList m_BasicFuntions;

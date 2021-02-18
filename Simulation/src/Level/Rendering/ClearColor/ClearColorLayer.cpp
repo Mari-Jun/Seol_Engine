@@ -1,5 +1,4 @@
 #include "ClearColorLayer.h"
-#include <imgui/imgui.h>
 
 namespace PARS
 {
