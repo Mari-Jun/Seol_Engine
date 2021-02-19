@@ -1,32 +1,41 @@
 #include "DrawTriangleLevel.h"
-#include "DrawTriangleLayer.h"
-#include "PARS/Component/Render/MeshComponent.h"
 
 namespace PARS
 {
 	DrawTriangleLevel::DrawTriangleLevel()
 		: Level("Draw Triangle Level")
 	{
+
 	}
 
 	void DrawTriangleLevel::InitializeLevel()
 	{
 		auto layer = PARS::CreateSPtr<PARS::DrawTriangleLayer>();
 		layer->OnDestroy([this]() {Destroy(); });
+		layer->OnChangeVertex([this](APos pos, ACol color) {ChangeVertexPosition(pos, color); });
 		AddLayer(layer);
 
 		auto actor = CreateSPtr<Actor>();
-		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetHandMadeMesh<DiffuseMesh>(std::vector({
+		m_MeshComp = CreateSPtr<MeshComponent>();
+		m_MeshComp->SetHandMadeMesh<DiffuseMesh>(std::vector({
 				DiffuseVertex(Vec3(0.0f, 0.5f, 0.0f), Vec4(1.0f, 0.0f, 0.0f, 1.0f)),
 				DiffuseVertex(Vec3(0.5f, -0.5f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
 				DiffuseVertex(Vec3(-0.5f, -0.5f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 1.0f))
 				}));
-		actor->AddComponent(meshComp);
+		actor->AddComponent(m_MeshComp);
 		AddActor(actor);
 	}
 
 	void DrawTriangleLevel::UpdateLevel(float deltaTime)
 	{
+	}
+
+	void DrawTriangleLevel::ChangeVertexPosition(APos pos, ACol color)
+	{
+		m_MeshComp->SetHandMadeMesh<DiffuseMesh>(std::vector({
+			DiffuseVertex(std::move(pos[0]), std::move(color[0])),
+			DiffuseVertex(std::move(pos[1]), std::move(color[1])),
+			DiffuseVertex(std::move(pos[2]), std::move(color[2]))
+			}));
 	}
 }

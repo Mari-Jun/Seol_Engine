@@ -1,6 +1,8 @@
 #pragma once
 
 #include <PARS.h>
+#include "DrawTriangleLayer.h"
+#include "PARS/Component/Render/MeshComponent.h"
 
 namespace PARS
 {
@@ -12,6 +14,11 @@ namespace PARS
 
 		void InitializeLevel() override;
 		void UpdateLevel(float deltaTime) override;
+
+		void ChangeVertexPosition(APos pos, ACol color);
+
+	private:
+		SPtr<MeshComponent> m_MeshComp;
 	};
 }
 
