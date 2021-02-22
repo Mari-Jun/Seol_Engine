@@ -30,6 +30,8 @@ namespace PARS
 		void AddCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
 		void RemoveCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
 
+		void SetProjection(const Mat4& projection) { m_Projection = projection; }
+
 		inline static RenderFactory* GetRenderFactory() { return s_Instance; }
 
 	private:
@@ -38,6 +40,9 @@ namespace PARS
 		std::unordered_map<std::string, ID3D12RootSignature*> m_RootSignatures;
 		std::unordered_map<ShaderType, UPtr<Shader>> m_Shaders;
 		std::unordered_map<CameraComponent::CameraType, std::vector<SPtr<CameraComponent>>> m_CameraComps;
+
+	private:
+		Mat4 m_Projection;
 	};
 }
 

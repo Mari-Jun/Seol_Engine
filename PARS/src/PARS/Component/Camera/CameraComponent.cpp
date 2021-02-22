@@ -15,11 +15,13 @@ namespace PARS
 	void CameraComponent::Initialize()
 	{
 		const auto& factory = RenderFactory::GetRenderFactory();
-		
+		factory->AddCameraComponent(m_CameraType, std::reinterpret_pointer_cast<CameraComponent>(shared_from_this()));
 	}
 
 	void CameraComponent::Shutdown()
 	{
+		const auto& factory = RenderFactory::GetRenderFactory();
+		factory->RemoveCameraComponent(m_CameraType, std::reinterpret_pointer_cast<CameraComponent>(shared_from_this()));
 	}
 
 	void CameraComponent::Update(float deltaTime)

@@ -33,6 +33,9 @@ namespace PARS
 
 	public:
 		const Mat4& GetViewMatrix() const { return m_ViewMatrix; }
+
+		void SetCameraState(CameraState state) { m_CameraState = state; }
+		bool IsActive() const { return m_CameraState == CameraState::Active; }
 	};
 }
 

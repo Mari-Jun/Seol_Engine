@@ -6,7 +6,7 @@
 
 namespace PARS
 {
-	class DrawTriangleLevel : public Level
+	class DrawTriangleLevel : public Level2D
 	{
 	public:
 		DrawTriangleLevel();

@@ -7,6 +7,7 @@ namespace PARS
 {
 	RenderFactory::RenderFactory(const SPtr<DirectX12>& directX)
 		: m_DirectX12(directX)
+		, m_Projection(Mat4::Identity)
 	{
 		
 	}
@@ -57,23 +58,26 @@ namespace PARS
 		auto commandList = m_DirectX12->GetCommandList();
 		commandList->SetGraphicsRootSignature(m_RootSignatures["Default"]);
 
-		/*Vec3 eye(0.0f, 0.0f, -0.1f);
-		Vec3 target = Vec3::Zero;
-		Vec3 up = Vec3::AxisY;
-
-		Mat4 camera = Mat4::LookAt(eye, target, up);
-		static float aspect = static_cast<float>(Window::GetWindowInfo()->m_Width) / static_cast<float>(Window::GetWindowInfo()->m_Height);
-		Mat4 p = Mat4::Perspective(Math::ToRadians(90.0f), aspect, 1.0f, 500.0f);
-
-		Mat4 viewProj = camera * p;
-		viewProj.Transpose();*/
-
 		Mat4 viewProj;
 
-		commandList->SetGraphicsRoot32BitConstants(0, 16, &viewProj, 0);
+		auto cameraIter = m_CameraComps.find(CameraComponent::CameraType::Default);
+		if (cameraIter != m_CameraComps.cend())
+		{
+			for (const auto& camera : m_CameraComps[CameraComponent::CameraType::Default])
+			{
+				if (camera->IsActive())
+				{
+					viewProj = camera->GetViewMatrix();
+					viewProj *= m_Projection;
+					viewProj.Transpose();
 
-		m_Shaders[ShaderType::Color]->Draw();
-		m_RenderCompFactory->Draw(ShaderType::Color);
+					commandList->SetGraphicsRoot32BitConstants(0, 16, &viewProj, 0);
+
+					m_Shaders[ShaderType::Color]->Draw();
+					m_RenderCompFactory->Draw(ShaderType::Color);
+				}
+			}
+		}
 	}
 
 	void RenderFactory::PrepareToNextDraw()

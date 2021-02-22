@@ -3,13 +3,15 @@
 namespace PARS
 {
 	DrawTriangleLevel::DrawTriangleLevel()
-		: Level("Draw Triangle Level")
+		: Level2D("Draw Triangle Level")
 	{
 
 	}
 
 	void DrawTriangleLevel::InitializeLevel()
 	{
+		Level2D::InitializeLevel();
+
 		auto layer = PARS::CreateSPtr<PARS::DrawTriangleLayer>();
 		layer->OnDestroy([this]() {Destroy(); });
 		layer->OnChangeVertex([this](APos pos, ACol color) {ChangeVertexPosition(pos, color); });
@@ -24,10 +26,13 @@ namespace PARS
 				}));
 		actor->AddComponent(m_MeshComp);
 		AddActor(actor);
+
+		SetRenderProjectionOrtho(-1.0f, 1.0f, -1.0f, 1.0f);
 	}
 
 	void DrawTriangleLevel::UpdateLevel(float deltaTime)
 	{
+
 	}
 
 	void DrawTriangleLevel::ChangeVertexPosition(APos pos, ACol color)

@@ -40,7 +40,7 @@ namespace PARS
 		static Mat4 CreateTranslation(const Vec3& vec);
 
 		static Mat4 LookAt(const Vec3& eye, const Vec3& target, const Vec3& up);
-		static Mat4 Ortho(float width, float height, float bottom, float top, float near, float far);
+		static Mat4 Ortho(float left, float right, float bottom, float top, float near, float far);
 		static Mat4 Perspective(float fovy, float aspect, float near, float far);
 
 		void Transpose();
