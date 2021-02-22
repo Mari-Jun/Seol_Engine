@@ -40,6 +40,7 @@ namespace PARS
 			m_WorldMatrix *= Mat4::CreateTranslation(m_Position);
 
 			//Change Component World Matrix
+			m_ComponentManager->UpdateWorldMatrix();
 
 			m_RechangeWorldMatrix = false;
 		}

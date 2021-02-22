@@ -25,6 +25,7 @@ namespace PARS
 		virtual void Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Update(float deltaTime) override;
+		virtual void UpdateWorldMatrix() override;
 
 	protected:
 		CameraState m_CameraState;

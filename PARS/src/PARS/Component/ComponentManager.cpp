@@ -16,6 +16,14 @@ namespace PARS
 		}
 	}
 
+	void ComponentManager::UpdateWorldMatrix()
+	{
+		for (const auto& component : m_Components)
+		{
+			component->UpdateWorldMatrix();
+		}
+	}
+
 	void ComponentManager::Shutdown()
 	{
 		for (auto component : m_Components)

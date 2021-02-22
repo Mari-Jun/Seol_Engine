@@ -11,6 +11,7 @@ namespace PARS
 		~ComponentManager() = default;
 
 		void Update(float deltaTime);
+		void UpdateWorldMatrix();
 		void Shutdown();
 
 		void AddComponent(const SPtr<Component>& component);

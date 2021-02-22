@@ -26,7 +26,12 @@ namespace PARS
 
 	void CameraComponent::Update(float deltaTime)
 	{
-		const auto& owner = m_Owner.lock();	
+		
+	}
+
+	void CameraComponent::UpdateWorldMatrix()
+	{
+		const auto& owner = m_Owner.lock();
 
 		Vec3 eye = owner->GetPosition();
 		Vec3 target = eye + owner->GetForward() * 100.0f;
