@@ -11,6 +11,4 @@
 
 #include "PARS/Level/Level2D.h"
 
-#include "PARS/Component/Camera/CameraComponent.h"
-
 #include "PARS/Math/Math.h"

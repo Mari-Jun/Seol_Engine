@@ -68,6 +68,10 @@ namespace PARS
 			("You can change the position of the vertex",
 			"You can change the color of the vertex");
 			});
+
+		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<Camera2DLevel>
+			("You can change the position of the rectangle");
+			});
 	}
 
 	void EditorLayer::SetLevel2()

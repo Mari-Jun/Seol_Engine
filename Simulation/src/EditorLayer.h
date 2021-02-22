@@ -47,7 +47,9 @@ namespace PARS
 
 			ShowExplanation(args...);
 
-			if (ImGui::Button("Start Simulation", ImVec2(-FLT_MIN, 0)))
+			static std::string buttonName = "Start " + newLevel->GetLevelName() + " Simulation";
+
+			if (ImGui::Button(buttonName.c_str(), ImVec2(-FLT_MIN, 0)))
 			{
 				AddLevel(newLevel);
 			}
