@@ -21,7 +21,7 @@ namespace PARS
 		{
 			if (actor->GetActorState() == Actor::ActorState::Active)
 			{
-				actor->Update(deltaTime);
+				actor->UpdateActor(deltaTime);
 			}
 		}
 		m_IsUpdateActors = false;

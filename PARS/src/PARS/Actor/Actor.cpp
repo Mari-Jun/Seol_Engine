@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "PARS/Actor/Actor.h"
-#include "PARS/Component/ComponentManager.h"
 
 namespace PARS
 {
@@ -21,12 +20,12 @@ namespace PARS
 		m_ComponentManager->Shutdown();
 	}
 
-	void Actor::Update(float deltaTime)
+	void Actor::UpdateActor(float deltaTime)
 	{
 		UpdateWorldMatrix();
 
 		m_ComponentManager->Update(deltaTime);
-		UpdateActor(deltaTime);
+		Update(deltaTime);
 		
 		UpdateWorldMatrix();
 	}

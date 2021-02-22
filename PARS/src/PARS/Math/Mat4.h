@@ -43,6 +43,9 @@ namespace PARS
 		static Mat4 Ortho(float width, float height, float bottom, float top, float near, float far);
 		static Mat4 Perspective(float fovy, float aspect, float near, float far);
 
+		void Transpose();
+		static Mat4 Transpose(const Mat4& mat);
+
 		XMMATRIX ConvertToXMMATRIX();
 		void ConvertFromXMMATRIX(const XMMATRIX& matrix);
 

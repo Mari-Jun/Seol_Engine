@@ -1,12 +1,11 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Component/ComponentManager.h"
 #include "PARS/Math/Math.h"
 
 namespace PARS
 {
-	class ComponentManager;
-
 	class Actor : public std::enable_shared_from_this<Actor>
 	{
 	public:
@@ -23,8 +22,8 @@ namespace PARS
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
 		virtual void ActorInput() {}
-		void Update(float deltaTime);
-		virtual void UpdateActor(float deltaTime) {}
+		void UpdateActor(float deltaTime);
+		virtual void Update(float deltaTime) {}
 
 		void UpdateWorldMatrix();
 
@@ -55,9 +54,9 @@ namespace PARS
 		float GetScale() const { return m_Scale; }
 		void SetScale(float scale) { m_Scale = scale; m_RechangeWorldMatrix = true; }
 
-		const Vec3& GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
-		const Vec3& GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
-		const Vec3& GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
+		Vec3 GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
+		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
+		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
 	};
 }
 

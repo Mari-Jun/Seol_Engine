@@ -67,7 +67,7 @@ namespace PARS
 
 	Vec3 Mat4::GetTranslation() const
 	{
-		return Vec3();
+		return Vec3(mat[3][0], mat[3][1], mat[3][2]);
 	}
 
 	Mat4 Mat4::CreateScale(float x, float y, float z)
@@ -194,12 +194,33 @@ namespace PARS
 	{
 		float yScale = Math::Cot(fovy / 2.0f);
 		float xScale = yScale / aspect;
+		float fRange = far / (far - near);
+
 		return Mat4(
 			xScale, 0.0f, 0.0f, 0.0f,
 			0.0f, yScale, 0.0f, 0.0f,
-			0.0f, 0.0f, far / (near - far), -1.0f,
-			0.0f, 0.0f, (near * far) / (near - far), 0.0f
+			0.0f, 0.0f, fRange, 1.0f,
+			0.0f, 0.0f, -fRange * near, 0.0f
 		);
+	}
+
+	void Mat4::Transpose()
+	{
+		Mat4 temp = *this;
+		for (auto row = 0; row < 4; ++row)
+		{
+			for (auto col = 0; col < 4; col++)
+			{
+				mat[row][col] = temp.mat[col][row];
+			}
+		}
+	}
+
+	Mat4 Mat4::Transpose(const Mat4& mat)
+	{
+		auto result(mat);
+		result.Transpose();
+		return result;
 	}
 
 	XMMATRIX Mat4::ConvertToXMMATRIX()

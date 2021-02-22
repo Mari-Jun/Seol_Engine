@@ -1,3 +1,7 @@
+cbuffer cbCameraInfo : register(b0)
+{
+    matrix gViewProj;
+}
 
 struct VS_IN
 {
@@ -15,7 +19,7 @@ VS_OUT VSMain(VS_IN input)
 {
 	VS_OUT output;
 
-	output.position = float4(input.position, 1.0f);
+    output.position = mul(float4(input.position, 1.0f), gViewProj);
 	output.color = input.color;
 
 	return output;
