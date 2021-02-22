@@ -18,14 +18,13 @@ namespace PARS
 
 		auto rectangle = CreateSPtr<Actor>();
 		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetHandMadeMesh<DiffuseMesh>(std::vector({
-				DiffuseVertex(Vec3(-200.0f, 200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
+		meshComp->SetHandMadeMesh<DiffuseMesh>(
+			std::vector({ DiffuseVertex(Vec3(-200.0f, 200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
 				DiffuseVertex(Vec3(200.0f, 200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
 				DiffuseVertex(Vec3(200.0f, -200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
-				DiffuseVertex(Vec3(-200.0f, 200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
-				DiffuseVertex(Vec3(200.0f, -200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
-				DiffuseVertex(Vec3(-200.0f, -200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f))
-			}));
+				DiffuseVertex(Vec3(-200.0f, -200.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)) }),
+			std::vector({ UINT(0), UINT(1), UINT(2), UINT(0), UINT(2), UINT(3) })
+			);
 		rectangle->AddComponent(meshComp);
 		AddActor(rectangle);
 	}
