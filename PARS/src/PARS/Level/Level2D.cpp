@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "PARS/Level/Level2D.h"
 #include "PARS/Core/Window.h"
-#include "PARS/Actor/Actor.h"
+#include "PARS/Actor/Pawn.h"
+#include "PARS/Actor/Controller/PlayerController.h"
+#include "PARS/Input/Input.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 
 namespace PARS
@@ -13,11 +15,16 @@ namespace PARS
 
 	void Level2D::InitializeLevel()
 	{
-		auto actor = CreateSPtr<Actor>();
-		actor->SetPosition({ 0.0f, 0.0f, -0.1f });
-		m_Camera = CreateSPtr<CameraComponent>();
-		actor->AddComponent(m_Camera);
-		AddActor(actor);
+		auto defualtActor = CreateSPtr<Pawn>();
+		defualtActor->SetPosition({ 0.0f, 0.0f, -0.1f });
+		m_DefaultCamera = CreateSPtr<CameraComponent>();
+		defualtActor->AddComponent(m_DefaultCamera);
+		AddActor(defualtActor);
+
+		m_DefaultController = CreateSPtr<PlayerController>(defualtActor);
+		m_DefaultController->SetUseDefaultKeyEvent(true);
+		m_DefaultController->SetUseDefaultMouseEvent(false);
+		AddActor(m_DefaultController);
 
 		float width = static_cast<float>(Window::GetWindowInfo()->m_Width) / 2;
 		float height = static_cast<float>(Window::GetWindowInfo()->m_Height) / 2;
@@ -34,11 +41,11 @@ namespace PARS
 
 	void Level2D::SetDefaultCameraActive()
 	{
-		m_Camera->SetCameraState(CameraComponent::CameraState::Active);
+		m_DefaultCamera->SetCameraState(CameraComponent::CameraState::Active);
 	}
 
 	void Level2D::SetDefaultCameraPause()
 	{
-		m_Camera->SetCameraState(CameraComponent::CameraState::Paused);
+		m_DefaultCamera->SetCameraState(CameraComponent::CameraState::Paused);
 	}
 }

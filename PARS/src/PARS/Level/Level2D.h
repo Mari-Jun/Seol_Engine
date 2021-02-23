@@ -14,7 +14,6 @@ namespace PARS
 
 		virtual void InitializeLevel();
 		virtual	void ShutdownLevel() {}
-		virtual void LevelInput() {}
 		virtual void UpdateLevel(float deltaTime) {};
 
 	protected:
@@ -24,12 +23,9 @@ namespace PARS
 		void SetDefaultCameraActive();
 		void SetDefaultCameraPause();
 
-		//외부에서 카메라 컨트롤러를 세팅할 수 있게 (원한다면)
-
 	private:
-		SPtr<class CameraComponent> m_Camera;
-
-		//기본 컨트롤러 선언
+		SPtr<class CameraComponent> m_DefaultCamera;
+		SPtr<class PlayerController> m_DefaultController;
 	};
 
 }

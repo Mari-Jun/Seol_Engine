@@ -1,20 +1,24 @@
 #pragma once
 #include "PARS/Actor/Actor.h"
+#include "PARS/Component/Util/MovementComponent.h"
 
 namespace PARS
 {
 	class Pawn : public Actor
 	{
 	public:
-		Pawn(const WPtr<class Controller>& controller);
+		Pawn();
 		virtual ~Pawn() = default;
 
+		virtual void Initialize() override;
+		virtual void Shutdown() override;
+		virtual void Update(float deltaTime) {}
+
 	protected:
-		WPtr<class Controller> m_Controller;
-		//Movement 클래스 <넣어야함>
+		SPtr<MovementComponent> m_MovementComp;
 
 	public:
-		const SPtr<class Controller>& GetController();
+		const SPtr<MovementComponent>& GetMovementComp() const { return m_MovementComp; }
 	};
 }
 
