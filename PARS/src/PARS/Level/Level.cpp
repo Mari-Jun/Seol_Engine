@@ -28,6 +28,11 @@ namespace PARS
 		m_ActorManager->Shutdown();
 	}
 
+	void Level::LevelInput()
+	{
+		m_ActorManager->ProcessInput();
+	}
+
 	void Level::Update(float deltaTime)
 	{
 		UpdateActorManager(deltaTime);
@@ -65,5 +70,25 @@ namespace PARS
 		{
 			layer.lock()->SetLayerState(Layer::LayerState::Hide);
 		}
+	}
+
+	void Level::AddOnceAction(std::string&& name, int key, const std::function<void()>& func)
+	{
+		m_InputFactory->AddOnceAction(std::move(name), key, func);
+	}
+
+	void Level::AddLoopAction(std::string&& name, int key, const std::function<void()>& func)
+	{
+		m_InputFactory->AddLoopAction(std::move(name), key, func);
+	}
+
+	void Level::AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func)
+	{
+		m_InputFactory->AddAxisAction(std::move(name), std::move(keyAndAxis), func);
+	}
+
+	void Level::ActiveAction(ActionType type, std::string&& name, bool active)
+	{
+		m_InputFactory->ActiceAction(type, std::move(name), active);
 	}
 }

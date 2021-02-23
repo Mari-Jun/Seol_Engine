@@ -9,7 +9,7 @@ namespace PARS
 		{
 			if (actor->GetActorState() == Actor::ActorState::Active)
 			{
-				actor->ActorInput();
+				actor->ProcessInput();
 			}
 		}
 	}

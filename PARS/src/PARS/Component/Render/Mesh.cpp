@@ -84,8 +84,6 @@ namespace PARS
 		m_VertexBufferView.StrideInBytes = m_Stride;
 		m_VertexBufferView.SizeInBytes = m_VertexCount * m_Stride;
 
-		std::cout << m_VertexCount << std::endl;
-
 		if (b_DrawIndex)
 		{
 			m_IndexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_Indices.data(), sizeof(UINT) * m_IndexCount,

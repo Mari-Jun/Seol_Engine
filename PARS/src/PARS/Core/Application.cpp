@@ -98,6 +98,7 @@ namespace PARS
 		{
 			m_Running = false;
 		}
+		m_LevelManager->ProcessInput();
 	}
 
 	void Application::Update()

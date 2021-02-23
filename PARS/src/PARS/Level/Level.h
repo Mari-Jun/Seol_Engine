@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Input/InputFactory.h"
 
 namespace PARS
 {
@@ -21,7 +22,7 @@ namespace PARS
 		virtual	void ShutdownLevel() {}
 		void Initialize();		
 		void Shutdown();
-		virtual void LevelInput() {}
+		void LevelInput();
 		void Update(float deltaTime);
 		void UpdateActorManager(float deltaTime);
 		virtual void UpdateLevel(float deltaTime) {};
@@ -36,6 +37,7 @@ namespace PARS
 	private:
 		UPtr<ActorManager> m_ActorManager;
 		std::vector<WPtr<class Layer>> m_Layers;
+		UPtr<InputFactory> m_InputFactory;
 
 	public:
 		const std::string& GetLevelName() const { return m_LevelName; }
@@ -45,6 +47,12 @@ namespace PARS
 		void SetLayerActive();
 		void SetLayerHide();
 		void Destroy() { m_LevelState = LevelState::Dead; }
+
+	protected:
+		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
+		void ActiveAction(ActionType type, std::string&& name, bool active);
 	};
 }
 

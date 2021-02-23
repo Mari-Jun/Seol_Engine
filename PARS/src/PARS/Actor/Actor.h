@@ -2,6 +2,7 @@
 
 #include "PARS/Core/Core.h"
 #include "PARS/Component/ComponentManager.h"
+#include "PARS/Input/InputFactory.h"
 #include "PARS/Math/Math.h"
 
 namespace PARS
@@ -21,6 +22,7 @@ namespace PARS
 		void ShutdownActor();
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
+		void ProcessInput();
 		virtual void ActorInput() {}
 		void UpdateActor(float deltaTime);
 		virtual void Update(float deltaTime) {}
@@ -40,7 +42,9 @@ namespace PARS
 		bool m_RechangeWorldMatrix = true;
 
 		UPtr<ComponentManager> m_ComponentManager;
-		
+
+		UPtr<InputFactory> m_InputFactory;
+
 	public:
 		ActorState GetActorState() const { return m_ActorState; }
 		void SetActorState(ActorState state) { m_ActorState = state; }
@@ -57,6 +61,12 @@ namespace PARS
 		Vec3 GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
+
+	protected:
+		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
+		void ActiveAction(ActionType type, std::string&& name, bool active);
 	};
 }
 

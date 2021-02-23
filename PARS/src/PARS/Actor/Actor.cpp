@@ -7,6 +7,7 @@ namespace PARS
 		: m_ActorState(ActorState::Active)
 	{
 		m_ComponentManager = CreateUPtr<ComponentManager>();
+		m_InputFactory = CreateUPtr<InputFactory>();
 	}
 
 	void Actor::InitializeActor()
@@ -18,6 +19,12 @@ namespace PARS
 	{
 		Shutdown();
 		m_ComponentManager->Shutdown();
+	}
+
+	void Actor::ProcessInput()
+	{
+		ActorInput();
+		m_InputFactory->ProcessInput();
 	}
 
 	void Actor::UpdateActor(float deltaTime)
@@ -50,5 +57,25 @@ namespace PARS
 	{
 		m_ComponentManager->AddComponent(component);
 		component->SetOwner(weak_from_this());
+	}
+
+	void Actor::AddOnceAction(std::string&& name, int key, const std::function<void()>& func)
+	{
+		m_InputFactory->AddOnceAction(std::move(name), key, func);
+	}
+
+	void Actor::AddLoopAction(std::string&& name, int key, const std::function<void()>& func)
+	{
+		m_InputFactory->AddLoopAction(std::move(name), key, func);
+	}
+
+	void Actor::AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func)
+	{
+		m_InputFactory->AddAxisAction(std::move(name), std::move(keyAndAxis), func);
+	}
+
+	void Actor::ActiveAction(ActionType type, std::string&& name, bool active)
+	{
+		m_InputFactory->ActiceAction(type, std::move(name), active);
 	}
 }
