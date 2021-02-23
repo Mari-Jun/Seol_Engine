@@ -28,6 +28,7 @@ namespace PARS
 		AddActor(actor);
 
 		SetRenderProjectionOrtho(-1.0f, 1.0f, -1.0f, 1.0f);
+		SetDefaultControllerKeyEvent(false);
 	}
 
 	void DrawTriangleLevel::UpdateLevel(float deltaTime)

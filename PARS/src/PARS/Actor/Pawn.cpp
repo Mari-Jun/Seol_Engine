@@ -5,6 +5,7 @@
 namespace PARS
 {
 	Pawn::Pawn()
+		: m_MoveSpeed(600.0f)
 	{
 	}
 

@@ -9,16 +9,14 @@
 namespace PARS
 {
 	DefaultLevel::DefaultLevel(const std::string& name)
+		: Level(name)
 	{
 	}
 
 	void DefaultLevel::InitializeLevel()
 	{
-		if (m_DefaultPawn == nullptr)
-		{
-			m_DefaultPawn = CreateSPtr<Pawn>();
-			m_DefaultPawn->SetPosition({ 0.0f, 0.0f, -0.1f });
-		}
+		m_DefaultPawn = CreateSPtr<Pawn>();
+		m_DefaultPawn->SetPosition({ 0.0f, 0.0f, -0.1f });
 		m_DefaultCamera = CreateSPtr<CameraComponent>();
 		m_DefaultPawn->AddComponent(m_DefaultCamera);
 		AddActor(m_DefaultPawn);

@@ -15,13 +15,11 @@ namespace PARS
 		virtual void Update(float deltaTime) override;
 
 	private:
-		bool b_UseDefaultKeyEvent = true;
-		bool b_UseDefaultMouseEvent = true;
 		bool b_IsSameRotationWithPawn = true;
 
 	public:
-		void SetUseDefaultKeyEvent(bool use) { b_UseDefaultKeyEvent = use; }
-		void SetUseDefaultMouseEvent(bool use) { b_UseDefaultMouseEvent = use; }
+		void SetUseDefaultKeyEvent(bool use);
+		void SetUseDefaultMouseEvent(bool use);
 		void SetSameRoationWithPawn(bool boolean) { b_IsSameRotationWithPawn = boolean; }
 
 	private:
