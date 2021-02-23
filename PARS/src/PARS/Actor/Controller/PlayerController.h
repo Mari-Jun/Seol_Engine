@@ -6,6 +6,7 @@ namespace PARS
 	class PlayerController : public Controller
 	{
 	public:
+		PlayerController();
 		PlayerController(const SPtr<class Pawn>& pawn);
 		virtual ~PlayerController() = default;
 

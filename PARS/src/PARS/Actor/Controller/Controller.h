@@ -8,6 +8,7 @@ namespace PARS
 	class Controller : public Actor
 	{
 	public:
+		Controller();
 		Controller(const SPtr<class Pawn>& pawn);
 		virtual ~Controller() = default;
 
@@ -17,9 +18,10 @@ namespace PARS
 
 	public:
 		const SPtr<Pawn>& GetControlledPawn() const { return m_ControlledPawn; }
+		void SetControlledPawn(const SPtr<Pawn>& pawn) { m_ControlledPawn = pawn; }
 
 	protected:
-		SPtr<Pawn> m_ControlledPawn;
+		SPtr<Pawn> m_ControlledPawn = nullptr;
 	};
 }
 

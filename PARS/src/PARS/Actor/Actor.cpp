@@ -59,6 +59,11 @@ namespace PARS
 		component->SetOwner(weak_from_this());
 	}
 
+	void Actor::RemoveComponent(const SPtr<class Component>& component)
+	{
+		m_ComponentManager->RemoveComponent(component);
+	}
+
 	void Actor::AddOnceAction(std::string&& name, int key, const std::function<void()>& func)
 	{
 		m_InputFactory->AddOnceAction(std::move(name), key, func);

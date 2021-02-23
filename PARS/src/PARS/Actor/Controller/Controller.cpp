@@ -3,6 +3,10 @@
 
 namespace PARS
 {
+	Controller::Controller()
+	{
+	}
+
 	Controller::Controller(const SPtr<Pawn>& pawn)
 		: m_ControlledPawn(pawn)
 	{

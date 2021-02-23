@@ -3,6 +3,11 @@
 
 namespace PARS
 {
+	PlayerController::PlayerController()
+		: Controller()
+	{
+	}
+
 	PlayerController::PlayerController(const SPtr<Pawn>& pawn)
 		: Controller(pawn)
 	{

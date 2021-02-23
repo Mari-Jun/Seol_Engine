@@ -30,6 +30,7 @@ namespace PARS
 		void UpdateWorldMatrix();
 
 		void AddComponent(const SPtr<class Component>& component);
+		void RemoveComponent(const SPtr<class Component>& component);
 
 	protected:
 		ActorState m_ActorState;

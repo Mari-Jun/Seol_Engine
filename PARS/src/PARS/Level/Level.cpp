@@ -49,6 +49,11 @@ namespace PARS
 		m_ActorManager->AddActor(actor);
 	}
 
+	void Level::RemoveActor(const SPtr<class Actor>& actor)
+	{
+		m_ActorManager->RemoveActor(actor);
+	}
+
 	void Level::AddLayer(const SPtr<Layer>& layer)
 	{
 		auto layerManger = LayerManager::GetLayerManager();
