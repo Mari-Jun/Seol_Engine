@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
+#include "PARS/Layer/LayerManager.h"
 
 #include "imgui.h"
 #include "examples/imgui_impl_win32.h"
@@ -79,8 +80,9 @@ namespace PARS
             return true;
 
         LRESULT result = NULL;
-        const auto manager = Input::GetInputManager();
-        const auto directX = DirectX12::GetDirectX12();
+        const auto& manager = Input::GetInputManager();
+        const auto& directX = DirectX12::GetDirectX12();
+        const auto& layerManager = LayerManager::GetLayerManager();
 
         switch (message)
         {
@@ -92,8 +94,18 @@ namespace PARS
             {                
                 directX->ResizeWindow();
             }
+            if (layerManager != nullptr)
+            {
+                layerManager->ResizeLayer();
+            }
         }
         break;
+        case WM_MOVE:
+            if (layerManager != nullptr)
+            {
+                layerManager->ResizeLayer();
+            }
+            break;
         case WM_KEYDOWN:
         case WM_KEYUP:
         case WM_SYSKEYDOWN:

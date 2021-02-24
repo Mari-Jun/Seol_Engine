@@ -52,6 +52,14 @@ namespace PARS
 		}
 	}
 
+	void LayerManager::ResizeLayer()
+	{
+		for (const auto& layer : m_Layers)
+		{
+			layer->ResizeLayer();
+		}
+	}
+
 	void LayerManager::AddLayer(const SPtr<Layer>& layer)
 	{
 		if (m_IsUpdateLayers)

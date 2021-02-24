@@ -57,7 +57,7 @@ namespace PARS
 		SetDefaultControllerKeyEvent(true);
 		SetDefaultControllerMouseEvent(false);
 
-		float width = static_cast<float>(Window::GetWindowInfo()->m_Width) / 2;
+		float width = static_cast<float>(Window::GetWindowInfo()->m_Width - Window::GetWindowInfo()->m_LayerWidth) / 2;
 		float height = static_cast<float>(Window::GetWindowInfo()->m_Height) / 2;
 
 		SetRenderProjectionOrtho(-width, width, -height, height);

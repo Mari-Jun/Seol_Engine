@@ -18,6 +18,7 @@ namespace PARS
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
 		virtual void Update() {}
+		virtual void ResizeLayer() {}
 
 		void AddLevel(const SPtr<class Level>& level);
 

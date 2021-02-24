@@ -8,11 +8,13 @@ namespace PARS
 	struct WindowInfo
 	{
 		UINT m_Width, m_Height;
+		UINT m_LayerWidth;
 		HWND m_hwnd;
 		HINSTANCE m_hInstance;
 
-		WindowInfo(	UINT width = 1600, UINT height = 900)
+		WindowInfo(UINT width = 1600, UINT height = 900)
 			: m_Width(width), m_Height(height)
+			, m_LayerWidth(400)
 			, m_hwnd(NULL), m_hInstance(NULL)
 		{
 		}

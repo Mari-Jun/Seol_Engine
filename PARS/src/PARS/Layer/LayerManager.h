@@ -12,6 +12,7 @@ namespace PARS
 
 		void Update();
 		void Shutdown();
+		void ResizeLayer();
 
 		void AddLayer(const SPtr<Layer>& layer);
 		void RemoveLayer(const WPtr<Layer>& layer);
