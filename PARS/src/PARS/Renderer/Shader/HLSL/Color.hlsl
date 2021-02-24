@@ -1,4 +1,9 @@
-cbuffer cbCameraInfo : register(b0)
+cbuffer cbWorldInfo : register(b0)
+{
+    matrix gWorld;
+}
+
+cbuffer cbCameraInfo : register(b1)
 {
     matrix gViewProj;
 }
@@ -19,7 +24,7 @@ VS_OUT VSMain(VS_IN input)
 {
 	VS_OUT output;
 
-    output.position = mul(float4(input.position, 1.0f), gViewProj);
+    output.position = mul(mul(float4(input.position, 1.0f), gWorld), gViewProj);
 	output.color = input.color;
 
 	return output;

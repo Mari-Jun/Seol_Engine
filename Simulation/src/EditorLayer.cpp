@@ -23,7 +23,7 @@ namespace PARS
 
 	void EditorLayer::Update()
 	{
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 		Vec4 Color;
 		ImGui::Begin(m_LayerName.c_str());

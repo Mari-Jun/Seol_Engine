@@ -28,6 +28,7 @@ namespace PARS
 		SPtr<class PlayerController> m_DefaultController = nullptr;
 
 	protected:
+		const SPtr<class Pawn>& GetDefaultPawn() const { return m_DefaultPawn; }
 		const SPtr<class PlayerController>& GetDefaultController() const { return m_DefaultController; }
 	};
 
