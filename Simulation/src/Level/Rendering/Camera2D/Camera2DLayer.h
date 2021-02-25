@@ -12,17 +12,28 @@ namespace PARS
 		virtual ~Camera2DLayer() = default;
 
 		void Initialize() override;
-		void UpdateGUI() override;
 
-		void OnChangeMeshColor(const std::function<void(const Vec4&)>& func) { f_ChangeMeshColor = func; }
-		void OnShowCameraPosition(const std::function<void()>& func) { f_Position = func; }
+	public:
+		void SetRectangleActor(const SPtr<class Actor>& actor) { m_RectangleActor = actor; }
+		void SetRectMeshComp(const SPtr<class MeshComponent>& meshComp) { m_RectMeshComp = meshComp; }
 
 	private:
+		SPtr<class Actor> m_RectangleActor;
+		SPtr<class MeshComponent> m_RectMeshComp;
 		Vec4 m_MeshColor;
+	
+	private:
+		void RectangleActorDetail();
+		void RectangleMeshCompDetail();
+
+	public:
+		void SetCameraActor(const SPtr<class Actor>& actor) { m_CameraActor = actor; }
 
 	private:
-		std::function<void(const Vec4&)> f_ChangeMeshColor;
-		std::function<void()> f_Position;
+		SPtr<class Actor> m_CameraActor;
+
+	private:
+		void CameraDetail();		
 	};
 }
 

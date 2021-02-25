@@ -11,7 +11,7 @@ namespace PARS
 		ClearColorLayer();
 		virtual ~ClearColorLayer() = default;
 
-		void UpdateGUI() override;
+		void UpdateDetail() override;
 	};
 }
 

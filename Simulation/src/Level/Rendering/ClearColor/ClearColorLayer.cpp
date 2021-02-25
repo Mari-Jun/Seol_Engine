@@ -8,7 +8,7 @@ namespace PARS
 	
 	}
 
-	void ClearColorLayer::UpdateGUI()
+	void ClearColorLayer::UpdateDetail()
 	{
 		static Vec4 clearColor;
 		ImGui::ColorEdit3("clear color", (float*)&clearColor);

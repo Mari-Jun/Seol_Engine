@@ -15,16 +15,17 @@ namespace PARS
 		virtual ~DrawTriangleLayer() = default;
 
 		void Initialize() override;
-		void UpdateGUI() override;
 
-		void OnChangeVertex(std::function<void(APos, ACol)> func) { f_ChangeVertex = func; }
+	public:
+		void SetTriMeshComp(const SPtr<class MeshComponent>& meshComp) { m_TriMeshComp = meshComp; }
 
 	private:
+		SPtr<class MeshComponent> m_TriMeshComp;
 		APos m_Positions;
 		ACol m_Colors;
 
 	private:
-		std::function<void(APos, ACol)> f_ChangeVertex;
+		void TriangleDetail();
 	};
 }
 

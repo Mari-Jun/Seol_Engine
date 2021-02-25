@@ -14,11 +14,6 @@ namespace PARS
 
 		void InitializeLevel() override;
 		void UpdateLevel(float deltaTime) override;
-
-		void ChangeVertexPosition(APos pos, ACol color);
-
-	private:
-		SPtr<MeshComponent> m_MeshComp;
 	};
 }
 

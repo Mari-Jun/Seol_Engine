@@ -13,14 +13,6 @@ namespace PARS
 
 		void InitializeLevel() override;
 		void UpdateLevel(float deltaTime) override;
-
-	private:
-		SPtr<Actor> m_Rectangle;
-		SPtr<class MeshComponent> m_MeshComp;
-
-	private:
-		void ChangeMeshColor(const Vec4& meshColor);
-		void PositionFunc();
 	};
 }
 
