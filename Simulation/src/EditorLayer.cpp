@@ -74,6 +74,10 @@ namespace PARS
 				"You can change the color of the rectangle",
 				"You can check the position of the rectangle and camera");
 			});
+
+		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<LoadObjLevel>
+			("Not yet");
+			});
 	}
 
 	void EditorLayer::SetLevel2()

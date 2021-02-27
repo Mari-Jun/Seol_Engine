@@ -32,6 +32,12 @@ namespace PARS
 		void AddComponent(const SPtr<class Component>& component);
 		void RemoveComponent(const SPtr<class Component>& component);
 
+	public:
+		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
+		void ActiveAction(ActionType type, std::string&& name, bool active);
+
 	protected:
 		ActorState m_ActorState;
 
@@ -62,12 +68,6 @@ namespace PARS
 		Vec3 GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
-
-	protected:
-		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
-		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
-		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
-		void ActiveAction(ActionType type, std::string&& name, bool active);
 	};
 }
 

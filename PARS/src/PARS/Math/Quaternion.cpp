@@ -28,12 +28,12 @@ namespace PARS
 	{
 		Vec3 pv(x, y, z);
 		Vec3 qv(q.x, q.y, q.z);
-		Vec3 newVec = Vec3::Cross(pv, qv, false) + q.w * pv + w * qv;
+		Vec3 newVec = Vec3::Cross(qv, pv, false) + q.w * pv + w * qv;
 		x = newVec.x;
 		y = newVec.y;
 		z = newVec.z;
 
-		w = w * q.w - Vec3::Dot(pv, qv);
+		w = q.w * w - Vec3::Dot(qv, pv);
 		return *this;
 	}
 

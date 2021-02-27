@@ -12,17 +12,15 @@ namespace PARS
 		DefaultLevel(const std::string& name);
 		virtual ~DefaultLevel() = default;
 
-		virtual void InitializeLevel();
-		virtual	void ShutdownLevel() {}
-		virtual void UpdateLevel(float deltaTime) {};
+		virtual void InitializeLevel() override;
 
 	protected:
 		void SetDefaultCameraActive();
 		void SetDefaultCameraPause();
-		void SetDefaultControllerKeyEvent(bool use);
-		void SetDefaultControllerMouseEvent(bool use);
+		virtual void SetDefaultControllerKeyEvent(bool use) {}
+		virtual void SetDefaultControllerMouseEvent(bool use) {}
 
-	private:
+	protected:
 		SPtr<class Pawn> m_DefaultPawn = nullptr;
 		SPtr<class CameraComponent> m_DefaultCamera = nullptr;
 		SPtr<class PlayerController> m_DefaultController = nullptr;
@@ -38,12 +36,28 @@ namespace PARS
 		Level2D(const std::string& name);
 		virtual ~Level2D() = default;
 
-		virtual void InitializeLevel();
-		virtual	void ShutdownLevel() {}
-		virtual void UpdateLevel(float deltaTime) {};
+		virtual void InitializeLevel() override;
 
 	protected:
+		virtual void SetDefaultControllerKeyEvent(bool use) override final;
+		virtual void SetDefaultControllerMouseEvent(bool use) override final;
 		void SetRenderProjectionOrtho(float left, float right, float bottom, float top, float near = 0.0f, float far = 1.0f);
+
+	};
+
+	class Level3D : public DefaultLevel
+	{
+	public:
+		Level3D(const std::string& name);
+		virtual ~Level3D() = default;
+
+		virtual void InitializeLevel() override;
+
+	protected:
+		virtual void SetDefaultControllerKeyEvent(bool use) override final;
+		virtual void SetDefaultControllerMouseEvent(bool use) override final;
+		void SetRenderProjectionPerspective(float fovy, float aspect, float near = 1.0f, float far = 1000.0f);
+
 	};
 
 }

@@ -169,15 +169,19 @@ namespace PARS
 		Vec3 n = Vec3::Normalize(target - eye);
 		Vec3 u = Vec3::Cross(up, n);
 		Vec3 v = Vec3::Cross(n, u);
+		Vec3 trans;
+		trans.x = -Vec3::Dot(u, eye);
+		trans.y = -Vec3::Dot(v, eye);
+		trans.z = -Vec3::Dot(n, eye);
 
 		Mat4 result(
 			u.x, v.x, n.x, 0.0f,
 			u.y, v.y, n.y, 0.0f,
 			u.z, v.z, n.z, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
+			trans.x, trans.y, trans.z, 1.0f
 		);
 
-		return result * CreateTranslation(Vec3(-eye.x, -eye.y, -eye.z));
+		return result;
 	}
 
 	Mat4 Mat4::Ortho(float left, float right, float bottom, float top, float near, float far)

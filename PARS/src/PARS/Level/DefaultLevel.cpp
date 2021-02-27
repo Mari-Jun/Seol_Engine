@@ -35,16 +35,6 @@ namespace PARS
 		m_DefaultCamera->SetCameraState(CameraComponent::CameraState::Paused);
 	}
 
-	void DefaultLevel::SetDefaultControllerKeyEvent(bool use)
-	{
-		m_DefaultController->SetUseDefaultKeyEvent(use);
-	}
-
-	void DefaultLevel::SetDefaultControllerMouseEvent(bool use)
-	{
-		m_DefaultController->SetUseDefaultMouseEvent(use);
-	}
-
 	Level2D::Level2D(const std::string& name)
 		: DefaultLevel(name)
 	{
@@ -53,6 +43,13 @@ namespace PARS
 	void Level2D::InitializeLevel()
 	{
 		DefaultLevel::InitializeLevel();
+
+		m_DefaultController->AddAxisAction("Move Rightward",
+			std::vector{ KeyAxis{PARS_KEY_D, 1.0f }, KeyAxis{PARS_KEY_A, -1.0f} }, 
+			[this](float axis) {m_DefaultController->MoveRightward(axis); });
+		m_DefaultController->AddAxisAction("Move Upward",
+			std::vector{ KeyAxis{PARS_KEY_W, 1.0f }, KeyAxis{PARS_KEY_S, -1.0f} },
+			[this](float axis) {m_DefaultController->MoveUpward(axis); });
 
 		SetDefaultControllerKeyEvent(true);
 		SetDefaultControllerMouseEvent(false);
@@ -63,10 +60,72 @@ namespace PARS
 		SetRenderProjectionOrtho(-width, width, -height, height);
 	}
 
+	void Level2D::SetDefaultControllerKeyEvent(bool use)
+	{
+		m_DefaultController->ActiveAction(ActionType::Axis, "Move Rightward", use);
+		m_DefaultController->ActiveAction(ActionType::Axis, "Move Upward", use);
+	}
+
+	void Level2D::SetDefaultControllerMouseEvent(bool use)
+	{
+	
+	}
+
 	void Level2D::SetRenderProjectionOrtho(float left, float right, float bottom, float top, float near, float far)
 	{
 		Mat4 projection = Mat4::Ortho(left, right, bottom, top, near, far);
 		const auto& factory = RenderFactory::GetRenderFactory();
 		factory->SetProjection(projection);
 	}	
+
+	Level3D::Level3D(const std::string& name)
+		: DefaultLevel(name)
+	{
+	}
+
+	void Level3D::InitializeLevel()
+	{
+		DefaultLevel::InitializeLevel();
+
+		m_DefaultController->AddAxisAction("Move Forward",
+			std::vector{ KeyAxis{PARS_KEY_W, 1.0f }, KeyAxis{PARS_KEY_S, -1.0f} },
+			[this](float axis) {m_DefaultController->MoveForward(axis); });
+		m_DefaultController->AddAxisAction("Move Rightward",
+			std::vector{ KeyAxis{PARS_KEY_D, 1.0f }, KeyAxis{PARS_KEY_A, -1.0f} },
+			[this](float axis) {m_DefaultController->MoveRightward(axis); });
+		m_DefaultController->AddAxisAction("Move Upward",
+			std::vector{ KeyAxis{PARS_KEY_R, 1.0f }, KeyAxis{PARS_KEY_F, -1.0f} },
+			[this](float axis) {m_DefaultController->MoveUpward(axis); });
+		m_DefaultController->AddAxisAction("Turn Yaw",
+			std::vector{ KeyAxis{PARS_KEY_Q, -1.0f }, KeyAxis{PARS_KEY_E, 1.0f} },
+			[this](float axis) {m_DefaultController->TurnAxisY(axis); });
+		
+
+		SetDefaultControllerKeyEvent(true);
+		SetDefaultControllerMouseEvent(false);
+
+		float width = static_cast<float>(Window::GetWindowInfo()->m_Width - Window::GetWindowInfo()->m_LayerWidth) / 2;
+		float height = static_cast<float>(Window::GetWindowInfo()->m_Height) / 2;
+
+		SetRenderProjectionPerspective(Math::ToRadians(70.0f), width / height);
+	}
+
+	void Level3D::SetDefaultControllerKeyEvent(bool use)
+	{
+		m_DefaultController->ActiveAction(ActionType::Axis, "Move Forward", use);
+		m_DefaultController->ActiveAction(ActionType::Axis, "Move Rightward", use);
+		m_DefaultController->ActiveAction(ActionType::Axis, "Move Upward", use);
+		m_DefaultController->ActiveAction(ActionType::Axis, "Turn Yaw", use);
+	}
+
+	void Level3D::SetDefaultControllerMouseEvent(bool use)
+	{
+	}
+
+	void Level3D::SetRenderProjectionPerspective(float fovy, float aspect, float near, float far)
+	{
+		Mat4 projection = Mat4::Perspective(fovy, aspect, near, far);
+		const auto& factory = RenderFactory::GetRenderFactory();
+		factory->SetProjection(projection);
+	}
 }

@@ -18,13 +18,14 @@ namespace PARS
 		bool b_IsSameRotationWithPawn = true;
 
 	public:
-		void SetUseDefaultKeyEvent(bool use);
-		void SetUseDefaultMouseEvent(bool use);
 		void SetSameRoationWithPawn(bool boolean) { b_IsSameRotationWithPawn = boolean; }
 
-	private:
+	public:
 		void MoveForward(float axis);
 		void MoveRightward(float axis);
+		void MoveUpward(float axis);
+		void TurnAxisY(float axis);
+		void TurnAxisX(float axis);
 	};
 }
 

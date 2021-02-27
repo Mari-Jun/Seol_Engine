@@ -10,11 +10,18 @@ namespace PARS
 		, m_ForwardSpeed(0.0f)
 		, m_RightSpeed(0.0f)
 		, m_UpSpeed(0.0f)
+		, m_YawSpeed(0.0f)
 	{
 	}
 
 	void MovementComponent::Update(float deltaTime)
 	{
+		if (!Math::NearZero(m_YawSpeed))
+		{
+			Quaternion rotation = m_Owner.lock()->GetRotation();	
+			m_Owner.lock()->SetRotation(rotation * Quaternion(Vec3::AxisY, m_YawSpeed * deltaTime));
+		}
+
 		if (!Math::NearZero(m_ForwardSpeed) ||
 			!Math::NearZero(m_RightSpeed) ||
 			!Math::NearZero(m_UpSpeed))
