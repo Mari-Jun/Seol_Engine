@@ -12,6 +12,7 @@ namespace PARS
 		~Vertex() {}
 
 		const Vec3& GetPosition() const { return m_Position; }
+		void SetPosition(const Vec3& position) { m_Position = position; }
 
 	protected:
 		Vec3 m_Position;
@@ -25,6 +26,7 @@ namespace PARS
 		~DiffuseVertex() {}
 
 		const Vec4& GetDiffuseColor() const { return m_DiffuseColor; }
+		void SetDiffuseColor(const Vec4& color) { m_DiffuseColor = color; }
 
 	protected:
 		Vec4 m_DiffuseColor;

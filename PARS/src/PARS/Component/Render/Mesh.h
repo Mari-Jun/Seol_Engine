@@ -17,6 +17,9 @@ namespace PARS
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}		
 		virtual void ReleaseUploadBuffers();
 
+	public:
+		virtual bool LoadObj(const std::string& fileName);
+
 	protected:
 		ID3D12Resource* m_VertexBuffer = nullptr;
 		ID3D12Resource* m_VertexUploadBuffer = nullptr;
@@ -49,6 +52,10 @@ namespace PARS
 		void SetVertex(const std::vector<DiffuseVertex>& vertices);
 		void SetVertex(const std::vector<DiffuseVertex>& vertices, const std::vector<UINT>& indices);
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
+
+	public:
+		virtual bool LoadObj(const std::string& fileName) override;
+		bool LoadMtl(const std::string& fileName, std::unordered_map<std::string, Vec4>& diffuse);
 
 	private:
 		std::vector<DiffuseVertex> m_DiffuseVertices;

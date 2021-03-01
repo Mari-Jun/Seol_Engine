@@ -53,6 +53,11 @@ namespace PARS
 		}
 	}
 
+	bool Mesh::LoadObj(const std::string& fileName)
+	{
+		return true;
+	}
+
 	DiffuseMesh::DiffuseMesh()
 	{
 	}
@@ -93,5 +98,139 @@ namespace PARS
 			m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 			m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
 		}
+	}
+
+	bool DiffuseMesh::LoadObj(const std::string& fileName)
+	{
+		std::string objName = CONTENT_DIR + fileName + ".obj";
+		std::ifstream objFile(objName);
+
+		if (!objFile.is_open())
+		{
+			PARS_ERROR("Obj file could not be found : {0}", objName);
+			return false;
+		}
+
+		std::unordered_map<std::string, Vec4> diffuseColor;
+		if (!LoadMtl(fileName, diffuseColor))
+		{
+			return false;
+		}
+
+		std::vector<Vec3> position;
+		
+		std::vector<UINT> posIndex;
+		std::vector<std::string> mtlIndex;
+
+		std::stringstream ss;
+		std::string line;
+		std::string prefix;
+		std::string mtlName;
+
+		Vec3 tempVec3;
+		UINT tempUInt = 0;
+
+		while (std::getline(objFile, line))
+		{
+			ss.clear();
+			ss.str(line);
+			ss >> prefix;
+
+
+			if (prefix == "v")
+			{
+				ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+				position.emplace_back(tempVec3);
+			}
+			else if (prefix == "usemtl")
+			{
+				ss >> mtlName;
+			}
+			else if (prefix == "f")
+			{
+				int count = 0;
+				
+				while (ss >> tempUInt)
+				{
+					if (count == 0)
+					{
+						posIndex.emplace_back(tempUInt - 1);
+						mtlIndex.emplace_back(mtlName);
+					}
+					else if (count == 1)
+					{
+						//texcoord °ª
+					}
+					else if (count == 2)
+					{
+						//normal °ª
+					}
+
+					if (ss.peek() == '/')
+					{
+						++count;
+						ss.ignore();
+					}
+					else if (ss.peek() == ' ')
+					{
+						ss.ignore(1, ' ');
+						count = 0;
+					}
+				}
+			}
+		}
+
+		m_DiffuseVertices.resize(posIndex.size(), DiffuseVertex());
+
+		for (auto index = 0; index < posIndex.size(); ++index)
+		{
+			m_DiffuseVertices[index].SetPosition(position[posIndex[index]]);
+			m_DiffuseVertices[index].SetDiffuseColor(diffuseColor[mtlIndex[index]]);
+		}
+
+		m_VertexCount = static_cast<UINT>(m_DiffuseVertices.size());
+		m_Stride = sizeof(DiffuseVertex);
+
+		return true;
+	}
+
+
+	bool DiffuseMesh::LoadMtl(const std::string& fileName, std::unordered_map<std::string, Vec4>& diffuse)
+	{
+		std::string mtlName = CONTENT_DIR + fileName + ".mtl";
+		std::ifstream mtlFile(mtlName);
+
+		if (!mtlFile.is_open())
+		{
+			PARS_ERROR("Obj file could not be found : {0}", mtlName);
+			return false;
+		}
+
+		std::stringstream ss;
+		std::string line;
+		std::string prefix;
+		std::string name;
+
+		Vec4 tempVec4;
+
+		while (std::getline(mtlFile, line))
+		{
+			ss.clear();
+			ss.str(line);
+			ss >> prefix;
+
+			if (prefix == "newmtl")
+			{
+				ss >> name;
+			}
+			else if (prefix == "Kd")
+			{
+				ss >> tempVec4.x >> tempVec4.y >> tempVec4.z;
+				tempVec4.w = 1.0f;
+				diffuse.emplace(name, std::move(tempVec4));
+			}
+		}
+
+		return true;
 	}
 }

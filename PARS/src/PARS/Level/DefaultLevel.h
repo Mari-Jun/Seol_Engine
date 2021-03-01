@@ -56,7 +56,7 @@ namespace PARS
 	protected:
 		virtual void SetDefaultControllerKeyEvent(bool use) override final;
 		virtual void SetDefaultControllerMouseEvent(bool use) override final;
-		void SetRenderProjectionPerspective(float fovy, float aspect, float near = 1.0f, float far = 1000.0f);
+		void SetRenderProjectionPerspective(float fovy, float aspect, float near = 1.0f, float far = 10000.0f);
 
 	};
 

@@ -26,7 +26,7 @@ namespace PARS
 		};
 
 		template<typename T, typename ... Args>
-		constexpr void SetMesh(FileType type, std::string&& fileName, Args&& ... args)
+		constexpr bool SetMesh(FileType type, std::string&& fileName, Args&& ... args)
 		{
 			//Mesh 교체 여부 확인
 			if (m_Mesh != nullptr)
@@ -38,18 +38,24 @@ namespace PARS
 
 			//이미 Load된적이 있는지 Cache데이터에서 찾는다. 
 			const auto& factory = RenderComponentFactory::GetRenderComponentFactory();
-			m_Mesh = factory->GetMesh(std::move(fileName));
+			m_Mesh = factory->GetMesh(fileName);
 		
 			if (m_Mesh == nullptr)
 			{
+				m_Mesh = CreateSPtr<T>();
 				switch (type)
 				{
 				case PARS::MeshComponent::FileType::Obj:
-					//아직 미구현
+					if (!std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj(fileName))
+					{
+						std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj("Box");
+						return false;
+					}
 					break;
 				}
 
-				factory->SaveMesh(std::move(fileName), m_Mesh);
+				factory->SaveMesh(fileName, m_Mesh);
+				return true;
 			}		
 		}
 

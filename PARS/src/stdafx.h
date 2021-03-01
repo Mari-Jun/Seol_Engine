@@ -45,4 +45,5 @@ using Microsoft::WRL::ComPtr;
 
 #include "PARS/Core/Log.h"
 
+static std::string CONTENT_DIR = "../Contents/";
 
