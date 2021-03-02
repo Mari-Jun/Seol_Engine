@@ -79,6 +79,11 @@ namespace PARS
 		m_InputFactory->AddAxisAction(std::move(name), std::move(keyAndAxis), func);
 	}
 
+	void Actor::AddReleaseAction(std::string&& name, int key, const std::function<void()>& func)
+	{
+		m_InputFactory->AddReleaseAction(std::move(name), key, func);
+	}
+
 	void Actor::ActiveAction(ActionType type, std::string&& name, bool active)
 	{
 		m_InputFactory->ActiceAction(type, std::move(name), active);

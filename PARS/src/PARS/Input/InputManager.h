@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Math/Math.h"
 
 namespace PARS
 {
@@ -22,9 +23,12 @@ namespace PARS
 	public:
 		bool IsKeyPressed(UINT key) const;
 		bool IsKeyFirstPressed(UINT key) const;
-		bool IsMouseClicked(UINT button) const;
-		bool IsMouseFirstClicked(UINT button) const;
-		const Pos2& GetMousePosition() const { return m_MousePosition; }
+		bool IsKeyReleased(UINT key) const;
+		const Vec2& GetMousePosition() const;
+		const Vec2 GetRelativeMousePosition() const;
+
+		void SetCursorHide(bool hide);
+		bool IsCursorHide() const { return m_IsCursorHide; }
 
 	public:
 		friend void KeyCallback(InputManager* manager, UINT message, WPARAM key, LPARAM flags);
@@ -35,8 +39,9 @@ namespace PARS
 		bool m_KeyState[MAX_KEYS];
 		bool m_LastKeyState[MAX_KEYS];
 
-		bool m_MouseButtonState[MAX_BUTTONS];
-		bool m_LastMouseButtonState[MAX_BUTTONS];
-		Pos2 m_MousePosition;
+		Vec2 m_MouseBeforePosition;
+		Vec2 m_MousePosition;
+
+		bool m_IsCursorHide = false;
 	};
 }

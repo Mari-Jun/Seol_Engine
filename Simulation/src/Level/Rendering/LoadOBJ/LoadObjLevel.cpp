@@ -16,7 +16,7 @@ namespace PARS
 		actor->SetPosition({ 0.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
 		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "Box");
+		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "LoadObj/Box");
 		actor->AddComponent(meshComp);
 		AddActor(actor);
 

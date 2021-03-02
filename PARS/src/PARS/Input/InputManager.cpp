@@ -11,9 +11,7 @@ namespace PARS
 		Input::s_InputManager = this;
 
 		memset(m_KeyState, false, sizeof(m_KeyState));
-		memset(m_LastKeyState, false, sizeof(m_LastKeyState));
-		memset(m_MouseButtonState, false, sizeof(m_MouseButtonState));
-		memset(m_LastMouseButtonState, false, sizeof(m_LastMouseButtonState));
+        memset(m_LastKeyState, false, sizeof(m_LastKeyState));
 	}
 
 	InputManager::~InputManager()
@@ -23,12 +21,23 @@ namespace PARS
 
 	void InputManager::Update()
 	{
-		memcpy_s(m_LastKeyState, sizeof(m_LastKeyState), m_KeyState, sizeof(m_KeyState));
-		memcpy_s(m_LastMouseButtonState, sizeof(m_LastMouseButtonState), m_MouseButtonState, sizeof(m_MouseButtonState));
+     	memcpy_s(m_LastKeyState, sizeof(m_LastKeyState), m_KeyState, sizeof(m_KeyState));
+       
+        if (m_IsCursorHide)
+        {
+            RECT rect;
+            GetWindowRect(m_hwnd, &rect);
+            POINT point = { static_cast<int>(m_MouseBeforePosition.x), static_cast<int>(m_MouseBeforePosition.y) };
+          
+            ClientToScreen(m_hwnd, &point);
 
-		POINT mousePos;
-		GetCursorPos(&mousePos);
-		m_MousePosition.first = mousePos.x, m_MousePosition.second = mousePos.y;
+            SetCursorPos(point.x, point.y);
+            m_MousePosition = m_MouseBeforePosition;
+        }
+        else
+        {
+            m_MouseBeforePosition = m_MousePosition;
+        }
 	}
 
 	bool InputManager::IsKeyPressed(UINT key) const
@@ -42,16 +51,31 @@ namespace PARS
 		return IsKeyPressed(key) && !m_LastKeyState[key];
 	}
 
-	bool InputManager::IsMouseClicked(UINT button) const
-	{
-		if (button >= MAX_BUTTONS) return false;
-		return m_MouseButtonState[button];
-	}
+    bool InputManager::IsKeyReleased(UINT key) const
+    {
+        if (key >= MAX_KEYS) return false;
+        return !m_KeyState[key] && m_LastKeyState[key];
+    }
 
-	bool InputManager::IsMouseFirstClicked(UINT button) const
-	{
-		return IsMouseClicked(button) && !m_LastMouseButtonState[button];
-	}
+    const Vec2& InputManager::GetMousePosition() const
+    {
+        return m_MousePosition;
+    }
+
+    const Vec2 InputManager::GetRelativeMousePosition() const
+    {
+        return { m_MousePosition - m_MouseBeforePosition };
+    }
+
+    void InputManager::SetCursorHide(bool hide)
+    {
+        if (hide)
+        {
+            m_MouseBeforePosition = m_MousePosition;
+        }
+        m_IsCursorHide = hide;
+        ShowCursor(!hide);
+    }
 
     void KeyCallback(InputManager* manager, UINT message, WPARAM key, LPARAM flags)
     {
@@ -94,9 +118,12 @@ namespace PARS
             button = PARS_MOUSE_MBUTTON;
             down = false;
             break;
+        case WM_MOUSEMOVE:
+            manager->m_MousePosition = { static_cast<float>(x), static_cast<float>(y) };
+            break;
         }
-        manager->m_MouseButtonState[button] = down;
-        manager->m_MousePosition.first = x;
-        manager->m_MousePosition.second = y;
+
+        manager->m_KeyState[button] = down;
+
     }
 }

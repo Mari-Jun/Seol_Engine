@@ -16,12 +16,14 @@ namespace PARS
 		void SetRightSpeed(float speed) { m_RightSpeed = speed; }
 		void SetUpSpeed(float speed) { m_UpSpeed = speed; }
 		void SetYawSpeed(float speed) { m_YawSpeed = speed; }
+		void SetPitchSpeed(float speed) { m_PitchSpeed = speed; }
 
 	protected:
 		float m_ForwardSpeed;
 		float m_RightSpeed;
 		float m_UpSpeed;
 		float m_YawSpeed;
+		float m_PitchSpeed;
 	};
 
 }

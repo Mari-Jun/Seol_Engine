@@ -76,7 +76,7 @@ namespace PARS
 			});
 
 		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<LoadObjLevel>
-			("Not yet");
+			("You can change the mesh by loading obj");
 			});
 	}
 

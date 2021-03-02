@@ -6,12 +6,14 @@ namespace PARS
 	{
 		std::string actionName;
 		int key;
+		int secondKey;
 	};
 
 	struct KeyAxis
 	{
 		int key;
 		float axis;
+		int secondKey;
 	};
 
 	struct AxisActionInfo
@@ -24,7 +26,8 @@ namespace PARS
 	{
 		Once,
 		Loop,
-		Axis
+		Axis,
+		Release
 	};
 
 	class InputFactory
@@ -35,9 +38,10 @@ namespace PARS
 
 		void ProcessInput();
 		
-		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
-		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
+		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func, int secondKey = 0x00);
+		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func, int secondKey = 0x00);
 		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
+		void AddReleaseAction(std::string&& name, int key, const std::function<void()>& func, int secondKey = 0x00);
 
 		void ActiceAction(ActionType type, std::string&& name, bool active);
 
@@ -48,6 +52,8 @@ namespace PARS
 		std::unordered_map<std::string, std::pair<bool, std::function<void()>>> f_LoopActions;
 		std::vector<AxisActionInfo> m_AxisActionsInfo;
 		std::unordered_map<std::string, std::pair<bool, std::function<void(float)>>> f_AxisActions;
+		std::vector<ActionInfo> m_ReleaseActionsInfo;
+		std::unordered_map<std::string, std::pair<bool, std::function<void()>>> f_ReleaseActions;
 	};
 }
 

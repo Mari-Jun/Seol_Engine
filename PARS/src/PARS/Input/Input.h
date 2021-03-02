@@ -16,8 +16,12 @@ namespace PARS
 	public:
 		inline static bool IsKeyPressed(UINT key) { return s_InputManager->IsKeyPressed(key); }
 		inline static bool IsKeyFirstPressed(UINT key) { return s_InputManager->IsKeyFirstPressed(key); }
-		inline static bool IsMouseClicked(UINT button) { return s_InputManager->IsMouseClicked(button); }
-		inline static bool IsMouseFirstClicked(UINT button) { return s_InputManager->IsMouseFirstClicked(button); }
+		inline static bool IsKeyReleased(UINT key) { return s_InputManager->IsKeyReleased(key); }
+		inline static const Vec2& GetMousePosition() { return s_InputManager->GetMousePosition(); }
+		inline static const Vec2 GetRelativeMousePosition() { return s_InputManager->GetRelativeMousePosition(); }
+
+		inline static void SetCursorHide(bool hide) { s_InputManager->SetCursorHide(hide); }
+		inline static bool IsCursorHide() { return s_InputManager->IsCursorHide(); }
 
 		inline static InputManager* GetInputManager() { return s_InputManager; }
 	};

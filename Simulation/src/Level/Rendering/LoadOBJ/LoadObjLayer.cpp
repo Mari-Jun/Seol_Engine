@@ -49,14 +49,14 @@ namespace PARS
 			IsChangeObj = true;
 		}
 
-		ImGui::Text("Select Obj : ");
+		ImGui::Text("Select Obj :");
 		ImGui::SameLine();
 		ImGui::Text(selectObj.c_str());
 
 
 		if (IsChangeObj)
 		{
-			if (m_MeshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, std::move(selectObj)))
+			if (!m_MeshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, std::move("LoadObj/" + selectObj)))
 			{
 				selectObj.clear();
 			}

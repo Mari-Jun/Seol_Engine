@@ -16,7 +16,13 @@ namespace PARS
 
 	void PlayerController::Initialize()
 	{
-		
+		m_MovementComp = CreateSPtr<MovementComponent>();
+		AddComponent(m_MovementComp);
+	}
+
+	void PlayerController::ActorInput()
+	{
+		TurnMouse();
 	}
 
 	void PlayerController::Update(float deltaTime)
@@ -27,7 +33,7 @@ namespace PARS
 		//폰의 회전방향을 컨트롤러와 맞춘다.
 		if (b_IsSameRotationWithPawn)
 		{
-			SetRotation(m_ControlledPawn->GetRotation());
+			m_ControlledPawn->SetRotation(GetRotation());
 		}
 	}
 
@@ -49,15 +55,32 @@ namespace PARS
 		m_ControlledPawn->GetMovementComp()->SetUpSpeed(axis * speed);
 	}
 
-	void PlayerController::TurnAxisY(float axis)
+	void PlayerController::TurnMouse()
 	{
-		auto speed = Math::PiDiv2;
-		m_ControlledPawn->GetMovementComp()->SetYawSpeed(axis * speed);
-	}
+		if (Input::IsCursorHide())
+		{
+			auto pos = Input::GetRelativeMousePosition();
+			m_MovementComp->SetYawSpeed(pos.x / 10.0f);
+		
+			auto vec = GetForward();
+			vec.y = 0.0f;
+			vec.Normalize();
+			m_Pitch = Math::Acos(Vec3::Dot(GetForward(), vec));
 
-	void PlayerController::TurnAxisX(float axis)
-	{
-	}
+			if (m_Pitch < Math::Pi / 3.0f || (GetForward().y > 0.0f && pos.y > 0.0f) || (GetForward().y < 0.0f && pos.y < 0.0f))
+			{
+				m_MovementComp->SetPitchSpeed(pos.y / 10.0f);
 
-	
+			}
+			else
+			{
+				m_MovementComp->SetPitchSpeed(0.0f);
+			}
+		}		
+		else
+		{
+			m_MovementComp->SetYawSpeed(0.0f);
+			m_MovementComp->SetPitchSpeed(0.0f);
+		}
+	}	
 }

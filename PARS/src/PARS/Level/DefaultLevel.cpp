@@ -17,11 +17,11 @@ namespace PARS
 	{
 		m_DefaultPawn = CreateSPtr<Pawn>();
 		m_DefaultPawn->SetPosition({ 0.0f, 0.0f, -0.1f });
-		m_DefaultCamera = CreateSPtr<CameraComponent>();
-		m_DefaultPawn->AddComponent(m_DefaultCamera);
 		AddActor(m_DefaultPawn);
 
 		m_DefaultController = CreateSPtr<PlayerController>(m_DefaultPawn);
+		m_DefaultCamera = CreateSPtr<CameraComponent>();
+		m_DefaultController->AddComponent(m_DefaultCamera);
 		AddActor(m_DefaultController);
 	}
 
@@ -45,10 +45,10 @@ namespace PARS
 		DefaultLevel::InitializeLevel();
 
 		m_DefaultController->AddAxisAction("Move Rightward",
-			std::vector{ KeyAxis{PARS_KEY_D, 1.0f }, KeyAxis{PARS_KEY_A, -1.0f} }, 
+			std::vector{ KeyAxis{PARS_KEY_D, 1.0f, PARS_MOUSE_RBUTTON }, KeyAxis{PARS_KEY_A, -1.0f, PARS_MOUSE_RBUTTON} },
 			[this](float axis) {m_DefaultController->MoveRightward(axis); });
 		m_DefaultController->AddAxisAction("Move Upward",
-			std::vector{ KeyAxis{PARS_KEY_W, 1.0f }, KeyAxis{PARS_KEY_S, -1.0f} },
+			std::vector{ KeyAxis{PARS_KEY_W, 1.0f, PARS_MOUSE_RBUTTON }, KeyAxis{PARS_KEY_S, -1.0f, PARS_MOUSE_RBUTTON} },
 			[this](float axis) {m_DefaultController->MoveUpward(axis); });
 
 		SetDefaultControllerKeyEvent(true);
@@ -88,17 +88,20 @@ namespace PARS
 		DefaultLevel::InitializeLevel();
 
 		m_DefaultController->AddAxisAction("Move Forward",
-			std::vector{ KeyAxis{PARS_KEY_W, 1.0f }, KeyAxis{PARS_KEY_S, -1.0f} },
+			std::vector{ KeyAxis{PARS_KEY_W, 1.0f, PARS_MOUSE_RBUTTON }, KeyAxis{PARS_KEY_S, -1.0f, PARS_MOUSE_RBUTTON} },
 			[this](float axis) {m_DefaultController->MoveForward(axis); });
 		m_DefaultController->AddAxisAction("Move Rightward",
-			std::vector{ KeyAxis{PARS_KEY_D, 1.0f }, KeyAxis{PARS_KEY_A, -1.0f} },
+			std::vector{ KeyAxis{PARS_KEY_D, 1.0f , PARS_MOUSE_RBUTTON}, KeyAxis{PARS_KEY_A, -1.0f, PARS_MOUSE_RBUTTON} },
 			[this](float axis) {m_DefaultController->MoveRightward(axis); });
 		m_DefaultController->AddAxisAction("Move Upward",
-			std::vector{ KeyAxis{PARS_KEY_R, 1.0f }, KeyAxis{PARS_KEY_F, -1.0f} },
+			std::vector{ KeyAxis{PARS_KEY_E, 1.0f, PARS_MOUSE_RBUTTON }, KeyAxis{PARS_KEY_Q, -1.0f, PARS_MOUSE_RBUTTON} },
 			[this](float axis) {m_DefaultController->MoveUpward(axis); });
-		m_DefaultController->AddAxisAction("Turn Yaw",
-			std::vector{ KeyAxis{PARS_KEY_Q, -1.0f }, KeyAxis{PARS_KEY_E, 1.0f} },
-			[this](float axis) {m_DefaultController->TurnAxisY(axis); });
+		m_DefaultController->AddOnceAction("Mouse RButton", PARS_MOUSE_RBUTTON, [this]() {Input::SetCursorHide(true); });
+		m_DefaultController->AddReleaseAction("Mouse RButton", PARS_MOUSE_RBUTTON, [this]() {Input::SetCursorHide(false); });
+
+		/*m_DefaultController->AddAxisAction("Turn Yaw",
+			std::vector{ KeyAxis{PARS_KEY_Q, -1.0f , PARS_MOUSE_RBUTTON}, KeyAxis{PARS_KEY_E, 1.0f, PARS_MOUSE_RBUTTON} },
+			[this](float axis) {m_DefaultController->TurnAxisY(axis); });*/
 		
 
 		SetDefaultControllerKeyEvent(true);

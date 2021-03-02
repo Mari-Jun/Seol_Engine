@@ -24,8 +24,6 @@ namespace PARS
     {
         s_WindowInfo = CreateUPtr<WindowInfo>();
 
-        m_InputManager = CreateUPtr<InputManager>(s_WindowInfo->m_hwnd);
-
         s_WindowInfo->m_hInstance = GetModuleHandle(NULL);
 
         WNDCLASSEXW wcex;
@@ -51,6 +49,8 @@ namespace PARS
         s_WindowInfo->m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_Title.c_str(), m_Title.c_str(),
             WS_OVERLAPPEDWINDOW,
             posX, posY, s_WindowInfo->m_Width, s_WindowInfo->m_Height, NULL, NULL, s_WindowInfo->m_hInstance, NULL);
+
+        m_InputManager = CreateUPtr<InputManager>(s_WindowInfo->m_hwnd);
 
         ShowWindow(s_WindowInfo->m_hwnd, SW_SHOW);
         SetForegroundWindow(s_WindowInfo->m_hwnd);
@@ -118,6 +118,7 @@ namespace PARS
         case WM_RBUTTONUP:
         case WM_MBUTTONDOWN:
         case WM_MBUTTONUP:
+        case WM_MOUSEMOVE:
             MouseButtonCallback(manager, message, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
         case WM_DESTROY:

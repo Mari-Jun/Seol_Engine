@@ -36,6 +36,7 @@ namespace PARS
 		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
 		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
 		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
+		void AddReleaseAction(std::string&& name, int key, const std::function<void()>& func);
 		void ActiveAction(ActionType type, std::string&& name, bool active);
 
 	protected:

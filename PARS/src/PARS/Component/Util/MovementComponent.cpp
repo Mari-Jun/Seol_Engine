@@ -11,15 +11,22 @@ namespace PARS
 		, m_RightSpeed(0.0f)
 		, m_UpSpeed(0.0f)
 		, m_YawSpeed(0.0f)
+		, m_PitchSpeed(0.0f)
 	{
 	}
 
 	void MovementComponent::Update(float deltaTime)
 	{
-		if (!Math::NearZero(m_YawSpeed))
+		if (!Math::NearZero(m_YawSpeed) ||
+			!Math::NearZero(m_PitchSpeed))
 		{
-			Quaternion rotation = m_Owner.lock()->GetRotation();	
-			m_Owner.lock()->SetRotation(rotation * Quaternion(Vec3::AxisY, m_YawSpeed * deltaTime));
+			auto owner = m_Owner.lock();
+			Quaternion rotation = owner->GetRotation();	
+			rotation *= Quaternion(Vec3::AxisY, m_YawSpeed * deltaTime);
+			owner->SetRotation(rotation);
+			rotation *= Quaternion(owner->GetRight(), m_PitchSpeed * deltaTime);
+			owner->SetRotation(rotation);
+			
 		}
 
 		if (!Math::NearZero(m_ForwardSpeed) ||

@@ -48,7 +48,7 @@ namespace PARS
 				case PARS::MeshComponent::FileType::Obj:
 					if (!std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj(fileName))
 					{
-						std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj("Box");
+						std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj("Default/Box");
 						return false;
 					}
 					break;
@@ -57,6 +57,8 @@ namespace PARS
 				factory->SaveMesh(fileName, m_Mesh);
 				return true;
 			}		
+
+			return true;
 		}
 
 		template<typename T, typename ... Args>
