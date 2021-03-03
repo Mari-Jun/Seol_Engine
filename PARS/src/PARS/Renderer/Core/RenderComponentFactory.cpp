@@ -79,7 +79,6 @@ namespace PARS
 		if (!iter.second)
 		{
 			iter.first->second.emplace_back(component);
-			component->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
 		}		
 	}
 
