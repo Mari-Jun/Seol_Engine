@@ -9,7 +9,6 @@ namespace PARS
 	public:
 		Vertex() : m_Position(Vec3::Zero) {}
 		Vertex(Vec3&& position) : m_Position(position) {}
-		~Vertex() {}
 
 		const Vec3& GetPosition() const { return m_Position; }
 		void SetPosition(const Vec3& position) { m_Position = position; }
@@ -23,7 +22,6 @@ namespace PARS
 	public:
 		DiffuseVertex() : Vertex(), m_DiffuseColor(COLOR::Black) {}
 		DiffuseVertex(Vec3&& position, Vec4&& color) : Vertex(std::move(position)), m_DiffuseColor(color) {}
-		~DiffuseVertex() {}
 
 		const Vec4& GetDiffuseColor() const { return m_DiffuseColor; }
 		void SetDiffuseColor(const Vec4& color) { m_DiffuseColor = color; }

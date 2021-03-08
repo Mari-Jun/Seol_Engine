@@ -66,8 +66,6 @@ namespace PARS
 					viewProj *= m_Projection;
 					viewProj.Transpose();
 
-					//commandList->SetGraphicsRoot32BitConstants(1, 16, &viewProj, 0);
-
 					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, CBPassFrame{ viewProj }))
 					{
 						m_RenderCompFactory->Draw(ShaderType::Color);
@@ -92,10 +90,6 @@ namespace PARS
 		rootParameter[0].Descriptor.RegisterSpace = 0;
 		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		/*rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-		rootParameter[1].Constants.Num32BitValues = 16;
-		rootParameter[1].Constants.ShaderRegister = 1;
-		rootParameter[1].Constants.RegisterSpace = 0;*/
 		rootParameter[1].Descriptor.ShaderRegister = 1;
 		rootParameter[1].Descriptor.RegisterSpace = 0;
 		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;

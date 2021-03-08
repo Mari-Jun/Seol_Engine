@@ -6,6 +6,7 @@
 namespace PARS
 {
 	MeshComponent::MeshComponent()
+		: RenderComponent()
 	{
 		
 	}
