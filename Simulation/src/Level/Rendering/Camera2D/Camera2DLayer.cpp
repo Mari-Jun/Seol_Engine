@@ -1,5 +1,5 @@
 #include "Camera2DLayer.h"
-#include "PARS/Component/Render/MeshComponent.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
 
 namespace PARS
 {

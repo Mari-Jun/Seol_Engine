@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PARS/Component/Render/Vertex.h"
+#include "PARS/Component/Render/Mesh/Vertex.h"
 
 namespace PARS
 {

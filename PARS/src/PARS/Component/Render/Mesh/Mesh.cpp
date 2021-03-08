@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PARS/Component/Render/Mesh.h"
+#include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
 
 namespace PARS

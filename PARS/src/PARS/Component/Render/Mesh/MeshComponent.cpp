@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
-#include "PARS/Component/Render/MeshComponent.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS

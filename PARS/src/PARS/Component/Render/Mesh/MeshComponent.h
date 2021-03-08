@@ -1,5 +1,5 @@
 #pragma once
-#include "PARS/Component/Render/Mesh.h"
+#include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/RenderComponent.h"
 
 namespace PARS
