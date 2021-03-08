@@ -32,11 +32,6 @@ namespace PARS
 
 	void RenderFactory::Shutdown()
 	{
-		for (auto iter = m_Shaders.begin(); iter != m_Shaders.end(); ++iter)
-		{
-			iter->second->Shutdown();
-		}
-
 		for (auto iter = m_RootSignatures.begin(); iter != m_RootSignatures.end(); ++iter)
 		{
 			if (iter->second != nullptr)
@@ -48,9 +43,9 @@ namespace PARS
 		m_RenderCompFactory->Shutdown();
 	}
 
-	void RenderFactory::BeginDraw()
+	void RenderFactory::RenderReady()
 	{
-		m_RenderCompFactory->BeginDraw();
+		m_RenderCompFactory->RenderReady();
 	}
 
 	void RenderFactory::Draw()
@@ -71,10 +66,12 @@ namespace PARS
 					viewProj *= m_Projection;
 					viewProj.Transpose();
 
-					commandList->SetGraphicsRoot32BitConstants(1, 16, &viewProj, 0);
+					//commandList->SetGraphicsRoot32BitConstants(1, 16, &viewProj, 0);
 
-					m_Shaders[ShaderType::Color]->Draw();
-					m_RenderCompFactory->Draw(ShaderType::Color);
+					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, CBPassFrame{ viewProj }))
+					{
+						m_RenderCompFactory->Draw(ShaderType::Color);
+					}
 				}
 			}
 		}
@@ -90,15 +87,17 @@ namespace PARS
 		ID3D12RootSignature* defaultRootSignature = nullptr;
 
 		D3D12_ROOT_PARAMETER rootParameter[2];
-		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-		rootParameter[0].Constants.Num32BitValues = 16;
-		rootParameter[0].Constants.ShaderRegister = 0;
-		rootParameter[0].Constants.RegisterSpace = 0;
+		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		rootParameter[0].Descriptor.ShaderRegister = 0;
+		rootParameter[0].Descriptor.RegisterSpace = 0;
 		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		/*rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 		rootParameter[1].Constants.Num32BitValues = 16;
 		rootParameter[1].Constants.ShaderRegister = 1;
-		rootParameter[1].Constants.RegisterSpace = 0;
+		rootParameter[1].Constants.RegisterSpace = 0;*/
+		rootParameter[1].Descriptor.ShaderRegister = 1;
+		rootParameter[1].Descriptor.RegisterSpace = 0;
 		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 		D3D12_ROOT_SIGNATURE_DESC rsDesc;
@@ -136,14 +135,14 @@ namespace PARS
 
 	void RenderFactory::CreateShaders()
 	{
-		CreateShader("Default", ShaderType::Color, CreateUPtr<ColorShader>(m_DirectX12));		
+		CreateShader("Default", ShaderType::Color, CreateSPtr<ColorShader>(m_DirectX12));		
 	}
 
-	void RenderFactory::CreateShader(std::string&& signatureType, ShaderType type, UPtr<Shader>&& shader)
+	void RenderFactory::CreateShader(std::string&& signatureType, ShaderType type, SPtr<Shader>&& shader)
 	{
 		if (m_RootSignatures[signatureType] !=nullptr && shader->Initialize(m_RootSignatures[signatureType]))
 		{
-			m_Shaders.insert({ type, std::move(shader) });
+			m_RenderCompFactory->AddShader(type, std::move(shader));
 		}
 	}
 

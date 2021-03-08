@@ -19,6 +19,7 @@ namespace PARS
 
 	public:
 		void SetOwner(const WPtr<Actor>& owner) { m_Owner = owner; }
+		const WPtr<Actor>& GetOwner() const { return m_Owner; }
 
 	protected:
 		WPtr<Actor> m_Owner;

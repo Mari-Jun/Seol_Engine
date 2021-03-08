@@ -17,14 +17,14 @@ namespace PARS
 		
 		bool Initialize();
 		void Shutdown();
-		void BeginDraw();
+		void RenderReady();
 		void Draw();
 		void PrepareToNextDraw();
 		
 	private:
 		bool CreateDefaultRootSignatures();
 		void CreateShaders();
-		void CreateShader(std::string&& signatureType, ShaderType type, UPtr<Shader>&& shader);
+		void CreateShader(std::string&& signatureType, ShaderType type, SPtr<Shader>&& shader);
 
 	public:
 		void AddCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
@@ -38,7 +38,6 @@ namespace PARS
 		SPtr<DirectX12> m_DirectX12;
 		UPtr<RenderComponentFactory> m_RenderCompFactory;
 		std::unordered_map<std::string, ID3D12RootSignature*> m_RootSignatures;
-		std::unordered_map<ShaderType, UPtr<Shader>> m_Shaders;
 		std::unordered_map<CameraComponent::CameraType, std::vector<SPtr<CameraComponent>>> m_CameraComps;
 
 	private:

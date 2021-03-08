@@ -25,7 +25,7 @@ namespace PARS
 
 		if (ImGui::BeginPopup("Default Obj Popup"))
 		{
-			static std::array<std::string, 6> objNames = { "Box", "pyramid", "Slinder", "Sphere", "Tree", "Police" };
+			static std::array<std::string, 6> objNames = { "Box", "pyramid", "Cylinder", "Sphere", "Tree", "Police" };
 
 			ImGui::Text("Default Obj");
 			ImGui::Separator();

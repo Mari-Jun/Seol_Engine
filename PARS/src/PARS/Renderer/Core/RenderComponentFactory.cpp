@@ -3,6 +3,8 @@
 #include "PARS/Component/Render/RenderComponent.h"
 #include "PARS/Renderer/Core/RenderComponentFactory.h"
 
+#include "PARS/Renderer/Shader/ColorShader.h"
+
 namespace PARS
 {
 	RenderComponentFactory::RenderComponentFactory(const SPtr<DirectX12>& directX)
@@ -18,9 +20,13 @@ namespace PARS
 
 	void RenderComponentFactory::Shutdown()
 	{
+		for (auto iter = m_Shaders.begin(); iter != m_Shaders.end(); ++iter)
+		{
+			iter->second->Shutdown();
+		}
 	}
 
-	void RenderComponentFactory::BeginDraw()
+	void RenderComponentFactory::RenderReady()
 	{
 		if (!m_PrepareComponents.empty())
 		{
@@ -42,19 +48,29 @@ namespace PARS
 						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
 					}
 				}
+
+				m_IsShaderUpdate[comps.first] = true;
+			}
+		}
+
+		for (auto& shader : m_IsShaderUpdate)
+		{
+			if (shader.second)
+			{
+				shader.second = false;
+				m_Shaders[shader.first]->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList(),
+					static_cast<UINT>(m_RenderComponents[shader.first].size()));
 			}
 		}
 	}
 
 	void RenderComponentFactory::Draw(ShaderType type)
 	{
-		auto iter = m_RenderComponents.find(type);
-		if (iter != m_RenderComponents.cend())
+		for (int index = 0; index < m_RenderComponents[type].size(); ++index)
 		{
-			for (const auto& component : m_RenderComponents[type])
-			{
-				component->Draw(m_DirectX12->GetCommandList());
-			}
+			m_Shaders[type]->DrawRenderComp(m_DirectX12->GetCommandList(), m_RenderComponents[type][index], index);
+			m_Shaders[type]->DrawPassFrame(m_DirectX12->GetCommandList());
+			m_RenderComponents[type][index]->Draw(m_DirectX12->GetCommandList());
 		}
 	}
 
@@ -71,6 +87,12 @@ namespace PARS
 			}
 			m_PrepareComponents.clear();
 		}
+	}
+
+	void RenderComponentFactory::AddShader(ShaderType type, SPtr<Shader>&& shader)
+	{
+		m_Shaders.insert({ type, std::move(shader) });
+		m_IsShaderUpdate.insert({ type, false });
 	}
 
 	void RenderComponentFactory::AddRenderComponent(ShaderType type, const SPtr<RenderComponent>& component)
@@ -96,6 +118,10 @@ namespace PARS
 				if (rComp->second.empty())
 				{
 					m_RenderComponents.erase(type);
+				}
+				else
+				{
+					m_IsShaderUpdate[rComp->first] = true;
 				}
 			}
 		}

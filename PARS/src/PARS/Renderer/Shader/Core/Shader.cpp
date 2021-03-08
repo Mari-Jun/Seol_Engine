@@ -5,7 +5,7 @@ namespace PARS
 {
 	std::wstring Shader::s_ShaderFilePath = L"../PARS/src/PARS/Renderer/Shader/HLSL/";
 
-	Shader::Shader(SPtr<DirectX12>& directX)
+	Shader::Shader(const SPtr<DirectX12>& directX)
 		: m_DirectX12(directX)
 	{
 	}
@@ -25,12 +25,6 @@ namespace PARS
 		if (m_PipelineState != nullptr) m_PipelineState->Release();
 		if (m_VSBlob != nullptr) m_VSBlob->Release();
 		if (m_PSBlob != nullptr) m_PSBlob->Release();
-	}
-
-	void Shader::Draw()
-	{
-		auto commandList = m_DirectX12->GetCommandList();
-		commandList->SetPipelineState(m_PipelineState);
 	}
 
 	D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
