@@ -2,6 +2,7 @@
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Core/Window.h"
 #include "PARS/Renderer/Shader/ColorShader.h"
+#include "PARS/Actor/Actor.h"
 
 namespace PARS
 {
@@ -66,9 +67,18 @@ namespace PARS
 					viewProj *= m_Projection;
 					viewProj.Transpose();
 
-					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, CBPassFrame{ viewProj }))
+					const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
+
+					Light lights[16];
+					int count = 0;
+					for (const auto& light : m_LightComps)
 					{
-						m_RenderCompFactory->Draw(ShaderType::Color);
+						lights[count++] = *light->GetLight();
+					}
+
+					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, CBColorPass{ viewProj, eyePos, 0.0f, *lights }))
+					{
+						m_RenderCompFactory->Draw(ShaderType::Color, RenderType::Mesh);
 					}
 				}
 			}
@@ -92,7 +102,7 @@ namespace PARS
 		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 		rootParameter[1].Descriptor.ShaderRegister = 1;
 		rootParameter[1].Descriptor.RegisterSpace = 0;
-		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 		D3D12_ROOT_SIGNATURE_DESC rsDesc;
 		rsDesc.NumParameters = _countof(rootParameter);
@@ -165,6 +175,22 @@ namespace PARS
 					m_CameraComps.erase(type);
 				}
 			}
+		}
+	}
+
+	void RenderFactory::AddLightComponent(const SPtr<LightComponent>& light)
+	{
+		m_LightComps.emplace_back(light);
+	}
+
+	void RenderFactory::RemoveLightComponent(const SPtr<LightComponent>& light)
+	{
+		auto iter = std::find_if(m_LightComps.begin(), m_LightComps.end(),
+			[&light](const SPtr<LightComponent>& comp)
+			{return light == comp; });
+		if (iter != m_LightComps.end())
+		{
+			m_LightComps.erase(iter);
 		}
 	}
 

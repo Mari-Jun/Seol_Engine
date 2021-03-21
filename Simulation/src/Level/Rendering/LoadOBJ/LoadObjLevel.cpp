@@ -1,5 +1,6 @@
 #include "LoadObjLevel.h"
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Component/Light/LightComponent.h"
 
 namespace PARS
 {
@@ -25,6 +26,11 @@ namespace PARS
 		layer->AddObjectToLayer("Obj");
 		layer->SetMeshComp(meshComp);
 		AddLayer(layer);
+
+		auto light = CreateSPtr<Actor>();
+		auto lightComp = CreateSPtr<LightComponent>();
+		light->AddComponent(lightComp);
+		AddActor(light);
 	}
 
 	void LoadObjLevel::UpdateLevel(float deltaTime)

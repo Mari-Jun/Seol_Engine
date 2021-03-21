@@ -118,8 +118,10 @@ namespace PARS
 		}
 
 		std::vector<Vec3> position;
+		std::vector<Vec3> normal;
 		
 		std::vector<UINT> posIndex;
+		std::vector<UINT> normalIndex;
 		std::vector<std::string> mtlIndex;
 
 		std::stringstream ss;
@@ -140,7 +142,14 @@ namespace PARS
 			if (prefix == "v")
 			{
 				ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+				tempVec3.z *= -1.0f;
 				position.emplace_back(tempVec3);
+			}
+			else if (prefix == "vn")
+			{
+				ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+				tempVec3.z *= -1.0f;
+				normal.emplace_back(tempVec3);
 			}
 			else if (prefix == "usemtl")
 			{
@@ -163,7 +172,7 @@ namespace PARS
 					}
 					else if (count == 2)
 					{
-						//normal °ª
+						normalIndex.emplace_back(tempUInt - 1);
 					}
 
 					if (ss.peek() == '/')
@@ -182,10 +191,21 @@ namespace PARS
 
 		m_DiffuseVertices.resize(posIndex.size(), DiffuseVertex());
 
-		for (auto index = 0; index < posIndex.size(); ++index)
+		for (auto i = 0; i < posIndex.size(); ++i)
 		{
-			m_DiffuseVertices[index].SetPosition(position[posIndex[index]]);
-			m_DiffuseVertices[index].SetDiffuseColor(diffuseColor[mtlIndex[index]]);
+			auto index = i;
+			if (index % 3 == 0)
+			{
+				index += 2;
+			}
+			else if (index % 3 == 2)
+			{
+				index -= 2;
+			}
+
+			m_DiffuseVertices[index].SetPosition(position[posIndex[i]]);
+			m_DiffuseVertices[index].SetNormal(normal[normalIndex[i]]);
+			m_DiffuseVertices[index].SetDiffuseColor(diffuseColor[mtlIndex[i]]);
 		}
 
 		m_VertexCount = static_cast<UINT>(m_DiffuseVertices.size());

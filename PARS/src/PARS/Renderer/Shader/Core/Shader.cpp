@@ -99,7 +99,7 @@ namespace PARS
 		ID3DBlob* byteCode = nullptr;
 		ID3DBlob* error;
 
-		D3DCompileFromFile(filePath.c_str(), nullptr, nullptr, entryPoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &error);
+		D3DCompileFromFile(filePath.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &error);
 
 		if (error != nullptr)
 		{

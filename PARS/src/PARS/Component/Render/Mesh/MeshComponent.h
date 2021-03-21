@@ -17,7 +17,7 @@ namespace PARS
 		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
 
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
-		virtual void ReleaseUploadBuffers();
+		virtual void ReleaseUploadBuffers() override;
 
 	public:
 		enum class FileType

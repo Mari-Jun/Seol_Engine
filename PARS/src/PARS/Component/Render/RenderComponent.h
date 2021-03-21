@@ -8,7 +8,7 @@ namespace PARS
 	class RenderComponent : public Component
 	{
 	public:
-		RenderComponent(int updateOrder = 200);
+		RenderComponent(RenderType type = RenderType::Mesh, int updateOrder = 200);
 		virtual ~RenderComponent() = default;
 
 		virtual void Initialize();
@@ -22,6 +22,6 @@ namespace PARS
 		void ChangeComponentItem();
 
 	protected:
-		ShaderType m_RenderShaderType;
+		RenderType m_RenderType;
 	};
 }

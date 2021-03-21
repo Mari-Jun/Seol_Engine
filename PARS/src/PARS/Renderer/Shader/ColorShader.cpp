@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Shader/ColorShader.h"
 #include "PARS/Actor/Actor.h"
+#include "PARS/Component/Light/Light.h"
 
 namespace PARS
 {
@@ -12,10 +13,10 @@ namespace PARS
 	void ColorShader::Shutdown()
 	{
 		Shader::Shutdown();
-		if (m_PassFrameCB != nullptr)
+		if (m_ColorPassCB != nullptr)
 		{
-			m_PassFrameCB->Unmap(0, nullptr);
-			m_PassFrameCB->Release();
+			m_ColorPassCB->Unmap(0, nullptr);
+			m_ColorPassCB->Release();
 		}
 		if (m_WorldMatCB != nullptr)
 		{
@@ -24,7 +25,7 @@ namespace PARS
 		}
 	}
 
-	void ColorShader::UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBPassFrame& cbPass)
+	void ColorShader::UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBColorPass& cbPass)
 	{
 		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
 		for (int i = 0; i < renderComps.size(); ++i)
@@ -35,7 +36,7 @@ namespace PARS
 			memcpy_s(&mappedWorldMat->m_WorldMatrix, sizeof(Mat4), &worldMatrix, sizeof(Mat4));
 		}
 
-		memcpy_s(&m_MappedPassFrame->m_ViewProj, sizeof(Mat4), &cbPass.m_ViewProj, sizeof(Mat4));
+		memcpy_s(m_MappedColorPass, sizeof(CBColorPass), &cbPass, sizeof(CBColorPass));
 	}
 
 	void ColorShader::DrawRenderComp(ID3D12GraphicsCommandList* commandList, const SPtr<RenderComponent>& renderComp, int index)
@@ -47,7 +48,7 @@ namespace PARS
 
 	void ColorShader::DrawPassFrame(ID3D12GraphicsCommandList* commandList)
 	{
-		commandList->SetGraphicsRootConstantBufferView(1, m_PassFrameCB->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, m_ColorPassCB->GetGPUVirtualAddress());
 	}
 
 	void ColorShader::CreateShader()
@@ -59,7 +60,8 @@ namespace PARS
 	void ColorShader::CreateInputLayout()
 	{
 		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	}
 
 	bool ColorShader::CreatePSO(ID3D12RootSignature* rootSignature)
@@ -100,15 +102,26 @@ namespace PARS
 			D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
 
 		m_WorldMatCB->Map(0, nullptr, (void**)&m_MappedWorldMat);
-
-		//passFrame은 크기가 변하지 않아서 처음에만 실행시킨다.
-		if (m_PassFrameCB == nullptr)
+		
+		/*if (m_ColorPassCB != nullptr)
 		{
-			UINT passFrameCBByteSize = ((sizeof(CBPassFrame) + 255) & ~255);
-			m_PassFrameCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, passFrameCBByteSize,
+			m_ColorPassCB->Unmap(0, nullptr);
+			m_ColorPassCB->Release();
+		}
+
+		UINT ColorPassCBByteSize = ((sizeof(CBColorPass) + 255) & ~255);
+		m_ColorPassCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, ColorPassCBByteSize,
+			D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
+
+		m_ColorPassCB->Map(0, nullptr, (void**)&m_MappedColorPass);*/
+
+		if (m_ColorPassCB == nullptr)
+		{
+			UINT ColorPassCBByteSize = ((sizeof(CBColorPass) + 255) & ~255);
+			m_ColorPassCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, ColorPassCBByteSize,
 				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
 
-			m_PassFrameCB->Map(0, nullptr, (void**)&m_MappedPassFrame);
+			m_ColorPassCB->Map(0, nullptr, (void**)&m_MappedColorPass);
 		}
 	}
 }

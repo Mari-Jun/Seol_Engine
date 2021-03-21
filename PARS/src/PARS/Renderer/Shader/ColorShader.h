@@ -9,9 +9,14 @@ namespace PARS
 		Mat4 m_WorldMatrix;
 	};
 
-	struct CBPassFrame
+	struct CBColorPass
 	{
+
 		Mat4 m_ViewProj;
+		Vec3 m_EyePos;
+		float m_Padding = 0.0f;
+
+		Light m_Lights[16];
 	};
 
 	class ColorShader : public Shader
@@ -22,7 +27,7 @@ namespace PARS
 
 		virtual void Shutdown() override;
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT numOfObject) override;
-		void UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBPassFrame& cbPass);
+		void UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBColorPass& cbPass);
 		virtual void DrawRenderComp(ID3D12GraphicsCommandList* commandList, const SPtr<RenderComponent>& renderComp, int index) override;
 		virtual void DrawPassFrame(ID3D12GraphicsCommandList* commandList);
 		 
@@ -35,8 +40,8 @@ namespace PARS
 		ID3D12Resource* m_WorldMatCB = nullptr;
 		CBWorldMat* m_MappedWorldMat = nullptr;
 		
-		ID3D12Resource* m_PassFrameCB = nullptr;
-		CBPassFrame* m_MappedPassFrame = nullptr;
+		ID3D12Resource* m_ColorPassCB = nullptr;
+		CBColorPass* m_MappedColorPass = nullptr;
 	};
 
 }
