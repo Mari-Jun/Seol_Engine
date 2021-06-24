@@ -40,8 +40,10 @@ using Microsoft::WRL::ComPtr;
 #include <queue>
 #include <array>
 #include <charconv>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <string_view>
 
 #include "PARS/Core/Log.h"
 
