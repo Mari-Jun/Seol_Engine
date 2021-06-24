@@ -3,27 +3,27 @@
 
 namespace PARS
 {
-	RenderComponent::RenderComponent(int updateOrder)
+	RenderComponent::RenderComponent(RenderType type, int updateOrder)
 		: Component(updateOrder)
-		, m_RenderShaderType(ShaderType::Color)
+		, m_RenderType(type)
 	{
 	}
 
 	void RenderComponent::Initialize()
 	{
 		auto factory = RenderComponentFactory::GetRenderComponentFactory();
-		factory->AddRenderComponent(m_RenderShaderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+		factory->AddRenderComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
 	}
 
 	void RenderComponent::Shutdown()
 	{
 		auto factory = RenderComponentFactory::GetRenderComponentFactory();
-		factory->RemoveRenderComponent(m_RenderShaderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+		factory->RemoveRenderComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
 	}
 
 	void RenderComponent::ChangeComponentItem()
 	{
 		auto factory = RenderComponentFactory::GetRenderComponentFactory();
-		factory->MoveToPrepareComponent(m_RenderShaderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+		factory->MoveToPrepareComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
 	}
 }

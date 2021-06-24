@@ -49,28 +49,25 @@ namespace PARS
 					}
 				}
 
-				m_IsShaderUpdate[comps.first] = true;
+				UpdateShaderDueToRender(comps.first);
 			}
 		}
 
-		for (auto& shader : m_IsShaderUpdate)
+		for (auto& updateInfo : m_ShaderUpdateInfos)
 		{
-			if (shader.second)
-			{
-				shader.second = false;
-				m_Shaders[shader.first]->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList(),
-					static_cast<UINT>(m_RenderComponents[shader.first].size()));
-			}
+			m_Shaders[updateInfo.m_ShaderType]->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList(),
+				static_cast<UINT>(m_RenderComponents[updateInfo.m_RenderType].size()));
 		}
+		m_ShaderUpdateInfos.clear();
 	}
 
-	void RenderComponentFactory::Draw(ShaderType type)
+	void RenderComponentFactory::Draw(ShaderType sType, RenderType rType)
 	{
-		for (int index = 0; index < m_RenderComponents[type].size(); ++index)
+		for (int index = 0; index < m_RenderComponents[rType].size(); ++index)
 		{
-			m_Shaders[type]->DrawRenderComp(m_DirectX12->GetCommandList(), m_RenderComponents[type][index], index);
-			m_Shaders[type]->DrawPassFrame(m_DirectX12->GetCommandList());
-			m_RenderComponents[type][index]->Draw(m_DirectX12->GetCommandList());
+			m_Shaders[sType]->DrawRenderComp(m_DirectX12->GetCommandList(), m_RenderComponents[rType][index], index);
+			m_Shaders[sType]->DrawPassFrame(m_DirectX12->GetCommandList());
+			m_RenderComponents[rType][index]->Draw(m_DirectX12->GetCommandList());
 		}
 	}
 
@@ -92,10 +89,9 @@ namespace PARS
 	void RenderComponentFactory::AddShader(ShaderType type, SPtr<Shader>&& shader)
 	{
 		m_Shaders.insert({ type, std::move(shader) });
-		m_IsShaderUpdate.insert({ type, false });
 	}
 
-	void RenderComponentFactory::AddRenderComponent(ShaderType type, const SPtr<RenderComponent>& component)
+	void RenderComponentFactory::AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
 	{
 		auto iter = m_PrepareComponents.emplace(type, std::vector<SPtr<RenderComponent>>{component});
 		if (!iter.second)
@@ -104,7 +100,7 @@ namespace PARS
 		}		
 	}
 
-	void RenderComponentFactory::RemoveRenderComponent(ShaderType type, const SPtr<RenderComponent>& component)
+	void RenderComponentFactory::RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
 	{
 		auto rComp = m_RenderComponents.find(type);
 		if (rComp != m_RenderComponents.end())
@@ -121,13 +117,13 @@ namespace PARS
 				}
 				else
 				{
-					m_IsShaderUpdate[rComp->first] = true;
+					UpdateShaderDueToRender(rComp->first);
 				}
 			}
 		}
 	}
 
-	void RenderComponentFactory::MoveToPrepareComponent(ShaderType type, const SPtr<class RenderComponent>& component)
+	void RenderComponentFactory::MoveToPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component)
 	{
 		RemoveRenderComponent(type, component);
 		AddRenderComponent(type, component);
@@ -149,6 +145,16 @@ namespace PARS
 	void RenderComponentFactory::SaveMesh(const std::string& fileName, const SPtr<class Mesh>& mesh)
 	{
 		m_MeshCache.emplace(fileName, mesh);
+	}
+
+	void RenderComponentFactory::UpdateShaderDueToRender(RenderType renderType)
+	{
+		switch (renderType)
+		{
+		case PARS::RenderType::Mesh:
+			m_ShaderUpdateInfos.emplace_back(ShaderUpdateInfo{ ShaderType::Color, renderType });
+			break;
+		}
 	}
 
 	RenderComponentFactory* RenderComponentFactory::s_Instance = nullptr;
