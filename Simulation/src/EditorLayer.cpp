@@ -12,13 +12,15 @@ namespace PARS
 
 	void EditorLayer::Initialize()
 	{
-		for (int level = 0; level <= 10; ++level)
-		{
-			SelectLevel(level);
-			m_BasicFuntions.emplace_back([this](int level) {
-				ShowLevelHeader(level, m_PhysicsFunctions[level], m_RenderingFunctions[level]);
-				});
-		}		
+		SetPhysics();
+		m_BasicFuntions.emplace_back([this]() {
+			ShowLevelHeader("Physics", m_PhysicsSubjects);
+			});
+
+		SetRendering();
+		m_BasicFuntions.emplace_back([this]() {
+			ShowLevelHeader("Rendering", m_RenderingSubjects);
+			});
 	}
 
 	void EditorLayer::Update()
@@ -31,101 +33,49 @@ namespace PARS
 		auto index = 0;
 		for (const auto& level : m_BasicFuntions)
 		{
-			level(index++);
+			level();
 		}
 
 		ImGui::End();
 	}
 
-	void EditorLayer::SelectLevel(int level)
+	void EditorLayer::SetPhysics()
 	{
-		switch (level)
-		{
-		case 0: SetLevel0(); break;
-		case 1: SetLevel1(); break;
-		case 2: SetLevel2(); break;
-		case 3: SetLevel3(); break;
-		case 4: SetLevel4(); break;
-		case 5: SetLevel5(); break;
-		case 6: SetLevel6(); break;
-		case 7: SetLevel7(); break;
-		case 8: SetLevel8(); break;
-		case 9: SetLevel9(); break;
-		case 10: SetLevel10(); break;
-		}
+		/*m_PhysicsSubjects["P_Basic"].emplace_back([this]() {ShowSimulationNode<ClearColorLevel>
+			("You can change the background color of the window");
+			});*/
 	}
 
-	void EditorLayer::SetLevel0()
+	void EditorLayer::SetRendering()
 	{
-		m_RenderingFunctions[0].emplace_back([this]() {ShowSimulationNode<ClearColorLevel>
-			("You can change the background color of the window"); 
-			});
-	}
-
-	void EditorLayer::SetLevel1()
-	{
-		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<DrawTriangleLevel>
-			("You can change the position of the vertex",
-			"You can change the color of the vertex");
+		m_RenderingSubjects["R_Basic"].emplace_back([this]() {ShowSimulationNode<ClearColorLevel>
+			("001", "You can change the background color of the window");
 			});
 
-		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<Camera2DLevel>
-			("You can change the position of the rectangle",
+		m_RenderingSubjects["R_Mesh"].emplace_back([this]() {ShowSimulationNode<DrawTriangleLevel>
+			("002", "You can change the position of the vertex",
+				"You can change the color of the vertex");
+			});
+
+		m_RenderingSubjects["R_Camera"].emplace_back([this]() {ShowSimulationNode<Camera2DLevel>
+			("003", "You can change the position of the rectangle",
 				"You can change the color of the rectangle",
 				"You can check the position of the rectangle and camera");
 			});
 
-		m_RenderingFunctions[1].emplace_back([this]() {ShowSimulationNode<LoadObjLevel>
-			("You can change the mesh by loading obj");
+		m_RenderingSubjects["R_Mesh"].emplace_back([this]() {ShowSimulationNode<LoadObjLevel>
+			("004", "You can change the mesh by loading obj");
 			});
 	}
 
-	void EditorLayer::SetLevel2()
+	void EditorLayer::ShowLevelHeader(std::string_view subtitle, std::map<std::string_view, FList> subjects)
 	{
-	}
-
-	void EditorLayer::SetLevel3()
-	{
-	}
-
-	void EditorLayer::SetLevel4()
-	{
-	}
-
-	void EditorLayer::SetLevel5()
-	{
-	}
-
-	void EditorLayer::SetLevel6()
-	{
-	}
-
-	void EditorLayer::SetLevel7()
-	{
-	}
-
-	void EditorLayer::SetLevel8()
-	{
-	}
-
-	void EditorLayer::SetLevel9()
-	{
-	}
-
-	void EditorLayer::SetLevel10()
-	{
-	}
-
-
-	void EditorLayer::ShowLevelHeader(int level, FList& physics, FList& rendering)
-	{
-		std::string levelName = "Level" + std::to_string(level);
-		if (ImGui::CollapsingHeader(levelName.c_str()))
+		if (ImGui::CollapsingHeader(subtitle.data()))
 		{
-			std::string physicsName = "Physics_" + std::to_string(level);
-			std::string renderingName = "Rendering_" + std::to_string(level);
-			ShowListNode(physicsName.c_str(), physics);
-			ShowListNode(renderingName.c_str(), rendering);
+			for (auto [subject, datalist] : subjects)
+			{
+				ShowListNode(subject.data(), datalist);
+			}
 		}
 	}
 

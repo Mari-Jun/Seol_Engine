@@ -5,7 +5,7 @@
 namespace PARS
 {
 	using FList = std::vector<std::function<void()>>;
-	using FLevelList = std::vector<std::function<void(int level)>>;
+	using FLevelList = std::vector<std::function<void()>>;
 
 	class EditorLayer : public Layer
 	{
@@ -17,20 +17,10 @@ namespace PARS
 		void Update() override;
 
 	private:
-		void SelectLevel(int level);
-		void SetLevel0();
-		void SetLevel1();
-		void SetLevel2();
-		void SetLevel3();
-		void SetLevel4();
-		void SetLevel5();
-		void SetLevel6();
-		void SetLevel7();
-		void SetLevel8();
-		void SetLevel9();
-		void SetLevel10();
+		void SetPhysics();
+		void SetRendering();
 
-		void ShowLevelHeader(int level, FList& physics, FList& rendering);
+		void ShowLevelHeader(std::string_view subtitle, std::map<std::string_view, FList> subjects);
 		void ShowListNode(const char* nodeName, FList& functions);
 
 		template<typename... Args>
@@ -39,11 +29,13 @@ namespace PARS
 			(ImGui::BulletText(args), ...);
 		}
 		template<typename T, typename ... Args>
-		void ShowSimulationNode(Args&& ... args)
+		void ShowSimulationNode(const std::string& levelNum, Args&& ... args)
 		{
 			auto newLevel = CreateSPtr<T>();
 
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), newLevel->GetLevelName().c_str());
+			std::string nodeName = "No." + levelNum + " [" + newLevel->GetLevelName() + "]";
+
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), nodeName.c_str());
 
 			ShowExplanation(args...);
 
@@ -58,8 +50,7 @@ namespace PARS
 
 	private:
 		FLevelList m_BasicFuntions;
-		std::array<FList, 11> m_PhysicsFunctions;
-		std::array<FList, 11> m_RenderingFunctions;
-
+		std::map<std::string_view, FList> m_PhysicsSubjects;
+		std::map<std::string_view, FList> m_RenderingSubjects;
 	};
 }
