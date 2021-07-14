@@ -50,6 +50,8 @@ VS_OUT VSMain(VS_IN input)
 
 float4 PSMain(VS_OUT input) : SV_TARGET
 {
+    //return input.color;
+    
     float3 eye = normalize(gEyePos - input.basicPos);
      
     return ComputeLight(gLights, input.basicPos, input.normal, eye) * input.color;

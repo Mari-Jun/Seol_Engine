@@ -43,5 +43,5 @@ float4 ComputeLight(Light lights[MaxLights], float3 pos, float3 normal, float3 e
     }
 #endif
 
-    return float4(result, 0.0f);
+    return float4(result, 1.0f);
 }

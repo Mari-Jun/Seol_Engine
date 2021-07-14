@@ -26,11 +26,6 @@ namespace PARS
 		layer->AddObjectToLayer("Obj");
 		layer->SetMeshComp(meshComp);
 		AddLayer(layer);
-
-		auto light = CreateSPtr<Actor>();
-		auto lightComp = CreateSPtr<LightComponent>();
-		light->AddComponent(lightComp);
-		AddActor(light);
 	}
 
 	void LoadObjLevel::UpdateLevel(float deltaTime)

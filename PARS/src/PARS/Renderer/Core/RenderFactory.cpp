@@ -69,11 +69,11 @@ namespace PARS
 
 					const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
 
-					Light lights[16];
+					LightCB lights[16];
 					int count = 0;
 					for (const auto& light : m_LightComps)
 					{
-						lights[count++] = *light->GetLight();
+						lights[count++] = light->GetLightCB();
 					}
 
 					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, CBColorPass{ viewProj, eyePos, 0.0f, *lights }))

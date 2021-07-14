@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Shader/ColorShader.h"
 #include "PARS/Actor/Actor.h"
-#include "PARS/Component/Light/Light.h"
 
 namespace PARS
 {

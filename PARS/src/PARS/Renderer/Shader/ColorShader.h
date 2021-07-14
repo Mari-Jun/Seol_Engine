@@ -16,7 +16,7 @@ namespace PARS
 		Vec3 m_EyePos;
 		float m_Padding = 0.0f;
 
-		Light m_Lights[16];
+		LightCB m_Lights[16];
 	};
 
 	class ColorShader : public Shader

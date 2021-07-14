@@ -66,6 +66,11 @@ namespace PARS
 		m_RenderingSubjects["R_Mesh"].emplace_back([this]() {ShowSimulationNode<LoadObjLevel>
 			("004", "You can change the mesh by loading obj");
 			});
+
+		m_RenderingSubjects["R_Light"].emplace_back([this]() {ShowSimulationNode<DirectionalLightLevel>
+			("005", "You can change rotation of the directional light",
+				"You cna change color of the directional light");
+			});
 	}
 
 	void EditorLayer::ShowLevelHeader(std::string_view subtitle, std::map<std::string_view, FList> subjects)
