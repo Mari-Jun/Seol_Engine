@@ -28,20 +28,6 @@ namespace PARS
 		void CreateShader(std::string&& signatureType, ShaderType type, SPtr<Shader>&& shader);
 
 	public:
-		template<typename Component, typename Type>
-		void AddWorldComponent(Type type, const Component& comp)
-		{
-
-			std::is_same(Component, CameraComponent)
-		}
-
-		template<typename Component, typename Type, typename Data>
-		void AddWorldComponent(Type type, const Component& comp, Data& data)
-		{
-
-		}
-
-
 		void AddCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
 		void RemoveCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
 

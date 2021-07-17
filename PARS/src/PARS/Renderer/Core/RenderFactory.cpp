@@ -63,11 +63,16 @@ namespace PARS
 			{
 				if (camera->IsActive())
 				{
+					CBColorPass cbPass;
+
 					viewProj = camera->GetViewMatrix();
 					viewProj *= m_Projection;
 					viewProj.Transpose();
 
 					const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
+
+					cbPass.m_ViewProj = viewProj;
+					cbPass.m_EyePos = eyePos;
 
 					std::vector<LightCB> lights;
 					LightCount lightCount;
@@ -77,7 +82,14 @@ namespace PARS
 						lightCount.AddLightCount(light->GetLightType());
 					}
 
-					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, CBColorPass{ viewProj, eyePos, 0.0f, lightCount, 0.0f, *lights.data() }))
+					cbPass.m_LightCount = lightCount;
+					cbPass.m_AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
+					if (!lights.empty())
+						*cbPass.m_Lights = *lights.data();
+					else
+						cbPass.m_AmbientLight = { 1.0f,  1.0f, 1.0f, 1.0f };
+
+					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, cbPass))
 					{
 						m_RenderCompFactory->Draw(ShaderType::Color, RenderType::Mesh);
 					}
