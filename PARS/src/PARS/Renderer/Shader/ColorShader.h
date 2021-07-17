@@ -14,8 +14,9 @@ namespace PARS
 
 		Mat4 m_ViewProj;
 		Vec3 m_EyePos;
-		float m_Padding = 0.0f;
-
+		float m_Padding1;
+		LightCount m_LightCount;
+		float m_Padding2;
 		LightCB m_Lights[16];
 	};
 

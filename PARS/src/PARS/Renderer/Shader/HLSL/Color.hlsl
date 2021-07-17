@@ -14,8 +14,10 @@ cbuffer cbCameraInfo : register(b1)
 {
     matrix gViewProj;
     float3 gEyePos;
-    float gPadding;
-	
+    float gPadding1;
+    int3 gLightCounts;
+    float gPadding2;
+    
     Light gLights[MaxLights];
 }
 
@@ -54,5 +56,5 @@ float4 PSMain(VS_OUT input) : SV_TARGET
     
     float3 eye = normalize(gEyePos - input.basicPos);
      
-    return ComputeLight(gLights, input.basicPos, input.normal, eye) * input.color;
+    return ComputeLight(gLights, gLightCounts, input.basicPos, input.normal, eye) * input.color;
 }

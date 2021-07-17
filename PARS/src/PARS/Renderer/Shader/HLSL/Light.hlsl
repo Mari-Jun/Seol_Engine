@@ -32,16 +32,14 @@ float3 ComputeDirectionalLight(Light light, float3 normal, float3 eye)
     return lightColor;
 }
 
-float4 ComputeLight(Light lights[MaxLights], float3 pos, float3 normal, float3 eye)
+float4 ComputeLight(Light lights[MaxLights], int3 lightCounts, float3 pos, float3 normal, float3 eye)
 {
     float3 result = 0.0f;
   
-#if (NUM_DIR_LIGHTS > 0)
-    for(int i = 0; i < NUM_DIR_LIGHTS; ++i)
+    for(int i = 0; i < lightCounts.x; ++i)
     {
         result += ComputeDirectionalLight(lights[i], normal, eye);
     }
-#endif
 
     return float4(result, 1.0f);
 }

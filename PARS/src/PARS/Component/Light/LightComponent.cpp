@@ -45,8 +45,9 @@ namespace PARS
 	{
 	}
 
-	LightComponent::LightComponent(int updateOrder)
+	LightComponent::LightComponent(LightType lightType, int updateOrder)
 		: Component(updateOrder)
+		, m_LightType(lightType)
 	{
 	}
 
@@ -62,7 +63,32 @@ namespace PARS
 		factory->RemoveLightComponent(std::reinterpret_pointer_cast<LightComponent>(shared_from_this()));
 	}
 
+	LightCount::LightCount()
+		: m_DLight(0)
+		, m_PLight(0)
+		, m_SLight(0)
+	{
+	}
+
+	LightCount::LightCount(int dLight, int pLight, int sLight)
+		: m_DLight(dLight)
+		, m_PLight(pLight)
+		, m_SLight(sLight)
+	{
+	}
+
+	void LightCount::AddLightCount(LightComponent::LightType type)
+	{
+		switch (type)
+		{
+		case PARS::LightComponent::LightType::Directional:	++m_DLight;	break;
+		case PARS::LightComponent::LightType::Point:		++m_PLight;	break;
+		case PARS::LightComponent::LightType::Spot:			++m_SLight;	break;
+		}
+	}
+
 	DirectionalLightComponent::DirectionalLightComponent(const Vec3& color)
+		: LightComponent(LightType::Directional)
 	{
 		m_LightColor = color;
 	}

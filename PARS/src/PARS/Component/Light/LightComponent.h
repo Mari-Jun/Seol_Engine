@@ -16,7 +16,7 @@ namespace PARS
 		void SetLightColor(const Vec3& color) { m_LightColor = color; }
 		const Vec3& GetDirection() const { return m_Direction; }
 
-	protected:
+	private:
 		Vec3 m_LightColor = { 1.0f, 1.0f, 1.0f };
 		float m_FalloffStart = 0.0f;
 		Vec3 m_Direction = { 0.0f, 0.0f, 1.0f };
@@ -28,16 +28,38 @@ namespace PARS
 	class LightComponent : public Component
 	{
 	public:
-		LightComponent(int updateOrder = 100);
+		enum class LightType
+		{
+			Directional, Point, Spot
+		};
+
+	public:
+		LightComponent(LightType lightType, int updateOrder = 100);
 		virtual ~LightComponent() = default;
 
 		virtual void Initialize() override;
 		virtual void Shutdown() override;
 
+		LightType GetLightType() const { return m_LightType; }
 		virtual LightCB GetLightCB() const = 0;
 
 	protected:
+		LightType m_LightType;
 		Vec3 m_LightColor = { 1.0f, 1.0f, 1.0f };
+	};
+
+	class LightCount
+	{
+	public:
+		LightCount();
+		LightCount(int dLight, int pLight, int sLight);
+
+		void AddLightCount(LightComponent::LightType type);
+
+	private:
+		int m_DLight = 0;
+		int m_PLight = 0;
+		int m_SLight = 0;
 	};
 
 	class DirectionalLightComponent : public LightComponent
