@@ -67,11 +67,13 @@ namespace PARS
 			if (m_Mesh != nullptr)
 			{
 				m_Mesh->Shutdown();
-				m_Mesh = nullptr;
 				ChangeComponentItem();
 			}
-
-			m_Mesh = CreateSPtr<T>();
+			else
+			{
+				m_Mesh = CreateSPtr<T>();
+			}
+			
 			std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
 		}
 

@@ -43,7 +43,7 @@ namespace PARS
 		UPtr<RenderComponentFactory> m_RenderCompFactory;
 		std::unordered_map<std::string, ID3D12RootSignature*> m_RootSignatures;
 		std::unordered_map<CameraComponent::CameraType, std::vector<SPtr<CameraComponent>>> m_CameraComps;
-		std::vector<SPtr<LightComponent>> m_LightComps;
+		std::list<SPtr<LightComponent>> m_LightComps;
 
 	private:
 		Mat4 m_Projection;

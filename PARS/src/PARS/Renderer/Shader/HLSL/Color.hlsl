@@ -10,12 +10,15 @@ cbuffer cbWorldInfo : register(b0)
     matrix gWorld;
 }
 
-cbuffer cbCameraInfo : register(b1)
+cbuffer cbColorPass : register(b1)
 {
     matrix gViewProj;
     float3 gEyePos;
     float gPadding;
-	
+    
+    int3 gLightCounts;
+    float gPadding2;
+    float4 gAmbientLight;
     Light gLights[MaxLights];
 }
 
@@ -50,7 +53,15 @@ VS_OUT VSMain(VS_IN input)
 
 float4 PSMain(VS_OUT input) : SV_TARGET
 {
+    //return input.color;
+    
     float3 eye = normalize(gEyePos - input.basicPos);
+    
+    float4 ambientLight = gAmbientLight * input.color;
+    
+    float4 directLight = ComputeLight(gLights, gLightCounts, input.basicPos, input.normal, eye) * input.color;
+    
+    float4 result = ambientLight + directLight;
      
-    return ComputeLight(gLights, input.basicPos, input.normal, eye) * input.color;
+    return result;
 }

@@ -1,15 +1,15 @@
-#include "LoadObjLevel.h"
+#include "DirectionalLightLevel.h"
+#include "PARS/Actor/Light/Light.h"
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
-#include "PARS/Component/Light/LightComponent.h"
 
 namespace PARS
 {
-	LoadObjLevel::LoadObjLevel()
-		: Level3D("Load OBJ Level")
+	DirectionalLightLevel::DirectionalLightLevel()
+		: Level3D("Directional Light Level")
 	{
 	}
 
-	void LoadObjLevel::InitializeLevel()
+	void DirectionalLightLevel::InitializeLevel()
 	{
 		Level3D::InitializeLevel();
 
@@ -17,23 +17,21 @@ namespace PARS
 		actor->SetPosition({ 0.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
 		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "LoadObj/Box");
+		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "Default/Box");
 		actor->AddComponent(meshComp);
 		AddActor(actor);
 
-		auto layer = PARS::CreateSPtr<PARS::LoadObjLayer>();
+		auto layer = PARS::CreateSPtr<PARS::DirectionalLightLayer>();
 		layer->OnDestroy([this]() {Destroy(); });
 		layer->AddObjectToLayer("Obj");
 		layer->SetMeshComp(meshComp);
 		AddLayer(layer);
 
-		auto light = CreateSPtr<Actor>();
-		auto lightComp = CreateSPtr<LightComponent>();
-		light->AddComponent(lightComp);
+		auto light = CreateSPtr<DirectionalLight>();
 		AddActor(light);
 	}
 
-	void LoadObjLevel::UpdateLevel(float deltaTime)
+	void DirectionalLightLevel::UpdateLevel(float deltaTime)
 	{
 		
 	}

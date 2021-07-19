@@ -11,12 +11,13 @@ namespace PARS
 
 	struct CBColorPass
 	{
-
 		Mat4 m_ViewProj;
 		Vec3 m_EyePos;
-		float m_Padding = 0.0f;
-
-		Light m_Lights[16];
+		float m_Padding1;
+		LightCount m_LightCount;
+		float m_Padding2;
+		Vec4 m_AmbientLight;
+		LightCB m_Lights[16];
 	};
 
 	class ColorShader : public Shader
