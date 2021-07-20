@@ -16,6 +16,8 @@ namespace PARS
 		Quaternion& operator*=(const Quaternion& q);
 		friend Quaternion operator*(const Quaternion& p, const Quaternion& q);
 
+		friend std::ostream& operator<<(std::ostream& os, const Quaternion& quat);
+
 		Quaternion Conjugate() const;
 
 		float LengthSq() const;
@@ -27,6 +29,8 @@ namespace PARS
 		static float Dot(const Quaternion& q1, const Quaternion& q2);
 		static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float f);
 		static Quaternion Slerp(const Quaternion& p, const Quaternion& q, float f);
+
+		std::string ToString() const;
 
 		static const Quaternion Identity;
 	};

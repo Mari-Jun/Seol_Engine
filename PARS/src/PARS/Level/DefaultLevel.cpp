@@ -2,7 +2,7 @@
 #include "PARS/Level/DefaultLevel.h"
 #include "PARS/Core/Window.h"
 #include "PARS/Layer/DetailLayer.h"
-#include "PARS/Actor/Pawn.h"
+#include "PARS/Actor/Pawn/Pawn.h"
 #include "PARS/Actor/Controller/PlayerController.h"
 #include "PARS/Input/Input.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
@@ -20,13 +20,13 @@ namespace PARS
 		m_DetailLayer->OnDestroy([this]() {Destroy(); });
 		AddLayer(m_DetailLayer);
 
-		m_DefaultPawn = CreateSPtr<Pawn>();
+		m_DefaultPawn = CreateSPtr<Pawn>("DefaultPawn");
 		m_DefaultPawn->SetPosition({ 0.0f, 0.0f, -0.1f });
 		AddActor(m_DefaultPawn);
 
 		m_DefaultController = CreateSPtr<PlayerController>(m_DefaultPawn);
 		m_DefaultCamera = CreateSPtr<CameraComponent>();
-		m_DefaultController->AddComponent(m_DefaultCamera);
+		m_DefaultPawn->AddComponent(m_DefaultCamera);
 		AddActor(m_DefaultController);
 	}
 

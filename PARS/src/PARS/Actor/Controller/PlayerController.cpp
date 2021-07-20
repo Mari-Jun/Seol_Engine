@@ -3,13 +3,13 @@
 
 namespace PARS
 {
-	PlayerController::PlayerController()
-		: Controller()
+	PlayerController::PlayerController(const std::string& name)
+		: Controller(name)
 	{
 	}
 
-	PlayerController::PlayerController(const SPtr<Pawn>& pawn)
-		: Controller(pawn)
+	PlayerController::PlayerController(const SPtr<Pawn>& pawn, const std::string& name)
+		: Controller(pawn, name)
 	{
 
 	}
@@ -27,9 +27,6 @@ namespace PARS
 
 	void PlayerController::Update(float deltaTime)
 	{
-		SetPosition(m_ControlledPawn->GetPosition());
-		
-
 		//폰의 회전방향을 컨트롤러와 맞춘다.
 		if (b_IsSameRotationWithPawn)
 		{

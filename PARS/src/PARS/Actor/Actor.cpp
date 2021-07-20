@@ -107,5 +107,12 @@ namespace PARS
 		std::ostringstream stream;
 		stream << GetPosition();
 		ImGui::BulletText(stream.str().c_str());
+
+		stream.str("");
+		stream.clear();
+
+		ImGui::TextColored(textColor, "Rotation");
+		stream << GetRotation();
+		ImGui::BulletText(stream.str().c_str());
 	}
 }

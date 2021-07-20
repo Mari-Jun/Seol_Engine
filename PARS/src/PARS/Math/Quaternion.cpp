@@ -44,6 +44,11 @@ namespace PARS
 		return result;
 	}
 
+	std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
+	{
+		return os << quat.ToString();
+	}
+
 	Quaternion Quaternion::Conjugate() const
 	{
 		return Quaternion(-x, -y, -z, w);
@@ -122,6 +127,13 @@ namespace PARS
 		result.w = pMul * p.w + qMul * q.w;
 		result.Normalize();
 		return result;
+	}
+
+	std::string Quaternion::ToString() const
+	{
+		std::stringstream result;
+		result << "Quaternion : {" << x << ", " << y << ", " << z << "}";
+		return result.str();
 	}
 	
 	const Quaternion Quaternion::Identity{ 0.0f, 0.0f, 0.0f, 1.0f };

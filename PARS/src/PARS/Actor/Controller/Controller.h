@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PARS/Actor/Pawn.h"
+#include "PARS/Actor/Pawn/Pawn.h"
 #include "PARS/Input/Input.h"
 
 namespace PARS
@@ -8,8 +8,8 @@ namespace PARS
 	class Controller : public Actor
 	{
 	public:
-		Controller();
-		Controller(const SPtr<class Pawn>& pawn);
+		Controller(const std::string& name = "Controller");
+		Controller(const SPtr<class Pawn>& pawn, const std::string& name = "Controller");
 		virtual ~Controller() = default;
 
 		virtual void Initialize() override {}

@@ -148,7 +148,7 @@ namespace PARS
 		{
 			object.index = std::prev(range.second, 1)->second.index + 1;
 		}
-		object.name += "_" + std::to_string(object.index);
+		object.name += " " + std::to_string(object.index);
 
 		m_DetailObjects.insert({ keyName, object });		
 	}

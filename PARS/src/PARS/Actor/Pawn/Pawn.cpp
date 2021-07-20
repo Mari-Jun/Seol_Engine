@@ -1,11 +1,12 @@
 #include "stdafx.h"
-#include "PARS/Actor/Pawn.h"
+#include "PARS/Actor/Pawn/Pawn.h"
 #include "PARS/Actor/Controller/Controller.h"
 
 namespace PARS
 {
-	Pawn::Pawn()
-		: m_MoveSpeed(600.0f)
+	Pawn::Pawn(const std::string& name)
+		: Actor(name)
+		, m_MoveSpeed(600.0f)
 	{
 	}
 

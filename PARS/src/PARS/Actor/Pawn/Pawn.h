@@ -7,7 +7,7 @@ namespace PARS
 	class Pawn : public Actor
 	{
 	public:
-		Pawn();
+		Pawn(const std::string& name = "Pawn");
 		virtual ~Pawn() = default;
 
 		virtual void Initialize() override;

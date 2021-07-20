@@ -12,7 +12,7 @@ namespace PARS
 	{
 		Level2D::InitializeLevel();
 
-		auto rectangle = CreateSPtr<Actor>();
+		auto rectangle = CreateSPtr<Actor>("Rectangle");
 		auto meshComp = CreateSPtr<MeshComponent>(); 
 		meshComp->SetHandMadeMesh<DiffuseMesh>(
 			std::vector<DiffuseVertex>({ {Vec3(-200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
