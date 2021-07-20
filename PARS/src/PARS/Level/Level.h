@@ -27,8 +27,8 @@ namespace PARS
 		void UpdateActorManager(float deltaTime);
 		virtual void UpdateLevel(float deltaTime) {};
 
-		void AddActor(const SPtr<class Actor>& actor);
-		void RemoveActor(const SPtr<class Actor>& actor);
+		virtual void AddActor(const SPtr<class Actor>& actor);
+		virtual void RemoveActor(const SPtr<class Actor>& actor);
 		void AddLayer(const SPtr<class Layer>& layer);
 
 	protected:

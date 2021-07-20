@@ -4,16 +4,16 @@
 namespace PARS
 {
 	Camera2DLayer::Camera2DLayer()
-		: BasicLayer("Camera 2D Layer")
+		: DetailLayer("Camera 2D Layer")
 		, m_MeshColor(COLOR::Green)
 	{
 	}
 
 	void Camera2DLayer::Initialize()
 	{
-		AddDetailFunction("Rectangle", "Rectangle Actor", [this]() {RectangleActorDetail(); });
+	/*	AddDetailFunction("Rectangle", "Rectangle Actor", [this]() {RectangleActorDetail(); });
 		AddDetailFunction("Rectangle", "MeshComponent", [this]() {RectangleMeshCompDetail(); });
-		AddDetailFunction("Camera", "Camera Actor", [this]() {CameraDetail(); });
+		AddDetailFunction("Camera", "Camera Actor", [this]() {CameraDetail(); });*/
 	}
 
 	void Camera2DLayer::RectangleActorDetail()

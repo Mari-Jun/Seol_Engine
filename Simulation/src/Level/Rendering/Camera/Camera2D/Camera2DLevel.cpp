@@ -24,7 +24,7 @@ namespace PARS
 		rectangle->AddComponent(meshComp);
 		AddActor(rectangle);
 
-		auto layer = PARS::CreateSPtr<PARS::Camera2DLayer>();
+		/*auto layer = PARS::CreateSPtr<PARS::Camera2DLayer>();
 		layer->OnDestroy([this]() {Destroy(); });
 		AddLayer(layer);
 
@@ -33,7 +33,7 @@ namespace PARS
 		layer->SetRectMeshComp(meshComp);
 
 		layer->AddObjectToLayer("Camera");
-		layer->SetCameraActor(std::reinterpret_pointer_cast<Actor>(GetDefaultPawn()));
+		layer->SetCameraActor(std::reinterpret_pointer_cast<Actor>(GetDefaultPawn()));*/
 	}
 
 	void Camera2DLevel::UpdateLevel(float deltaTime)

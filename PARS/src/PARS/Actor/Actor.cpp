@@ -1,17 +1,22 @@
 #include "stdafx.h"
 #include "PARS/Actor/Actor.h"
 
+#include "imgui.h"
+
 namespace PARS
 {
-	Actor::Actor()
-		: m_ActorState(ActorState::Active)
+	Actor::Actor(const std::string& name)
+		: m_ActorName(name)
+		, m_ActorState(ActorState::Active)
 	{
+		m_DetailFuncManager = CreateUPtr<DetailFunctionManager>();
 		m_ComponentManager = CreateUPtr<ComponentManager>();
 		m_InputFactory = CreateUPtr<InputFactory>();
 	}
 
 	void Actor::InitializeActor()
 	{
+		AddDetailFunction([this]() {ActorDetail(); });
 		Initialize();
 	}
 
@@ -53,6 +58,11 @@ namespace PARS
 		}
 	}
 
+	void Actor::AddDetailFunction(const std::function<void()>& func, const std::string& triName)
+	{
+		m_DetailFuncManager->AddDetailFunction(triName, func);
+	}
+
 	void Actor::AddComponent(const SPtr<class Component>& component)
 	{
 		m_ComponentManager->AddComponent(component);
@@ -87,5 +97,15 @@ namespace PARS
 	void Actor::ActiveAction(ActionType type, std::string&& name, bool active)
 	{
 		m_InputFactory->ActiceAction(type, std::move(name), active);
+	}
+
+	void Actor::ActorDetail()
+	{
+		static ImVec4 textColor = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
+
+		ImGui::TextColored(textColor, "Position");
+		std::ostringstream stream;
+		stream << GetPosition();
+		ImGui::BulletText(stream.str().c_str());
 	}
 }

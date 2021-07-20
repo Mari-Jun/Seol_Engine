@@ -5,7 +5,7 @@
 
 namespace PARS
 {
-	class Camera2DLayer : public BasicLayer
+	class Camera2DLayer : public DetailLayer
 	{
 	public:
 		Camera2DLayer();

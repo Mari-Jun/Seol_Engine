@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Level/DefaultLevel.h"
 #include "PARS/Core/Window.h"
+#include "PARS/Layer/DetailLayer.h"
 #include "PARS/Actor/Pawn.h"
 #include "PARS/Actor/Controller/PlayerController.h"
 #include "PARS/Input/Input.h"
@@ -15,6 +16,10 @@ namespace PARS
 
 	void DefaultLevel::InitializeLevel()
 	{
+		m_DetailLayer = CreateSPtr<DetailLayer>("Detail Layer");
+		m_DetailLayer->OnDestroy([this]() {Destroy(); });
+		AddLayer(m_DetailLayer);
+
 		m_DefaultPawn = CreateSPtr<Pawn>();
 		m_DefaultPawn->SetPosition({ 0.0f, 0.0f, -0.1f });
 		AddActor(m_DefaultPawn);
@@ -23,6 +28,24 @@ namespace PARS
 		m_DefaultCamera = CreateSPtr<CameraComponent>();
 		m_DefaultController->AddComponent(m_DefaultCamera);
 		AddActor(m_DefaultController);
+	}
+
+	void DefaultLevel::AddActor(const SPtr<class Actor>& actor)
+	{
+		Level::AddActor(actor);
+		if (m_DetailLayer != nullptr)
+		{
+			m_DetailLayer->AddObjectToLayer(DetailObject{ actor->GetActorName(), actor->GetDetailFunctions() });
+		}
+	}
+
+	void DefaultLevel::RemoveActor(const SPtr<class Actor>& actor)
+	{
+		Level::RemoveActor(actor);
+		if (m_DetailLayer != nullptr)
+		{
+			
+		}
 	}
 
 	void DefaultLevel::SetDefaultCameraActive()
