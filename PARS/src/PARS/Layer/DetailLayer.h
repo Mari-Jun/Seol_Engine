@@ -1,6 +1,6 @@
 #pragma once
 #include "PARS/Layer/Layer.h"
-#include "PARS/Layer/DetailFunctionManager.h"
+#include "PARS/Layer/DetailFunction.h"
 #include "imgui.h"
 
 namespace PARS
@@ -8,7 +8,7 @@ namespace PARS
 	struct DetailObject
 	{
 		std::string name;
-		std::vector<DetailFunction> detailFunctions;
+		std::vector<FunctionInfo> detailFunctions;
 		int index = 1;
 	};
 

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Actor/Actor.h"
-
-#include "imgui.h"
+#include "PARS/Actor/ActorDetailFunction.h"
 
 namespace PARS
 {
@@ -9,14 +8,14 @@ namespace PARS
 		: m_ActorName(name)
 		, m_ActorState(ActorState::Active)
 	{
-		m_DetailFuncManager = CreateUPtr<DetailFunctionManager>();
+		m_DetailFunction = CreateUPtr<ActorDetailFunction>();
 		m_ComponentManager = CreateUPtr<ComponentManager>();
 		m_InputFactory = CreateUPtr<InputFactory>();
 	}
 
 	void Actor::InitializeActor()
 	{
-		AddDetailFunction([this]() {ActorDetail(); });
+		m_DetailFunction->Initialize(weak_from_this());
 		Initialize();
 	}
 
@@ -58,11 +57,6 @@ namespace PARS
 		}
 	}
 
-	void Actor::AddDetailFunction(const std::function<void()>& func, const std::string& triName)
-	{
-		m_DetailFuncManager->AddDetailFunction(triName, func);
-	}
-
 	void Actor::AddComponent(const SPtr<class Component>& component)
 	{
 		m_ComponentManager->AddComponent(component);
@@ -97,22 +91,5 @@ namespace PARS
 	void Actor::ActiveAction(ActionType type, std::string&& name, bool active)
 	{
 		m_InputFactory->ActiceAction(type, std::move(name), active);
-	}
-
-	void Actor::ActorDetail()
-	{
-		static ImVec4 textColor = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
-
-		ImGui::TextColored(textColor, "Position");
-		std::ostringstream stream;
-		stream << GetPosition();
-		ImGui::BulletText(stream.str().c_str());
-
-		stream.str("");
-		stream.clear();
-
-		ImGui::TextColored(textColor, "Rotation");
-		stream << GetRotation();
-		ImGui::BulletText(stream.str().c_str());
 	}
 }

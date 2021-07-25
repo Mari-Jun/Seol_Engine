@@ -44,6 +44,7 @@ using Microsoft::WRL::ComPtr;
 #include <unordered_map>
 #include <unordered_set>
 #include <string_view>
+#include <limits>
 
 #include "PARS/Core/Log.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
-#include "PARS/Layer/DetailFunctionManager.h"
+#include "PARS/Actor/ActorDetailFunction.h"
 #include "PARS/Component/ComponentManager.h"
 #include "PARS/Input/InputFactory.h"
 #include "PARS/Math/Math.h"
@@ -30,7 +30,6 @@ namespace PARS
 
 		void UpdateWorldMatrix();
 
-		void AddDetailFunction(const std::function<void()>& func, const std::string& triName = "Actor");
 		void AddComponent(const SPtr<class Component>& component);
 		void RemoveComponent(const SPtr<class Component>& component);
 
@@ -45,17 +44,17 @@ namespace PARS
 		std::string m_ActorName;
 		ActorState m_ActorState;
 
+		UPtr<ActorDetailFunction> m_DetailFunction;
+
 	private:
 		
 		Mat4 m_WorldMatrix = Mat4::Identity;
 		Vec3 m_Position = Vec3::Zero;
 		Quaternion m_Rotation = Quaternion::Identity;
-		float m_Scale = 1.0f;
+		Vec3 m_Scale = Vec3::One;
 		bool m_RechangeWorldMatrix = true;
 
-		UPtr<DetailFunctionManager> m_DetailFuncManager;
 		UPtr<ComponentManager> m_ComponentManager;
-
 		UPtr<InputFactory> m_InputFactory;
 
 	public:
@@ -69,20 +68,15 @@ namespace PARS
 		void SetPosition(const Vec3& pos) { m_Position = pos; m_RechangeWorldMatrix = true; }
 		const Quaternion& GetRotation() const { return m_Rotation; }
 		void SetRotation(const Quaternion& rot) { m_Rotation = rot; m_RechangeWorldMatrix = true; }
-		float GetScale() const { return m_Scale; }
-		void SetScale(float scale) { m_Scale = scale; m_RechangeWorldMatrix = true; }
+		const Vec3& GetScale() const { return m_Scale; }
+		void SetScale(const Vec3& scale) { m_Scale = scale; m_RechangeWorldMatrix = true;}
+		void SetScale(float scale) { m_Scale = Vec3::One * scale; m_RechangeWorldMatrix = true; }
 
 		Vec3 GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
 
-	private:
-		//임시 함수
-		void ActorDetail();
-
-	public:
-		const std::vector<DetailFunction>& GetDetailFunctions() const { return m_DetailFuncManager->GetDetailFunctions(); }
-		
+		const std::vector<FunctionInfo>& GetDetailFunctionInfos() const { return m_DetailFunction->GetFunctionInfos(); }
 	};
 }
 

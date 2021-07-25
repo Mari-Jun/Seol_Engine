@@ -35,7 +35,7 @@ namespace PARS
 		Level::AddActor(actor);
 		if (m_DetailLayer != nullptr)
 		{
-			m_DetailLayer->AddObjectToLayer(DetailObject{ actor->GetActorName(), actor->GetDetailFunctions() });
+			m_DetailLayer->AddObjectToLayer(DetailObject{ actor->GetActorName(), actor->GetDetailFunctionInfos() });
 		}
 	}
 

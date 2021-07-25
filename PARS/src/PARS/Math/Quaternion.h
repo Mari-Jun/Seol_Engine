@@ -16,6 +16,9 @@ namespace PARS
 		Quaternion& operator*=(const Quaternion& q);
 		friend Quaternion operator*(const Quaternion& p, const Quaternion& q);
 
+		friend bool operator==(const Quaternion& p, const Quaternion& q);
+		friend bool operator!=(const Quaternion& p, const Quaternion& q);
+
 		friend std::ostream& operator<<(std::ostream& os, const Quaternion& quat);
 
 		Quaternion Conjugate() const;
@@ -30,6 +33,8 @@ namespace PARS
 		static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float f);
 		static Quaternion Slerp(const Quaternion& p, const Quaternion& q, float f);
 
+		const Vec3& QuatToEuler(bool toDegree = true) const;
+		
 		std::string ToString() const;
 
 		static const Quaternion Identity;
