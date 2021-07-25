@@ -4,10 +4,10 @@
 
 namespace PARS
 {
-	void ActorDetailFunction::Initialize(const WPtr<Actor>& owner)
+	void ActorDetailFunction::AddFunctionInfo()
 	{
-		m_Owner = owner;
-		m_FunctionInfos.emplace_back(FunctionInfo{ m_Owner.lock()->GetActorName(), [this]() {TransformDetail(); } });
+		const auto& owner = m_Owner.lock();
+		owner->AddDetailFunctionInfo(FunctionInfo{ owner->GetActorName(), [this]() {TransformDetail(); } });
 	}
 
 	void ActorDetailFunction::TransformDetail()

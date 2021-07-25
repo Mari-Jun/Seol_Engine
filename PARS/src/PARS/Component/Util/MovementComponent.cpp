@@ -5,8 +5,8 @@
 
 namespace PARS
 {
-	MovementComponent::MovementComponent(int updateOrder)
-		: Component(updateOrder)
+	MovementComponent::MovementComponent(const std::string& name, int updateOrder)
+		: Component(name, updateOrder)
 		, m_ForwardSpeed(0.0f)
 		, m_RightSpeed(0.0f)
 		, m_UpSpeed(0.0f)

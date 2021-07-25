@@ -8,7 +8,7 @@ namespace PARS
 	class RenderComponent : public Component
 	{
 	public:
-		RenderComponent(RenderType type = RenderType::Mesh, int updateOrder = 200);
+		RenderComponent(const std::string& name = "RenderComponent", RenderType type = RenderType::Mesh, int updateOrder = 200);
 		virtual ~RenderComponent() = default;
 
 		virtual void Initialize();

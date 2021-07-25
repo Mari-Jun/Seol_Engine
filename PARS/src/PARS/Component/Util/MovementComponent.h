@@ -6,7 +6,7 @@ namespace PARS
 	class MovementComponent : public Component
 	{
 	public:
-		MovementComponent(int updateOrder = 10);
+		MovementComponent(const std::string& name = "MovementComponent", int updateOrder = 10);
 		virtual ~MovementComponent() = default;
 
 		virtual void Update(float deltaTime) override;

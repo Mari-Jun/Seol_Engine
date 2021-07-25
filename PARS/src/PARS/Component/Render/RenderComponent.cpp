@@ -3,8 +3,8 @@
 
 namespace PARS
 {
-	RenderComponent::RenderComponent(RenderType type, int updateOrder)
-		: Component(updateOrder)
+	RenderComponent::RenderComponent(const std::string& name, RenderType type, int updateOrder)
+		: Component(name, updateOrder)
 		, m_RenderType(type)
 	{
 	}

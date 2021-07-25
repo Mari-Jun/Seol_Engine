@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Layer/DetailFunctionFactory.h"
 #include "PARS/Actor/ActorDetailFunction.h"
 #include "PARS/Component/ComponentManager.h"
 #include "PARS/Input/InputFactory.h"
@@ -22,6 +23,7 @@ namespace PARS
 		void InitializeActor();
 		void ShutdownActor();
 		virtual void Initialize() {}
+		virtual void InitializeDetailFunction();
 		virtual void Shutdown() {}
 		void ProcessInput();
 		virtual void ActorInput() {}
@@ -32,6 +34,7 @@ namespace PARS
 
 		void AddComponent(const SPtr<class Component>& component);
 		void RemoveComponent(const SPtr<class Component>& component);
+		void AddDetailFunctionInfo(FunctionInfo&& info);
 
 	public:
 		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
@@ -43,7 +46,6 @@ namespace PARS
 	protected:
 		std::string m_ActorName;
 		ActorState m_ActorState;
-
 		UPtr<ActorDetailFunction> m_DetailFunction;
 
 	private:
@@ -55,10 +57,12 @@ namespace PARS
 		bool m_RechangeWorldMatrix = true;
 
 		UPtr<ComponentManager> m_ComponentManager;
+		UPtr<DetailFunctionFactory> m_DetailFunctionFactory;
 		UPtr<InputFactory> m_InputFactory;
 
 	public:
 		const std::string& GetActorName() const { return m_ActorName; }
+		void SetActorName(const std::string& name) { m_ActorName = name; }
 		ActorState GetActorState() const { return m_ActorState; }
 		void SetActorState(ActorState state) { m_ActorState = state; }
 		void SetStateDead() { m_ActorState = ActorState::Dead; }
@@ -76,7 +80,7 @@ namespace PARS
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
 
-		const std::vector<FunctionInfo>& GetDetailFunctionInfos() const { return m_DetailFunction->GetFunctionInfos(); }
+		const std::vector<FunctionInfo>& GetDetailFunctionInfos() const { return m_DetailFunctionFactory->GetFunctionInfos(); }
 	};
 }
 

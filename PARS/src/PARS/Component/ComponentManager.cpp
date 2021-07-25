@@ -38,7 +38,7 @@ namespace PARS
 	void ComponentManager::AddComponent(const SPtr<Component>& component)
 	{
 		m_Components.emplace_back(component);
-		component->Initialize();
+		component->InitializeComponent();
 	}
 
 	void ComponentManager::RemoveComponent(const WPtr<Component>& component)

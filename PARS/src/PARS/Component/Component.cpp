@@ -3,8 +3,20 @@
 
 namespace PARS
 {
-	Component::Component(int updateOrder)
-		: m_UpdateOrder(updateOrder)
+	Component::Component(const std::string& name, int updateOrder)
+		: m_CompName(name)
+		, m_UpdateOrder(updateOrder)
 	{
+		
+	}
+
+	void Component::InitializeComponent()
+	{
+		Initialize();
+		InitializeDetailFunction();
+		if (m_CompDetailFunction != nullptr)
+		{
+			m_CompDetailFunction->Initialize(m_Owner, weak_from_this());
+		}
 	}
 }

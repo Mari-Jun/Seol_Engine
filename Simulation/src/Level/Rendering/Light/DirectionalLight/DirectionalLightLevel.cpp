@@ -1,5 +1,5 @@
 #include "DirectionalLightLevel.h"
-#include "PARS/Actor/Light/Light.h"
+#include "PARS/Actor/Light/DirectionalLight/DirectionalLight.h"
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
 
 namespace PARS
@@ -13,7 +13,7 @@ namespace PARS
 	{
 		Level3D::InitializeLevel();
 
-		auto actor = CreateSPtr<Actor>();
+		auto actor = CreateSPtr<Actor>("Cube");
 		actor->SetPosition({ 0.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
 		auto meshComp = CreateSPtr<MeshComponent>();
@@ -21,13 +21,13 @@ namespace PARS
 		actor->AddComponent(meshComp);
 		AddActor(actor);
 
-		auto layer = PARS::CreateSPtr<PARS::DirectionalLightLayer>();
+		/*auto layer = PARS::CreateSPtr<PARS::DirectionalLightLayer>();
 		layer->OnDestroy([this]() {Destroy(); });
 		layer->AddObjectToLayer("Obj");
 		layer->SetMeshComp(meshComp);
-		AddLayer(layer);
+		AddLayer(layer);*/
 
-		auto light = CreateSPtr<DirectionalLight>();
+		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
 		AddActor(light);
 	}
 

@@ -2,6 +2,7 @@
 #include "PARS/Actor/Actor.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Component/Light/LightComponent.h"
+#include "PARS/Component/Light/DLightCompDetailFunction.h"
 
 namespace PARS
 {
@@ -45,8 +46,8 @@ namespace PARS
 	{
 	}
 
-	LightComponent::LightComponent(LightType lightType, int updateOrder)
-		: Component(updateOrder)
+	LightComponent::LightComponent(LightType lightType, const std::string& name, int updateOrder)
+		: Component(name, updateOrder)
 		, m_LightType(lightType)
 	{
 	}
@@ -91,6 +92,11 @@ namespace PARS
 		: LightComponent(LightType::Directional)
 	{
 		m_LightColor = color;
+	}
+
+	void DirectionalLightComponent::InitializeDetailFunction()
+	{
+		m_CompDetailFunction = CreateUPtr<DLightCompDetailFunction>();
 	}
 
 	LightCB DirectionalLightComponent::GetLightCB() const

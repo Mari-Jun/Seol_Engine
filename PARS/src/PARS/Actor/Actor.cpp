@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "PARS/Actor/Actor.h"
-#include "PARS/Actor/ActorDetailFunction.h"
 
 namespace PARS
 {
@@ -8,21 +7,30 @@ namespace PARS
 		: m_ActorName(name)
 		, m_ActorState(ActorState::Active)
 	{
-		m_DetailFunction = CreateUPtr<ActorDetailFunction>();
 		m_ComponentManager = CreateUPtr<ComponentManager>();
+		m_DetailFunctionFactory = CreateUPtr<DetailFunctionFactory>();
 		m_InputFactory = CreateUPtr<InputFactory>();
 	}
 
 	void Actor::InitializeActor()
 	{
-		m_DetailFunction->Initialize(weak_from_this());
 		Initialize();
+		InitializeDetailFunction();
+		if (m_DetailFunction != nullptr)
+		{
+			m_DetailFunction->Initialize(weak_from_this());
+		}
 	}
 
 	void Actor::ShutdownActor()
 	{
 		Shutdown();
 		m_ComponentManager->Shutdown();
+	}
+
+	void Actor::InitializeDetailFunction()
+	{
+		m_DetailFunction = CreateUPtr<ActorDetailFunction>();
 	}
 
 	void Actor::ProcessInput()
@@ -59,13 +67,18 @@ namespace PARS
 
 	void Actor::AddComponent(const SPtr<class Component>& component)
 	{
-		m_ComponentManager->AddComponent(component);
 		component->SetOwner(weak_from_this());
+		m_ComponentManager->AddComponent(component);
 	}
 
 	void Actor::RemoveComponent(const SPtr<class Component>& component)
 	{
 		m_ComponentManager->RemoveComponent(component);
+	}
+
+	void Actor::AddDetailFunctionInfo(FunctionInfo&& info)
+	{
+		m_DetailFunctionFactory->AddFunctionInfo(std::move(info));
 	}
 
 	void Actor::AddOnceAction(std::string&& name, int key, const std::function<void()>& func)

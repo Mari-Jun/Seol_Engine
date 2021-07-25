@@ -149,7 +149,7 @@ namespace PARS
 		return result.str();
 	}
 
-	const Vec3& Quaternion::QuatToEuler(bool toDegree) const
+	const Vec3 Quaternion::QuatToEuler(bool toDegree) const
 	{
 		float sqx = x * x;
 		float sqy = y * y;

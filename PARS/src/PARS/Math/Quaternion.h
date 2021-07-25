@@ -33,7 +33,7 @@ namespace PARS
 		static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float f);
 		static Quaternion Slerp(const Quaternion& p, const Quaternion& q, float f);
 
-		const Vec3& QuatToEuler(bool toDegree = true) const;
+		const Vec3 QuatToEuler(bool toDegree = true) const;
 		
 		std::string ToString() const;
 

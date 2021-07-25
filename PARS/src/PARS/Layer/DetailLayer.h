@@ -1,6 +1,6 @@
 #pragma once
 #include "PARS/Layer/Layer.h"
-#include "PARS/Layer/DetailFunction.h"
+#include "PARS/Layer/DetailFunctionFactory.h"
 #include "imgui.h"
 
 namespace PARS
