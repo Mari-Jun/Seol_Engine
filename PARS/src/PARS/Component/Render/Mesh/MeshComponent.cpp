@@ -19,7 +19,7 @@ namespace PARS
 	void MeshComponent::Shutdown()
 	{
 		RenderComponent::Shutdown();
-		//m_Mesh->Shutdown();
+		//Mesh는 자동으로 Cache에 저장되기 때문에 여기서 Shutdown을 하지 않음.
 	}
 
 	void MeshComponent::Draw(ID3D12GraphicsCommandList* commandList)

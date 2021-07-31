@@ -50,6 +50,7 @@ namespace PARS
 				layer->Shutdown();
 			}
 		}
+		m_Layers.clear();
 	}
 
 	void LayerManager::ResizeLayer()

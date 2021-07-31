@@ -121,7 +121,5 @@ namespace PARS
 		{
 			detailLayer->RemoveObjectToLayer(actor->GetActorName());
 		}
-
-		--m_ActorCounts[actor->GetActorName()];
 	}
 }

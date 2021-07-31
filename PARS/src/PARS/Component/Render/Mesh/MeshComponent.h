@@ -31,7 +31,6 @@ namespace PARS
 			//Mesh 교체 여부 확인
 			if (m_Mesh != nullptr)
 			{
-				//m_Mesh->Shutdown();
 				m_Mesh = nullptr;
 				ChangeComponentItem();
 			}

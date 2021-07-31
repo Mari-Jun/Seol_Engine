@@ -141,7 +141,7 @@ namespace PARS
 
 		m_RenderingSubjects["R_Light"].emplace_back([this]() {ShowSimulationNode<DirectionalLightLevel>
 			("005", "You can change rotation of the directional light",
-				"You cna change color of the directional light");
+				"You can change color of the directional light");
 			});
 	}
 

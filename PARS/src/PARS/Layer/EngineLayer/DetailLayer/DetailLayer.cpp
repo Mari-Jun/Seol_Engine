@@ -158,5 +158,10 @@ namespace PARS
 	void DetailLayer::RemoveObjectToLayer(const std::string& name)
 	{
 		m_DetailObjects.erase(name);
+		if (name == m_SelectObjectName)
+		{
+			m_SelectObjectName = "";
+			m_SelectObject = {};
+		}
 	}
 }

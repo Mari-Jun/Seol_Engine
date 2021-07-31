@@ -7,12 +7,6 @@ namespace PARS
 		: m_CompName(name)
 		, m_UpdateOrder(updateOrder)
 	{
-		std::cout << GetCompName() << "의 등장" << std::endl;
-	}
-
-	Component::~Component()
-	{
-		std::cout << GetCompName() << "의 사망" << std::endl;
 	}
 
 	void Component::InitializeComponent()

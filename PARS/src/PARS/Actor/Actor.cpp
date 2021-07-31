@@ -10,13 +10,6 @@ namespace PARS
 		m_ComponentManager = CreateUPtr<ComponentManager>();
 		m_DetailFunctionFactory = CreateUPtr<DetailFunctionFactory>();
 		m_InputFactory = CreateUPtr<InputFactory>();
-
-		std::cout << GetActorName() << "의 등장" << std::endl;
-	}
-
-	Actor::~Actor()
-	{
-		std::cout << GetActorName() << "의 사망" << std::endl;
 	}
 
 	void Actor::InitializeActor()

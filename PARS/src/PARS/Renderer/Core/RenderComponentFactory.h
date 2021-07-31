@@ -52,7 +52,7 @@ namespace PARS
 		void RemoveRenderComponent(RenderType type, const SPtr<class RenderComponent>& component);
 		void MoveToPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component);
 
-		SPtr<class Mesh> GetMesh(const std::string& fileName) const;
+		const SPtr<class Mesh>& GetMesh(const std::string& fileName) const;
 		void SaveMesh(const std::string& fileName, const SPtr<class Mesh>& mesh);
 
 	private:

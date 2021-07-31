@@ -2,6 +2,7 @@
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Component/Render/RenderComponent.h"
 #include "PARS/Renderer/Core/RenderComponentFactory.h"
+#include "PARS/Component/Render/Mesh/Mesh.h"
 
 #include "PARS/Renderer/Shader/ColorShader.h"
 
@@ -20,6 +21,12 @@ namespace PARS
 
 	void RenderComponentFactory::Shutdown()
 	{
+		for (auto iter = m_MeshCache.begin(); iter != m_MeshCache.end(); ++iter)
+		{
+			iter->second->Shutdown();
+		}
+		m_MeshCache.clear();
+
 		for (auto iter = m_Shaders.begin(); iter != m_Shaders.end(); ++iter)
 		{
 			iter->second->Shutdown();
@@ -130,7 +137,7 @@ namespace PARS
 		AddRenderComponent(type, component);
 	}
 
-	SPtr<Mesh> RenderComponentFactory::GetMesh(const std::string& fileName) const
+	const SPtr<Mesh>& RenderComponentFactory::GetMesh(const std::string& fileName) const
 	{
 		SPtr<Mesh> mesh = nullptr;
 
