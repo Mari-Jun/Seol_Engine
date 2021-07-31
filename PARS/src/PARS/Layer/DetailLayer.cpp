@@ -115,14 +115,11 @@ namespace PARS
 	{
 		for (const auto& function : m_SelectObject.detailFunctions)
 		{
-			if (ImGui::TreeNode(function.treeName.c_str()))
+			if (ImGui::CollapsingHeader(function.treeName.c_str()))
 			{
-				ImGui::BeginChild(function.treeName.c_str(), ImVec2(ImGui::GetWindowWidth() * 0.9f, ImGui::GetWindowHeight() * 0.5f), true);
-
+				ImGui::Separator();
 				function.function();
-
-				ImGui::EndChild();
-				ImGui::TreePop();
+				ImGui::Separator();
 			}
 		}
 	}

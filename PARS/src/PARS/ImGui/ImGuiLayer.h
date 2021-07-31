@@ -17,6 +17,9 @@ namespace PARS
 		void Draw();
 
 	private:
+		void StylePARS();
+
+	private:
 		SPtr<class DirectX12> m_DirectX12;
 	};
 }

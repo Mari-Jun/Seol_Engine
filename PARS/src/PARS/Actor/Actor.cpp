@@ -14,12 +14,12 @@ namespace PARS
 
 	void Actor::InitializeActor()
 	{
-		Initialize();
 		InitializeDetailFunction();
 		if (m_DetailFunction != nullptr)
 		{
 			m_DetailFunction->Initialize(weak_from_this());
 		}
+		Initialize();
 	}
 
 	void Actor::ShutdownActor()
