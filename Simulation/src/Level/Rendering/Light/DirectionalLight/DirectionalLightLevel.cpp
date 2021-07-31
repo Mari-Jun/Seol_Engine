@@ -17,7 +17,7 @@ namespace PARS
 		actor->SetPosition({ 0.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
 		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "Default/Box");
+		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "LoadObj/Tree");
 		actor->AddComponent(meshComp);
 		AddActor(actor);
 
@@ -33,6 +33,28 @@ namespace PARS
 
 	void DirectionalLightLevel::UpdateLevel(float deltaTime)
 	{
-		
+		static float time = 0.0f;
+		static SPtr<Actor> cube = nullptr;
+
+		time += deltaTime;
+
+		if (time > 0.5f &&  cube == nullptr)
+		{
+			cube = CreateSPtr<Actor>("Cube");
+			cube->SetPosition({ 500.0f, 0.0f, 1000.0f });
+			cube->SetScale(400.0f);
+			auto meshComp = CreateSPtr<MeshComponent>();
+			meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "LoadObj/Tree");
+			cube->AddComponent(meshComp);
+			AddActor(cube);
+		}
+		else if (time > 1.0f)
+		{
+			cube->SetActorState(Actor::ActorState::Dead);
+			cube = nullptr;
+			time -= 1.0f;			
+		}
+
+
 	}
 }

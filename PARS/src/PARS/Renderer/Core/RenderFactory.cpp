@@ -40,6 +40,7 @@ namespace PARS
 				iter->second->Release();
 			}
 		}
+		m_RootSignatures.clear();
 
 		m_RenderCompFactory->Shutdown();
 	}

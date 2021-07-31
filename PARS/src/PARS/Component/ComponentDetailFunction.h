@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
-#include "PARS/Layer/DetailFunction.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
 
 namespace PARS
 {

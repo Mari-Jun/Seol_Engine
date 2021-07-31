@@ -10,7 +10,7 @@
 #include "PARS/Core/Window.h"
 #include "PARS/Renderer/Core/Renderer.h"
 
-#include "PARS/Layer/DetailLayer.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
 #include "PARS/Level/DefaultLevel.h"
 
 #include "PARS/Math/Math.h"

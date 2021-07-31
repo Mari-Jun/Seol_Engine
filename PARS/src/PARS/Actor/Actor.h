@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
-#include "PARS/Layer/DetailFunctionFactory.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunctionFactory.h"
 #include "PARS/Actor/ActorDetailFunction.h"
 #include "PARS/Component/ComponentManager.h"
 #include "PARS/Input/InputFactory.h"
@@ -18,7 +18,7 @@ namespace PARS
 		};
 
 		Actor(const std::string& name = "Actor");
-		virtual ~Actor() = default;
+		virtual ~Actor();
 
 		void InitializeActor();
 		void ShutdownActor();

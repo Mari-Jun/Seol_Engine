@@ -57,6 +57,14 @@ namespace PARS
 		m_LevelManager->Shutdown();
 		m_Renderer->ShutDown();
 		m_Window->Shutdown();
+
+		ComPtr<IDXGIDebug1> dxgiDebug;
+		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
+		{
+			dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+		}
+
+		PARS_INFO("Good Bye");
 	}
 
 	void Application::Run()
@@ -82,9 +90,9 @@ namespace PARS
 
 	}
 
-	void Application::AddLevel(const SPtr<class Level>& level)
+	void Application::OpenLevel(const SPtr<class Level>& level)
 	{
-		m_LevelManager->AddLevel(level);
+		m_LevelManager->OpenLevel(level);
 	}
 
 	void Application::AddLayer(const SPtr<Layer>& layer)

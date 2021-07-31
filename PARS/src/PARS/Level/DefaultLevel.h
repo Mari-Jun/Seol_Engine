@@ -16,9 +16,6 @@ namespace PARS
 
 		virtual void InitializeLevel() override;
 
-		virtual void AddActor(const SPtr<class Actor>& actor) override;
-		virtual void RemoveActor(const SPtr<class Actor>& actor) override;
-
 	protected:
 		void SetDefaultCameraActive();
 		void SetDefaultCameraPause();
@@ -33,9 +30,6 @@ namespace PARS
 	protected:
 		const SPtr<class Pawn>& GetDefaultPawn() const { return m_DefaultPawn; }
 		const SPtr<class PlayerController>& GetDefaultController() const { return m_DefaultController; }
-
-	private:
-		SPtr<DetailLayer> m_DetailLayer;
 	};
 
 	class Level2D : public DefaultLevel

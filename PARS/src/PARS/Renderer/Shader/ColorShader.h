@@ -39,10 +39,10 @@ namespace PARS
 
 	protected:
 		ID3D12Resource* m_WorldMatCB = nullptr;
-		CBWorldMat* m_MappedWorldMat = nullptr;
+		BYTE* m_WorldMatMappedData = nullptr;
 		
 		ID3D12Resource* m_ColorPassCB = nullptr;
-		CBColorPass* m_MappedColorPass = nullptr;
+		BYTE* m_ColorPassMappedData = nullptr;
 	};
 
 }

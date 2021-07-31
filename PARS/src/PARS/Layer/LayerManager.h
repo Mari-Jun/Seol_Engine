@@ -17,6 +17,8 @@ namespace PARS
 		void AddLayer(const SPtr<Layer>& layer);
 		void RemoveLayer(const WPtr<Layer>& layer);
 
+		const SPtr<Layer>& GetLayerByName(const std::string& name);
+
 		inline static LayerManager* GetLayerManager() { return s_Instance; }
 
 	private:

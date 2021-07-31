@@ -1,6 +1,6 @@
 #pragma once
 #include "PARS/Layer/Layer.h"
-#include "PARS/Layer/DetailFunctionFactory.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunctionFactory.h"
 #include "imgui.h"
 
 namespace PARS
@@ -15,7 +15,7 @@ namespace PARS
 	class DetailLayer : public Layer
 	{
 	public:
-		DetailLayer(const std::string& name);
+		DetailLayer(const std::string& name = "Detail Layer");
 		virtual ~DetailLayer() = default;
 
 		virtual void Initialize() override {}
@@ -31,6 +31,7 @@ namespace PARS
 
 	public:
 		void AddObjectToLayer(DetailObject& object);
+		void RemoveObjectToLayer(const std::string& name);
 
 	private:
 		bool m_IsOpen = true;

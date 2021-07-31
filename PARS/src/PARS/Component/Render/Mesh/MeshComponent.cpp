@@ -6,7 +6,7 @@
 namespace PARS
 {
 	MeshComponent::MeshComponent()
-		: RenderComponent()
+		: RenderComponent("Mesh Component")
 	{
 		
 	}
@@ -19,7 +19,7 @@ namespace PARS
 	void MeshComponent::Shutdown()
 	{
 		RenderComponent::Shutdown();
-		m_Mesh->Shutdown();
+		//m_Mesh->Shutdown();
 	}
 
 	void MeshComponent::Draw(ID3D12GraphicsCommandList* commandList)

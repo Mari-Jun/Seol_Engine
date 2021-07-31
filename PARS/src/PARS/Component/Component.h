@@ -10,7 +10,7 @@ namespace PARS
 	{
 	public:
 		Component(const std::string& name = "Component", int updateOrder = 100);
-		virtual ~Component() = default;
+		virtual ~Component();
 	
 		void InitializeComponent();
 		virtual void Initialize() {}

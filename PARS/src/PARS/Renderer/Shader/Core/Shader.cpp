@@ -23,8 +23,11 @@ namespace PARS
 	void Shader::Shutdown()
 	{
 		if (m_PipelineState != nullptr) m_PipelineState->Release();
+		m_PipelineState = nullptr;
 		if (m_VSBlob != nullptr) m_VSBlob->Release();
+		m_VSBlob = nullptr;
 		if (m_PSBlob != nullptr) m_PSBlob->Release();
+		m_PSBlob = nullptr;
 	}
 
 	D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()

@@ -24,6 +24,7 @@ namespace PARS
 		{
 			iter->second->Shutdown();
 		}
+		m_Shaders.clear();
 	}
 
 	void RenderComponentFactory::RenderReady()
@@ -63,10 +64,10 @@ namespace PARS
 
 	void RenderComponentFactory::Draw(ShaderType sType, RenderType rType)
 	{
+		m_Shaders[sType]->DrawPassFrame(m_DirectX12->GetCommandList());
 		for (int index = 0; index < m_RenderComponents[rType].size(); ++index)
 		{
 			m_Shaders[sType]->DrawRenderComp(m_DirectX12->GetCommandList(), m_RenderComponents[rType][index], index);
-			m_Shaders[sType]->DrawPassFrame(m_DirectX12->GetCommandList());
 			m_RenderComponents[rType][index]->Draw(m_DirectX12->GetCommandList());
 		}
 	}

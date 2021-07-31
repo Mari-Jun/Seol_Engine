@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PARS/Layer/DetailFunctionFactory.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunctionFactory.h"
 
 namespace PARS
 {

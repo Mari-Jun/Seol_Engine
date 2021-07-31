@@ -22,7 +22,7 @@ namespace PARS
 		void Run();
 
 	public:
-		void AddLevel(const SPtr<class Level>& level);
+		void OpenLevel(const SPtr<class Level>& level);
 		void AddLayer(const SPtr<class Layer>& layer);
 
 	private:

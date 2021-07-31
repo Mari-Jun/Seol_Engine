@@ -14,15 +14,14 @@ namespace PARS
 		void Update(float deltaTime);
 		void Shutdown();
 
-		void AddLevel(const SPtr<Level>& level);
-		void RemoveLevel(const WPtr<Level>& level);
+		void OpenLevel(const SPtr<Level>& level);
 
 		inline static LevelManager* GetLevelManager() { return s_Instance; }
 
 	private:
-		bool m_IsUpdateLevels = false;
-		SPtr<Level> m_ReadyLevels = nullptr;
-		std::stack<SPtr<Level>> m_Levels;
+		bool m_IsUpdateLevel = false;
+		SPtr<Level> m_Level = nullptr;
+		SPtr<Level> m_ReadyLevel = nullptr;
 		static LevelManager* s_Instance;
 	};
 }

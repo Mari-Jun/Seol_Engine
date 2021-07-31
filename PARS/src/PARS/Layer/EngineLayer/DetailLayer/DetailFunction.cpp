@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Actor/Actor.h"
-#include "PARS/Layer/DetailFunction.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
 
 namespace PARS
 {

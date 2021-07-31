@@ -26,16 +26,20 @@ namespace PARS
 
 	void ColorShader::UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBColorPass& cbPass)
 	{
+		//이동된 객체만 Update해야한다.
+
 		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
 		for (int i = 0; i < renderComps.size(); ++i)
 		{
-			CBWorldMat* mappedWorldMat = (CBWorldMat*)m_MappedWorldMat + (i * worldCBByteSize);
+			CBWorldMat mappedWorldMat;
 			Mat4 worldMatrix = renderComps[i]->GetOwner().lock()->GetWorldMatrix();
 			worldMatrix.Transpose();
-			memcpy_s(&mappedWorldMat->m_WorldMatrix, sizeof(Mat4), &worldMatrix, sizeof(Mat4));
+			mappedWorldMat.m_WorldMatrix = worldMatrix;
+			
+			memcpy(&m_WorldMatMappedData[i * worldCBByteSize], &mappedWorldMat, sizeof(CBWorldMat));
 		}
 
-		memcpy_s(m_MappedColorPass, sizeof(CBColorPass), &cbPass, sizeof(CBColorPass));
+		memcpy(m_ColorPassMappedData, &cbPass, sizeof(CBColorPass));
 	}
 
 	void ColorShader::DrawRenderComp(ID3D12GraphicsCommandList* commandList, const SPtr<RenderComponent>& renderComp, int index)
@@ -94,14 +98,22 @@ namespace PARS
 		{
 			m_WorldMatCB->Unmap(0, nullptr);
 			m_WorldMatCB->Release();
+			m_WorldMatCB = nullptr;
 		}
 
-		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
-		m_WorldMatCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, worldCBByteSize * numOfObject,
-			D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
+		if (numOfObject > 0)
+		{
+			UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
 
-		m_WorldMatCB->Map(0, nullptr, (void**)&m_MappedWorldMat);
-		
+			m_WorldMatCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, worldCBByteSize * numOfObject,
+				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
+
+			if (FAILED(m_WorldMatCB->Map(0, nullptr, (void**)&m_WorldMatMappedData)))
+			{
+				PARS_ERROR("WorldMatCB Mapping Error");
+			}
+		}
+	
 		/*if (m_ColorPassCB != nullptr)
 		{
 			m_ColorPassCB->Unmap(0, nullptr);
@@ -120,7 +132,10 @@ namespace PARS
 			m_ColorPassCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, ColorPassCBByteSize,
 				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
 
-			m_ColorPassCB->Map(0, nullptr, (void**)&m_MappedColorPass);
+			if (FAILED(m_ColorPassCB->Map(0, nullptr, (void**)&m_ColorPassMappedData)))
+			{
+				PARS_ERROR("ColorPass Mapping Error");
+			}
 		}
 	}
 }

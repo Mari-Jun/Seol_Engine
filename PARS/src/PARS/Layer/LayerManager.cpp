@@ -94,5 +94,22 @@ namespace PARS
 		}
 	}
 
+	const SPtr<Layer>& LayerManager::GetLayerByName(const std::string& name)
+	{
+		auto iter = std::find_if(m_ReadyLayers.cbegin(), m_ReadyLayers.cend(),
+			[&name](const SPtr<Layer>& layer)
+			{return layer->GetLayerName() == name; });
+		if (iter != m_ReadyLayers.cend())
+			return *iter;
+
+		iter = std::find_if(m_Layers.cbegin(), m_Layers.cend(),
+			[&name](const SPtr<Layer>& layer)
+			{return layer->GetLayerName() == name; });
+		if (iter != m_Layers.cend())
+			return *iter;
+
+		return nullptr;
+	}
+
 	LayerManager* LayerManager::s_Instance = nullptr;
 }

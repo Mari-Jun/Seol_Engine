@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Actor/ActorManager.h"
+#include "PARS/Layer/LayerManager.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
 
 namespace PARS
 {
@@ -54,6 +56,7 @@ namespace PARS
 		{
 			if (actor != nullptr)
 			{
+				RemoveActorToDetailLayer(actor);
 				actor->ShutdownActor();
 			}
 		}
@@ -70,26 +73,55 @@ namespace PARS
 			m_Actors.emplace_back(actor);
 		}
 		actor->InitializeActor();
+
+		AddActorToDetailLayer(actor);
 	}
 
-	void ActorManager::RemoveActor(const WPtr<Actor>& actor)
+	void ActorManager::AddActorToDetailLayer(const SPtr<Actor>& actor)
 	{
+		std::string actorName = actor->GetActorName();
+		++m_ActorCounts[actorName];
+		actorName += " " + std::to_string(m_ActorCounts[actorName]);
+		actor->SetActorName(actorName);
+
+		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
+		if (detailLayer != nullptr)
+		{
+			detailLayer->AddObjectToLayer(DetailObject{ actor->GetActorName(), actor->GetDetailFunctionInfos() });
+		}
+	}
+
+	void ActorManager::RemoveActor(const SPtr<Actor>& actor)
+	{
+		RemoveActorToDetailLayer(actor);
+
 		auto iter = std::find_if(m_ReadyActors.begin(), m_ReadyActors.end(),
-			[&actor](const WPtr<Actor>& ac)
-			{return actor.lock() == ac.lock(); });
+			[&actor](const SPtr<Actor>& ac)
+			{return actor == ac; });
 		if (iter != m_ReadyActors.end())
 		{
-			actor.lock()->ShutdownActor();
+			actor->ShutdownActor();
 			m_ReadyActors.erase(iter);
 		}
 
 		iter = std::find_if(m_Actors.begin(), m_Actors.end(),
-			[&actor](const WPtr<Actor>& ac)
-			{return actor.lock() == ac.lock(); });
+			[&actor](const SPtr<Actor>& ac)
+			{return actor == ac; });
 		if (iter != m_Actors.end())
 		{
-			actor.lock()->ShutdownActor();
+			actor->ShutdownActor();
 			m_Actors.erase(iter);
 		}
+	}
+
+	void ActorManager::RemoveActorToDetailLayer(const SPtr<Actor>& actor)
+	{
+		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
+		if (detailLayer != nullptr)
+		{
+			detailLayer->RemoveObjectToLayer(actor->GetActorName());
+		}
+
+		--m_ActorCounts[actor->GetActorName()];
 	}
 }
