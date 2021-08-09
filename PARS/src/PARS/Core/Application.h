@@ -11,6 +11,11 @@ namespace PARS
 	class LayerManager;
 	class Renderer;
 
+	enum class AppState
+	{
+		Active, Paused, Dead
+	};
+
 	class Application
 	{
 	public:
@@ -31,12 +36,16 @@ namespace PARS
 		void Draw();
 
 	private:
-		bool m_Running;
+		static AppState s_AppState;
 		UPtr<Window> m_Window;
 		UPtr<Timer> m_Timer;
 		UPtr<LevelManager> m_LevelManager;
 		UPtr<LayerManager> m_LayerManager;
 		UPtr<Renderer> m_Renderer;
+
+	public:
+		inline static AppState GetAppState() { return s_AppState; }
+		inline static void SetAppState(AppState state) { s_AppState = state; }
 	};
 
 	Application* CreateApplication();

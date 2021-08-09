@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
+#include "PARS/Core/Application.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Layer/LayerManager.h"
 
@@ -87,16 +88,25 @@ namespace PARS
         switch (message)
         {
         case WM_SIZE:
-        {
-            s_WindowInfo->m_Width = LOWORD(lParam);
-            s_WindowInfo->m_Height = HIWORD(lParam);
-            if (directX != nullptr)
-            {                
-                directX->ResizeWindow();
-            }
-            if (layerManager != nullptr)
+        { 
+            if (wParam == SIZE_MINIMIZED)
             {
-                layerManager->ResizeLayer();
+                Application::SetAppState(AppState::Paused);
+            }
+            else if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+            {
+                Application::SetAppState(AppState::Active);
+
+                s_WindowInfo->m_Width = LOWORD(lParam);
+                s_WindowInfo->m_Height = HIWORD(lParam);
+                if (directX != nullptr)
+                {
+                    directX->ResizeWindow();
+                }
+                if (layerManager != nullptr)
+                {
+                    layerManager->ResizeLayer();
+                }
             }
         }
         break;

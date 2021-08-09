@@ -12,16 +12,10 @@ namespace PARS
 	DetailLayer::DetailLayer(const std::string& name)
 		: Layer(name)
 	{
-		m_WindowFlags =
-			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-		//ResizeLayer();
 	}
 
 	void DetailLayer::Update()
 	{
-		//ImGui::SetNextWindowPos(m_WindowPos);
-		//ImGui::SetNextWindowSize(m_WindowSize);
-
 		ImGui::Begin(m_LayerName.c_str(), false, m_WindowFlags);
 		{
 			{
@@ -141,10 +135,20 @@ namespace PARS
 			LevelManager::GetLevelManager()->Shutdown();
 			// 
 			//임시로 다시 띄우기
-			const auto& editorLayer = LayerManager::GetLayerManager()->GetLayerByName("Editor Layer");
-			if (editorLayer != nullptr)
+			const auto& Editorlayer = LayerManager::GetLayerManager()->GetLayerByName("Editor Layer");
+			if (Editorlayer != nullptr)
 			{
-				editorLayer->SetLayerState(Layer::LayerState::Active);
+				Editorlayer->SetLayerState(Layer::LayerState::Active);
+			}
+			const auto& Contentlayer = LayerManager::GetLayerManager()->GetLayerByName("Content Layer");
+			if (Contentlayer != nullptr)
+			{
+				Contentlayer->SetLayerState(Layer::LayerState::Active);
+			}
+			const auto& Viewportlayer = LayerManager::GetLayerManager()->GetLayerByName("Viewport Layer");
+			if (Viewportlayer != nullptr)
+			{
+				Viewportlayer->SetLayerState(Layer::LayerState::Active);
 			}
 		}
 	}

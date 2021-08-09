@@ -10,8 +10,9 @@
 
 namespace PARS
 {
+	AppState Application::s_AppState = AppState::Active;
+
 	Application::Application()
-		: m_Running(true)
 	{
 		
 	}
@@ -65,16 +66,16 @@ namespace PARS
 	{
 		MSG msg;
 
-		while (m_Running)
+		while (GetAppState() != AppState::Dead)
 		{
 			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
 				if (msg.message == WM_QUIT) break;
-				
+
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-			else
+			else if(GetAppState() == AppState::Active)
 			{
 				ProcessInput();
 				Update();
@@ -98,7 +99,7 @@ namespace PARS
 	{
 		if (Input::IsKeyFirstPressed(PARS_KEY_ESCAPE))
 		{
-			m_Running = false;
+			SetAppState(AppState::Dead);
 		}
 		m_LevelManager->ProcessInput();
 	}
