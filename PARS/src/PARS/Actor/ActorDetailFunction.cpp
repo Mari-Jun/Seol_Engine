@@ -4,6 +4,15 @@
 
 namespace PARS
 {
+	void ActorDetailFunction::Initialize(const WPtr<Actor>& owner)
+	{
+		m_Owner = owner;
+		if (m_Owner.lock()->IsUseDefualtDetail())
+		{
+			AddFunctionInfo();
+		}
+	}
+
 	void ActorDetailFunction::AddFunctionInfo()
 	{
 		const auto& owner = m_Owner.lock();

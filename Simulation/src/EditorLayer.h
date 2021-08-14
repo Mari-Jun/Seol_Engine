@@ -19,6 +19,8 @@ namespace PARS
 	private:
 		void SetPhysics();
 		void SetRendering();
+		void SetAlgorithm();
+		void SetMathematics();
 
 		void ShowLevelHeader(std::string_view subtitle, std::map<std::string_view, FList> subjects);
 		void ShowListNode(const char* nodeName, FList& functions);
@@ -46,11 +48,12 @@ namespace PARS
 				AddLevel(newLevel);
 			}
 		}
-		
 
 	private:
 		FLevelList m_BasicFuntions;
 		std::map<std::string_view, FList> m_PhysicsSubjects;
 		std::map<std::string_view, FList> m_RenderingSubjects;
+		std::map<std::string_view, FList> m_AlgorithmSubjects;
+		std::map<std::string_view, FList> m_MathematicsSubjects;
 	};
 }

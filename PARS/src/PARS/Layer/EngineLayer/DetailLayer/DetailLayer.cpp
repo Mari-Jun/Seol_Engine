@@ -16,12 +16,12 @@ namespace PARS
 
 	void DetailLayer::Update()
 	{
-		ImGui::Begin(m_LayerName.c_str(), false, m_WindowFlags);
+		ImGui::Begin(m_LayerName.c_str(), nullptr, m_WindowFlags);
 		{
 			{
 				static ImGuiWindowFlags objectsFlags = ImGuiWindowFlags_NoScrollbar;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("ObjectsChild", ImVec2(m_WindowSize.x - 20.0f, m_WindowSize.y * 0.25f), true, objectsFlags);
+				ImGui::BeginChild("ObjectsChild", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.25f), true, objectsFlags);
 				if (ImGui::BeginTabBar("Objects Tab"))
 				{
 					if (ImGui::BeginTabItem("Objects"))
@@ -39,7 +39,7 @@ namespace PARS
 			{
 				static ImGuiWindowFlags detailFlags = ImGuiWindowFlags_NoScrollbar;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x - 20.0f, m_WindowSize.y * 0.65f), true, detailFlags);
+				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.65f), true, detailFlags);
 				if (ImGui::BeginTabBar("Detail Tab"))
 				{
 					if (ImGui::BeginTabItem("Detail"))
@@ -61,7 +61,7 @@ namespace PARS
 			{
 				static ImGuiWindowFlags menuFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("Menu Child", ImVec2(m_WindowSize.x - 20.0f, m_WindowSize.y * 0.04f), true, menuFlags);
+				ImGui::BeginChild("Menu Child", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.04f), true, menuFlags);
 				UpdateEndMenu();
 				ImGui::EndChild();
 				ImGui::PopStyleVar();

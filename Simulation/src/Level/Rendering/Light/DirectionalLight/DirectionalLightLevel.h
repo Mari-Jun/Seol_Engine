@@ -1,7 +1,6 @@
 #pragma once
 
 #include <PARS.h>
-#include "DirectionalLightLayer.h"
 
 namespace PARS
 {

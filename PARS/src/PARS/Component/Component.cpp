@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Component/Component.h"
+#include "PARS/Actor/Actor.h"
 
 namespace PARS
 {
@@ -15,7 +16,12 @@ namespace PARS
 		InitializeDetailFunction();
 		if (m_CompDetailFunction != nullptr)
 		{
-			m_CompDetailFunction->Initialize(m_Owner, weak_from_this());
+			m_CompDetailFunction->Initialize(weak_from_this());
 		}
+	}
+
+	void Component::AddDetailFunctionInfo(FunctionInfo&& info)
+	{
+		m_Owner.lock()->AddDetailFunctionInfo(std::move(info));
 	}
 }

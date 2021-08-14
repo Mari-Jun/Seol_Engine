@@ -46,6 +46,7 @@ namespace PARS
 	protected:
 		std::string m_ActorName;
 		ActorState m_ActorState;
+		bool m_IsUseDefaultDetail = true;
 		UPtr<ActorDetailFunction> m_DetailFunction;
 
 	private:
@@ -66,6 +67,8 @@ namespace PARS
 		ActorState GetActorState() const { return m_ActorState; }
 		void SetActorState(ActorState state) { m_ActorState = state; }
 		void SetStateDead() { m_ActorState = ActorState::Dead; }
+		void SetIsUseDefaultDetail(bool isUseDefaultDetail) { m_IsUseDefaultDetail = isUseDefaultDetail; }
+		bool IsUseDefualtDetail() { return m_IsUseDefaultDetail; }
 
 		const Mat4& GetWorldMatrix() const { return m_WorldMatrix; }
 		const Vec3& GetPosition() const { return m_Position; }

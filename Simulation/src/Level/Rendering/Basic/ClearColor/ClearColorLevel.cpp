@@ -1,5 +1,4 @@
 #include "ClearColorLevel.h"
-#include "ClearColorLayer.h"
 
 namespace PARS
 {
@@ -14,9 +13,14 @@ namespace PARS
 
 	void ClearColorLevel::InitializeLevel()
 	{
-		auto layer = PARS::CreateSPtr<PARS::ClearColorLayer>();
-		layer->OnDestroy([this]() {Destroy(); });
-		AddLayer(layer);	
+		auto actor = CreateSPtr<Actor>("Clear Color");
+		actor->SetIsUseDefaultDetail(false);
+		actor->AddDetailFunctionInfo(FunctionInfo{ actor->GetActorName(), [this]() {
+			static Vec4 clearColor;
+			ImGui::ColorEdit3("clear color", (float*)&clearColor);
+			Renderer::SetClearColor(clearColor);
+			} });
+		AddActor(actor);
 	}
 
 	void ClearColorLevel::UpdateLevel(float deltaTime)

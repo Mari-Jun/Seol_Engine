@@ -1,14 +1,21 @@
 #pragma once
-#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
+#include "imgui.h"
 
 namespace PARS
 {
-	class ActorDetailFunction : public DetailFunction
+	class Actor;
+
+	class ActorDetailFunction
 	{
 	public:
 		ActorDetailFunction() = default;
 
-		virtual void AddFunctionInfo() override;
+		void Initialize(const WPtr<Actor>& owner);
+		virtual void AddFunctionInfo();
+
+	protected:
+		WPtr<Actor> m_Owner;
+		ImVec4 m_TextColor = { 0.0f, 1.0f, 1.0f, 1.0f };
 
 	protected:
 		void TransformDetail();
