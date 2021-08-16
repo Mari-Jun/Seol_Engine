@@ -1,5 +1,6 @@
 #include "stdafx.h"
-#include "PARS/Component/Util/MovementComponent.h"
+#include "PARS/Component/Util/Movement/MovementComponent.h"
+#include "PARS/Component/Util/Movement/MovementDetailFunction.h"
 #include "PARS/Actor/Actor.h"
 #include "PARS/Math/Math.h"
 
@@ -7,12 +8,12 @@ namespace PARS
 {
 	MovementComponent::MovementComponent(const std::string& name, int updateOrder)
 		: Component(name, updateOrder)
-		, m_ForwardSpeed(0.0f)
-		, m_RightSpeed(0.0f)
-		, m_UpSpeed(0.0f)
-		, m_YawSpeed(0.0f)
-		, m_PitchSpeed(0.0f)
 	{
+	}
+
+	void MovementComponent::InitializeDetailFunction()
+	{
+		m_CompDetailFunction = CreateUPtr<MovementCompDetailFunction>();
 	}
 
 	void MovementComponent::Update(float deltaTime)
@@ -35,9 +36,9 @@ namespace PARS
 		{
 			auto owner = m_Owner.lock();
 			Vec3 pos = owner->GetPosition();
-			pos += owner->GetForward() * m_ForwardSpeed * deltaTime;
-			pos += owner->GetRight() * m_RightSpeed * deltaTime;
-			pos += owner->GetUp() * m_UpSpeed * deltaTime;
+			pos += owner->GetForward() * m_ForwardSpeed * m_MaxSpeed * deltaTime;
+			pos += owner->GetRight() * m_RightSpeed * m_MaxSpeed * deltaTime;
+			pos += owner->GetUp() * m_UpSpeed * m_MaxSpeed * deltaTime;
 			owner->SetPosition(pos);
 		}
 	}

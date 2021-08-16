@@ -16,26 +16,26 @@ namespace PARS
 		auto actor = CreateSPtr<Actor>("Cube");
 		actor->SetPosition({ 0.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
+		AddActor(actor);
 		auto meshComp = CreateSPtr<MeshComponent>();
 		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "Default/Box");
 		actor->AddComponent(meshComp);
-		AddActor(actor);
 
 		actor = CreateSPtr<Actor>("Tree");
 		actor->SetPosition({ 500.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
+		AddActor(actor);
 		meshComp = CreateSPtr<MeshComponent>();
 		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "LoadObj/Tree");
 		actor->AddComponent(meshComp);
-		AddActor(actor);
 
 		actor = CreateSPtr<Actor>("Tree");
 		actor->SetPosition({ -500.0f, 0.0f, 1000.0f });
 		actor->SetScale(400.0f);
+		AddActor(actor);
 		meshComp = CreateSPtr<MeshComponent>();
 		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "LoadObj/Tree");
 		actor->AddComponent(meshComp);
-		AddActor(actor);
 
 		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
 		AddActor(light);

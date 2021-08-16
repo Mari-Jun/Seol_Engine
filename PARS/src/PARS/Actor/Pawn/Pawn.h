@@ -1,6 +1,6 @@
 #pragma once
 #include "PARS/Actor/Actor.h"
-#include "PARS/Component/Util/MovementComponent.h"
+#include "PARS/Component/Util/Movement/MovementComponent.h"
 
 namespace PARS
 {
@@ -17,13 +17,8 @@ namespace PARS
 	protected:
 		SPtr<MovementComponent> m_MovementComp;
 
-	private:
-		float m_MoveSpeed;
-
 	public:
 		const SPtr<MovementComponent>& GetMovementComp() const { return m_MovementComp; }
-		void SetMoveSpeed(float speed) { m_MoveSpeed = speed; }
-		float GetMoveSpeed() const { return m_MoveSpeed; }
 	};
 }
 

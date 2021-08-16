@@ -1,16 +1,12 @@
 #pragma once
 #include "PARS/Layer/Layer.h"
-#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunctionFactory.h"
 #include "imgui.h"
 
 namespace PARS
 {
-	struct DetailObject
-	{
-		std::string name;
-		std::vector<FunctionInfo> detailFunctions;
-		int index = 1;
-	};
+	class Actor;
+	class Level;
+	struct DetailInfo;
 
 	class DetailLayer : public Layer
 	{
@@ -21,17 +17,19 @@ namespace PARS
 		virtual void Initialize() override {}
 		virtual void Shutdown() override;
 		virtual void Update() override final;
-		virtual void ResizeLayer() override final;
 		void OnDestroy(std::function<void()> func) { f_Destroy = func; }
 
 	private:
 		void UpdateObjects();
-		virtual void UpdateDetail();
+		void UpdateDetail();
+		void UpdateLevelSetting();
+		void UpdateDetailInfo(const DetailInfo& info);
 		void UpdateEndMenu();
 
 	public:
-		void AddObjectToLayer(DetailObject& object);
-		void RemoveObjectToLayer(const std::string& name);
+		void AddActorToLayer(const SPtr<Actor>& actor);
+		void RemoveActorToLayer(const std::string& name);
+		void SetLevelToLayer(const WPtr<Level>& level);
 
 	private:
 		bool m_IsOpen = true;
@@ -41,9 +39,10 @@ namespace PARS
 		std::function<void()> f_Destroy;
 
 	private:
-		std::string m_SelectObjectName;
-		DetailObject m_SelectObject;
-		std::multimap<std::string, DetailObject> m_DetailObjects;
+		std::string m_SelectActorName;
+		SPtr<Actor> m_SelectActor;
+		std::multimap<std::string, const SPtr<Actor>> m_DetailActors;
+		WPtr<Level> m_Level;
 	};
 }
 

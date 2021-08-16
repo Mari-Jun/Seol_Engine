@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Level/LevelManager.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
 
 //юс╫ц
 #include "PARS/Layer/LayerManager.h"
@@ -39,6 +40,7 @@ namespace PARS
 				m_Level = nullptr;
 			}
 			m_Level = std::move(m_ReadyLevel);
+			AddLevelToDetailLayer();
 			m_Level->Initialize();
 
 			m_ReadyLevel = nullptr;
@@ -80,6 +82,15 @@ namespace PARS
 		if (Viewportlayer != nullptr)
 		{
 			Viewportlayer->SetLayerState(Layer::LayerState::Hide);
+		}
+	}
+
+	void LevelManager::AddLevelToDetailLayer()
+	{
+		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
+		if (detailLayer != nullptr)
+		{
+			detailLayer->SetLevelToLayer(m_Level);
 		}
 	}
 

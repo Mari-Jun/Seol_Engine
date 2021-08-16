@@ -5,7 +5,7 @@
 
 namespace PARS
 {
-	void DLightCompDetailFunction::AddFunctionInfo()
+	void DLightCompDetailFunction::CreateFunctionInfos()
 	{
 		const auto& comp = m_Component.lock();
 		comp->AddDetailFunctionInfo(FunctionInfo{ comp->GetCompName(), [this]() { LightDetail(); } });

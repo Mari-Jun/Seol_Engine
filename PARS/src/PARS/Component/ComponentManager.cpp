@@ -52,4 +52,12 @@ namespace PARS
 			m_Components.erase(iter);
 		}
 	}
+
+	void ComponentManager::OnAllCompToFunction(std::function<void(const SPtr<Component>& comp)> function)
+	{
+		for (const auto& comp : m_Components)
+		{
+			function(comp);
+		}
+	}
 }

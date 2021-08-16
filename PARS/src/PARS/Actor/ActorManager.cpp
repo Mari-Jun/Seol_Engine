@@ -87,7 +87,7 @@ namespace PARS
 		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
 		if (detailLayer != nullptr)
 		{
-			detailLayer->AddObjectToLayer(DetailObject{ actor->GetActorName(), actor->GetDetailFunctionInfos() });
+			detailLayer->AddActorToLayer(actor);
 		}
 	}
 
@@ -119,7 +119,7 @@ namespace PARS
 		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
 		if (detailLayer != nullptr)
 		{
-			detailLayer->RemoveObjectToLayer(actor->GetActorName());
+			detailLayer->RemoveActorToLayer(actor->GetActorName());
 		}
 	}
 }

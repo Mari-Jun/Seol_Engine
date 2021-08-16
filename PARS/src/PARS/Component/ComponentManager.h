@@ -19,6 +19,9 @@ namespace PARS
 
 	private:
 		std::vector<SPtr<Component>> m_Components;
+
+	public:
+		void OnAllCompToFunction(std::function<void(const SPtr<Component>& comp)> function);
 	};
 }
 

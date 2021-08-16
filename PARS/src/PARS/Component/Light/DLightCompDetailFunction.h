@@ -10,7 +10,7 @@ namespace PARS
 	public:
 		DLightCompDetailFunction() = default;
 
-		virtual void AddFunctionInfo() override;
+		virtual void CreateFunctionInfos() override;
 
 	private:
 		void LightDetail();

@@ -46,6 +46,7 @@ using Microsoft::WRL::ComPtr;
 #include <string_view>
 #include <limits>
 #include <filesystem>
+#include <typeinfo>
 
 #include "PARS/Core/Log.h"
 

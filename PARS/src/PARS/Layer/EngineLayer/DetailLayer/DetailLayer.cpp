@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
 #include "PARS/Core/Window.h"
 #include "PARS/Renderer/Core/Renderer.h"
+#include "PARS/Actor/Actor.h"
 
 //юс╫ц
 #include "PARS/Level/LevelManager.h"
@@ -47,8 +49,9 @@ namespace PARS
 						UpdateDetail();
 						ImGui::EndTabItem();
 					}
-					if (ImGui::BeginTabItem("Level Setting"))
+					if (ImGui::BeginTabItem(m_Level.expired() ? "Level Setting" : (m_Level.lock()->GetLevelName() + " Setting").c_str()))
 					{
+						UpdateLevelSetting();
 						ImGui::EndTabItem();
 					}
 
@@ -82,40 +85,63 @@ namespace PARS
 		//f_Destroy();
 	}
 
-	void DetailLayer::ResizeLayer()
-	{
-		RECT rect;
-		GetWindowRect(Window::GetWindowInfo()->m_hwnd, &rect);
-
-		m_WindowSize = ImVec2(static_cast<float>(Window::GetWindowInfo()->m_LayerWidth), static_cast<float>(Window::GetWindowInfo()->m_Height));
-
-		float x = rect.right - m_WindowSize.x - 7.5f;
-		float y = rect.top + static_cast<float>(GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER));
-
-		m_WindowPos = ImVec2(x, y);
-	}
-
 	void DetailLayer::UpdateObjects()
 	{
-		for (const auto& object : m_DetailObjects)
+		for (const auto& actor : m_DetailActors)
 		{
-			if (ImGui::Selectable(object.second.name.c_str(), m_SelectObjectName == object.second.name))
+			if (ImGui::Selectable(actor.second->GetActorName().c_str(), m_SelectActorName == actor.second->GetActorName()))
 			{
-				m_SelectObjectName = object.second.name;
-				m_SelectObject = object.second;
+				m_SelectActorName = actor.second->GetActorName();
+				m_SelectActor = actor.second;
 			}
 		}
 	}
 
 	void DetailLayer::UpdateDetail()
 	{
-		for (const auto& function : m_SelectObject.detailFunctions)
+		if (m_SelectActor != nullptr)
 		{
-			if (ImGui::CollapsingHeader(function.treeName.c_str()))
+			m_SelectActor->OnUpdateDetailInfo([this](const DetailInfo& info) {
+				UpdateDetailInfo(info);
+				});
+		}
+	}
+
+	void DetailLayer::UpdateLevelSetting()
+	{
+		if (!m_Level.expired())
+		{
+			m_Level.lock()->OnUpdateDetailInfo([this](const DetailInfo& info) {
+				UpdateDetailInfo(info);
+				});
+		}
+	}
+
+	void DetailLayer::UpdateDetailInfo(const DetailInfo& info)
+	{
+		if (info.state != DVS::Hide && info.state != DVS::HideAll &&
+			ImGui::CollapsingHeader(info.headerName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			for (const auto& [name, function, isDefault, fState] : info.functionInfos)
 			{
-				ImGui::Separator();
-				function.function();
-				ImGui::Separator();
+				if (fState != FVS::Hide && (info.state != DVS::HideDefault || !isDefault)
+					&& ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					ImGui::Separator();
+					if (fState == FVS::Disabled)
+					{
+						ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+						ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+					}
+					function();
+					if (fState == FVS::Disabled)
+					{
+						ImGui::PopStyleVar();
+						ImGui::PopItemFlag();
+					}
+					ImGui::Separator();
+					ImGui::TreePop();
+				}
 			}
 		}
 	}
@@ -153,19 +179,23 @@ namespace PARS
 		}
 	}
 
-	void DetailLayer::AddObjectToLayer(DetailObject& object)
+	void DetailLayer::AddActorToLayer(const SPtr<Actor>& actor)
 	{
-		auto keyName = object.name;
-		m_DetailObjects.insert({ keyName, object });		
+		m_DetailActors.insert({ actor->GetActorName(), actor });
 	}
 
-	void DetailLayer::RemoveObjectToLayer(const std::string& name)
+	void DetailLayer::RemoveActorToLayer(const std::string& name)
 	{
-		m_DetailObjects.erase(name);
-		if (name == m_SelectObjectName)
+		m_DetailActors.erase(name);
+		if (name == m_SelectActorName)
 		{
-			m_SelectObjectName = "";
-			m_SelectObject = {};
+			m_SelectActorName = "";
+			m_SelectActor = nullptr;
 		}
+	}
+
+	void DetailLayer::SetLevelToLayer(const WPtr<Level>& level)
+	{
+		m_Level = level;
 	}
 }

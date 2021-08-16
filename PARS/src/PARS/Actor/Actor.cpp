@@ -8,7 +8,6 @@ namespace PARS
 		, m_ActorState(ActorState::Active)
 	{
 		m_ComponentManager = CreateUPtr<ComponentManager>();
-		m_DetailFunctionFactory = CreateUPtr<DetailFunctionFactory>();
 		m_InputFactory = CreateUPtr<InputFactory>();
 	}
 
@@ -76,11 +75,6 @@ namespace PARS
 		m_ComponentManager->RemoveComponent(component);
 	}
 
-	void Actor::AddDetailFunctionInfo(FunctionInfo&& info)
-	{
-		m_DetailFunctionFactory->AddFunctionInfo(std::move(info));
-	}
-
 	void Actor::AddOnceAction(std::string&& name, int key, const std::function<void()>& func)
 	{
 		m_InputFactory->AddOnceAction(std::move(name), key, func);
@@ -104,5 +98,43 @@ namespace PARS
 	void Actor::ActiveAction(ActionType type, std::string&& name, bool active)
 	{
 		m_InputFactory->ActiceAction(type, std::move(name), active);
+	}
+
+	std::string Actor::GetNameOfClass() const
+	{
+		std::stringstream ss;
+		ss << typeid(*this).name();
+		return ss.str().substr(12);
+	}
+
+	void Actor::AddDetailFunctionInfo(FunctionInfo&& info)
+	{
+		m_DetailFunction->AddFunctionInfo(std::move(info));
+	}
+
+	void Actor::OnUpdateDetailInfo(std::function<void(const DetailInfo& info)> function)
+	{
+		function(m_DetailFunction->GetDetailInfo());
+		m_ComponentManager->OnAllCompToFunction([this, function](const SPtr<Component>& comp)
+			{
+				comp->OnUpdateDetailInfo(function);
+			});
+	}
+
+	void Actor::SetDetailVisibleState(DVS state)
+	{
+		m_DetailFunction->SetDetailVisibleState(state);
+		if (state == DVS::HideAll)
+		{
+			m_ComponentManager->OnAllCompToFunction([this, state] (const SPtr<Component>& comp)
+				{
+					comp->SetDetailVisibleState(state);
+				});
+		}
+	}
+	
+	void Actor::SetFunctionVisibleState(const std::string& treeName, FVS state)
+	{
+		m_DetailFunction->SetFunctionVisibleState(treeName, state);
 	}
 }

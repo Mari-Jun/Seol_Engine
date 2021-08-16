@@ -7,16 +7,13 @@ namespace PARS
 	void ActorDetailFunction::Initialize(const WPtr<Actor>& owner)
 	{
 		m_Owner = owner;
-		if (m_Owner.lock()->IsUseDefualtDetail())
-		{
-			AddFunctionInfo();
-		}
+		Initailize(m_Owner.lock()->GetNameOfClass());
+		CreateFunctionInfos();
 	}
 
-	void ActorDetailFunction::AddFunctionInfo()
+	void ActorDetailFunction::CreateFunctionInfos()
 	{
-		const auto& owner = m_Owner.lock();
-		owner->AddDetailFunctionInfo(FunctionInfo{ owner->GetActorName(), [this]() {TransformDetail(); } });
+		AddFunctionInfo(FunctionInfo{ "Transform", [this]() {TransformDetail(); }});
 	}
 
 	void ActorDetailFunction::TransformDetail()
@@ -29,8 +26,6 @@ namespace PARS
 
 	void ActorDetailFunction::PositionDetail(const SPtr<Actor>& owner)
 	{
-		ImGui::TextColored(m_TextColor, "Position");
-
 		Vec3 pos = owner->GetPosition();
 		ImGui::DragFloat3("Position", (float*)&pos, 0.5f, -FLT_MAX, FLT_MAX, "%.4f");
 
@@ -42,8 +37,6 @@ namespace PARS
 
 	void ActorDetailFunction::RotationDetail(const SPtr<Actor>& owner)
 	{
-		ImGui::TextColored(m_TextColor, "Rotation");
-
 		Vec3 rotEuler = owner->GetRotation().QuatToEuler();
 		ImGui::DragFloat3("Rotation", (float*)&rotEuler, 0.5f, -180.0f, 180.0f, "%.4f");
 		Quaternion quat = Quaternion::Identity;
@@ -59,8 +52,6 @@ namespace PARS
 
 	void ActorDetailFunction::ScaleDetail(const SPtr<Actor>& owner)
 	{
-		ImGui::TextColored(m_TextColor, "Scale");
-
 		Vec3 scale = owner->GetScale();
 		ImGui::DragFloat3("Scale", (float*)&scale, 0.05f, 0.0f, FLT_MAX, "%.2f");
 

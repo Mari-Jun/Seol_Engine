@@ -20,8 +20,29 @@ namespace PARS
 		}
 	}
 
+	void Component::InitializeDetailFunction()
+	{
+		m_CompDetailFunction = CreateUPtr<ComponentDetailFunction>();
+		SetDetailVisibleState(DVS::HideAll);
+	}
+
 	void Component::AddDetailFunctionInfo(FunctionInfo&& info)
 	{
-		m_Owner.lock()->AddDetailFunctionInfo(std::move(info));
+		m_CompDetailFunction->AddFunctionInfo(std::move(info));
+	}
+
+	void Component::OnUpdateDetailInfo(std::function<void(const DetailInfo& info)> function)
+	{
+		function(m_CompDetailFunction->GetDetailInfo());
+	}
+
+	void Component::SetDetailVisibleState(DVS state)
+	{
+		m_CompDetailFunction->SetDetailVisibleState(state);
+	}
+
+	void Component::SetFunctionVisibleState(const std::string& treeName, FVS state)
+	{
+		m_CompDetailFunction->SetFunctionVisibleState(treeName, state);
 	}
 }

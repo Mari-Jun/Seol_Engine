@@ -16,8 +16,10 @@ namespace PARS
 
 	void PlayerController::Initialize()
 	{
+		SetFunctionVisibleState("Transform", FVS::Disabled);
 		m_MovementComp = CreateSPtr<MovementComponent>();
 		AddComponent(m_MovementComp);
+		m_MovementComp->SetDetailVisibleState(DVS::Hide);
 	}
 
 	void PlayerController::ActorInput()
@@ -36,20 +38,17 @@ namespace PARS
 
 	void PlayerController::MoveForward(float axis)
 	{
-		auto speed = m_ControlledPawn->GetMoveSpeed();
-		m_ControlledPawn->GetMovementComp()->SetForwardSpeed(axis * speed);
+		m_ControlledPawn->GetMovementComp()->SetForwardSpeed(axis);
 	}
 
 	void PlayerController::MoveRightward(float axis)
 	{
-		auto speed = m_ControlledPawn->GetMoveSpeed();
-		m_ControlledPawn->GetMovementComp()->SetRightSpeed(axis * speed);
+		m_ControlledPawn->GetMovementComp()->SetRightSpeed(axis);
 	}
 
 	void PlayerController::MoveUpward(float axis)
 	{
-		auto speed = m_ControlledPawn->GetMoveSpeed();
-		m_ControlledPawn->GetMovementComp()->SetUpSpeed(axis * speed);
+		m_ControlledPawn->GetMovementComp()->SetUpSpeed(axis);
 	}
 
 	void PlayerController::TurnMouse()

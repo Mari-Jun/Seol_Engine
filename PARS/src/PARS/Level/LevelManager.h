@@ -19,6 +19,9 @@ namespace PARS
 		inline static LevelManager* GetLevelManager() { return s_Instance; }
 
 	private:
+		void AddLevelToDetailLayer();
+
+	private:
 		bool m_IsUpdateLevel = false;
 		SPtr<Level> m_Level = nullptr;
 		SPtr<Level> m_ReadyLevel = nullptr;

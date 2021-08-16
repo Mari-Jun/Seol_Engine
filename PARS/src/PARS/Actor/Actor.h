@@ -1,7 +1,6 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
-#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunctionFactory.h"
 #include "PARS/Actor/ActorDetailFunction.h"
 #include "PARS/Component/ComponentManager.h"
 #include "PARS/Input/InputFactory.h"
@@ -34,7 +33,6 @@ namespace PARS
 
 		void AddComponent(const SPtr<class Component>& component);
 		void RemoveComponent(const SPtr<class Component>& component);
-		void AddDetailFunctionInfo(FunctionInfo&& info);
 
 	public:
 		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
@@ -46,11 +44,8 @@ namespace PARS
 	protected:
 		std::string m_ActorName;
 		ActorState m_ActorState;
-		bool m_IsUseDefaultDetail = true;
-		UPtr<ActorDetailFunction> m_DetailFunction;
 
 	private:
-		
 		Mat4 m_WorldMatrix = Mat4::Identity;
 		Vec3 m_Position = Vec3::Zero;
 		Quaternion m_Rotation = Quaternion::Identity;
@@ -58,17 +53,15 @@ namespace PARS
 		bool m_RechangeWorldMatrix = true;
 
 		UPtr<ComponentManager> m_ComponentManager;
-		UPtr<DetailFunctionFactory> m_DetailFunctionFactory;
 		UPtr<InputFactory> m_InputFactory;
 
 	public:
+		std::string GetNameOfClass() const;
 		const std::string& GetActorName() const { return m_ActorName; }
 		void SetActorName(const std::string& name) { m_ActorName = name; }
 		ActorState GetActorState() const { return m_ActorState; }
 		void SetActorState(ActorState state) { m_ActorState = state; }
 		void SetStateDead() { m_ActorState = ActorState::Dead; }
-		void SetIsUseDefaultDetail(bool isUseDefaultDetail) { m_IsUseDefaultDetail = isUseDefaultDetail; }
-		bool IsUseDefualtDetail() { return m_IsUseDefaultDetail; }
 
 		const Mat4& GetWorldMatrix() const { return m_WorldMatrix; }
 		const Vec3& GetPosition() const { return m_Position; }
@@ -83,7 +76,14 @@ namespace PARS
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
 
-		const std::vector<FunctionInfo>& GetDetailFunctionInfos() const { return m_DetailFunctionFactory->GetFunctionInfos(); }
+	protected:
+		UPtr<ActorDetailFunction> m_DetailFunction;
+
+	public:
+		void AddDetailFunctionInfo(FunctionInfo&& info);
+		void OnUpdateDetailInfo(std::function<void(const DetailInfo& info)> function);
+		void SetDetailVisibleState(DVS state);
+		void SetFunctionVisibleState(const std::string& treeName, FVS state);
 	};
 }
 

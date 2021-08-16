@@ -7,9 +7,7 @@ namespace PARS
     void ComponentDetailFunction::Initialize(const WPtr<Component>& comp)
     {
         m_Component = comp;
-        if (m_Component.lock()->IsUseDefualtDetail())
-        {
-            AddFunctionInfo();
-        }
+        Initailize(m_Component.lock()->GetCompName());
+        CreateFunctionInfos();
     }
 }

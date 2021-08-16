@@ -9,7 +9,7 @@ namespace PARS
 		: m_LevelName(name)
 		, m_LevelState(LevelState::Active)
 	{
-		
+		m_DetailFunction = CreateUPtr<DetailFunction>();
 	}
 
 	Level::~Level()
@@ -20,6 +20,7 @@ namespace PARS
 	{
 		m_ActorManager = CreateUPtr<ActorManager>();
 		InitializeLevel();
+		m_DetailFunction->Initailize(GetLevelName());
 	}
 
 	void Level::Shutdown()
@@ -53,30 +54,6 @@ namespace PARS
 	{
 		m_ActorManager->RemoveActor(actor);
 	}
-
-	void Level::AddLayer(const SPtr<Layer>& layer)
-	{
-		auto layerManger = LayerManager::GetLayerManager();
-		layerManger->AddLayer(layer);
-		m_Layers.emplace_back(layer);
-	}
-
-	void Level::SetLayerActive()
-	{
-		for (const auto& layer : m_Layers)
-		{
-			layer.lock()->SetLayerState(Layer::LayerState::Active);
-		}
-	}
-
-	void Level::SetLayerHide()
-	{
-		for (const auto& layer : m_Layers)
-		{
-			layer.lock()->SetLayerState(Layer::LayerState::Hide);
-		}
-	}
-
 	void Level::AddOnceAction(std::string&& name, int key, const std::function<void()>& func)
 	{
 		m_InputFactory->AddOnceAction(std::move(name), key, func);
@@ -95,5 +72,38 @@ namespace PARS
 	void Level::ActiveAction(ActionType type, std::string&& name, bool active)
 	{
 		m_InputFactory->ActiceAction(type, std::move(name), active);
+	}
+
+	void Level::AddLayer(const SPtr<Layer>& layer)
+	{
+		auto layerManger = LayerManager::GetLayerManager();
+		layerManger->AddLayer(layer);
+		m_Layers.emplace_back(layer);
+	}
+
+	void Level::AddLevelSettingFunctionInfo(FunctionInfo&& info)
+	{
+		m_DetailFunction->AddFunctionInfo(std::move(info));
+	}
+
+	void Level::OnUpdateDetailInfo(std::function<void(const DetailInfo& info)> function)
+	{
+		function(m_DetailFunction->GetDetailInfo());
+	}
+
+	void Level::SetLayerActive()
+	{
+		for (const auto& layer : m_Layers)
+		{
+			layer.lock()->SetLayerState(Layer::LayerState::Active);
+		}
+	}
+
+	void Level::SetLayerHide()
+	{
+		for (const auto& layer : m_Layers)
+		{
+			layer.lock()->SetLayerState(Layer::LayerState::Hide);
+		}
 	}
 }

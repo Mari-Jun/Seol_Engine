@@ -1,21 +1,21 @@
 #pragma once
-#include "imgui.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailHelper.h"
 
 namespace PARS
 {
 	class Component;
 
-	class ComponentDetailFunction
+	class ComponentDetailFunction : public DetailFunction
 	{
 	public:
 		ComponentDetailFunction() = default;
 
 		void Initialize(const WPtr<Component>& comp);
-		virtual void AddFunctionInfo() {}
+		virtual void CreateFunctionInfos() {}
 
 	protected:
 		WPtr<Component> m_Component;
-		ImVec4 m_TextColor = { 0.0f, 1.0f, 1.0f, 1.0f };
 	};
 }
 

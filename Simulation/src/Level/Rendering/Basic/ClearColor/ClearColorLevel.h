@@ -11,7 +11,9 @@ namespace PARS
 		virtual ~ClearColorLevel();
 
 		void InitializeLevel() override;
+		void ShutdownLevel() override;
 		void UpdateLevel(float deltaTime) override;
+		
 	};
 }
 

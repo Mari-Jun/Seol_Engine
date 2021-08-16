@@ -17,6 +17,8 @@ namespace PARS
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}		
 		virtual void ReleaseUploadBuffers();
 
+		UINT GetIndexCount() const { return m_IndexCount; }
+
 	public:
 		virtual bool LoadObj(const std::string& fileName);
 

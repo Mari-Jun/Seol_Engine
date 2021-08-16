@@ -6,7 +6,6 @@ namespace PARS
 {
 	Pawn::Pawn(const std::string& name)
 		: Actor(name)
-		, m_MoveSpeed(600.0f)
 	{
 	}
 

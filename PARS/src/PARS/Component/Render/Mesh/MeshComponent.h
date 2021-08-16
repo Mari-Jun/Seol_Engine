@@ -13,6 +13,7 @@ namespace PARS
 		virtual ~MeshComponent() = default;
 
 		virtual void Initialize() override;
+		virtual void InitializeDetailFunction() override;
 		virtual void Shutdown() override;
 		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
 

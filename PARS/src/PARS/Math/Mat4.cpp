@@ -189,8 +189,8 @@ namespace PARS
 		return Mat4(
 			2.0f / (right - left), 0.0f, 0.0f, 0.0f,
 			0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
-			0.0f, 0.0f, 2.0f / (near - far), 0.0f,
-			(left + right) / (left - right), (bottom + top) / (bottom - top), (far + near) / (far - near), 1.0f
+			0.0f, 0.0f, 1.0f / (far - near), 0.0f,
+			0.0f, 0.0f, near / (near - far), 1.0f
 		);
 	}
 

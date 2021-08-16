@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Component/Render/Mesh/MeshDetailFunction.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS
@@ -14,6 +15,11 @@ namespace PARS
 	void MeshComponent::Initialize()
 	{
 		RenderComponent::Initialize();
+	}
+
+	void MeshComponent::InitializeDetailFunction()
+	{
+		m_CompDetailFunction = CreateUPtr<MeshCompDetailFunction>();
 	}
 
 	void MeshComponent::Shutdown()
