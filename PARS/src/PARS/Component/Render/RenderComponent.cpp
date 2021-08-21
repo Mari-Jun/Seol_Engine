@@ -6,6 +6,7 @@ namespace PARS
 	RenderComponent::RenderComponent(const std::string& name, RenderType type, int updateOrder)
 		: Component(name, updateOrder)
 		, m_RenderType(type)
+		, m_RenderState(RenderState::Ready)
 	{
 	}
 
@@ -21,9 +22,13 @@ namespace PARS
 		factory->RemoveRenderComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
 	}
 
-	void RenderComponent::ChangeComponentItem()
+	void RenderComponent::SetRenderState(RenderState state)
 	{
-		auto factory = RenderComponentFactory::GetRenderComponentFactory();
-		factory->MoveToPrepareComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+		m_RenderState = state;
+		if (m_RenderState == RenderState::Ready)
+		{
+			auto factory = RenderComponentFactory::GetRenderComponentFactory();
+			factory->AddPrepareComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+		}
 	}
 }

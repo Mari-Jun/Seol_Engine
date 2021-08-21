@@ -14,6 +14,13 @@ namespace PARS
 		Mesh
 	};
 
+	enum class RenderState
+	{
+		Ready,
+		Render,
+		Invisible
+	};
+
 	class RenderComponentFactory
 	{
 	private:
@@ -49,8 +56,8 @@ namespace PARS
 		void AddShader(ShaderType type, SPtr<class Shader>&& shader);
 
 		void AddRenderComponent(RenderType type, const SPtr<class RenderComponent>& component);
+		void AddPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component);
 		void RemoveRenderComponent(RenderType type, const SPtr<class RenderComponent>& component);
-		void MoveToPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component);
 
 		const SPtr<class Mesh>& GetMesh(const std::string& fileName) const;
 		void SaveMesh(const std::string& fileName, const SPtr<class Mesh>& mesh);

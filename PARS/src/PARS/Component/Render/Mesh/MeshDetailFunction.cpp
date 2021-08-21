@@ -15,7 +15,7 @@ namespace PARS
 
 	void MeshCompDetailFunction::MeshCountDetail(const SPtr<MeshComponent>& meshComp)
 	{
-		UINT vertexCount = meshComp->GetMesh()->GetIndexCount();
+		UINT vertexCount = meshComp->GetMesh()->GetVertexCount();
 		ImGui::Text(("vertextCount : " + std::to_string(vertexCount)).c_str());
 	}
 }

@@ -36,29 +36,13 @@ namespace PARS
 
 	void RenderComponentFactory::RenderReady()
 	{
-		if (!m_PrepareComponents.empty())
+		for (auto& comps : m_PrepareComponents)
 		{
-			for (auto& comps : m_PrepareComponents)
+			for (auto& comp : comps.second)
 			{
-				auto iter = m_RenderComponents.emplace(comps);
-				if (!iter.second)
-				{
-					for (auto& comp : comps.second)
-					{
-						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
-						iter.first->second.emplace_back(comp);
-					}
-				}
-				else
-				{
-					for (auto& comp : iter.first->second)
-					{
-						comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
-					}
-				}
-
-				UpdateShaderDueToRender(comps.first);
+				comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
 			}
+			UpdateShaderDueToRender(comps.first);
 		}
 
 		for (auto& updateInfo : m_ShaderUpdateInfos)
@@ -81,17 +65,15 @@ namespace PARS
 
 	void RenderComponentFactory::PrepareToNextDraw()
 	{
-		if (!m_PrepareComponents.empty())
+		for (auto& comps : m_PrepareComponents)
 		{
-			for (auto& comps : m_PrepareComponents)
+			for (auto& comp : comps.second)
 			{
-				for (auto& comp : comps.second)
-				{
-					comp->ReleaseUploadBuffers();
-				}
+				comp->ReleaseUploadBuffers();
+				comp->SetRenderState(RenderState::Render);
 			}
-			m_PrepareComponents.clear();
 		}
+		m_PrepareComponents.clear();
 	}
 
 	void RenderComponentFactory::AddShader(ShaderType type, SPtr<Shader>&& shader)
@@ -101,11 +83,24 @@ namespace PARS
 
 	void RenderComponentFactory::AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
 	{
-		auto iter = m_PrepareComponents.emplace(type, std::vector<SPtr<RenderComponent>>{component});
+		AddPrepareComponent(type, component);
+		auto iter = m_RenderComponents.emplace(type, std::vector<SPtr<RenderComponent>>{component});
 		if (!iter.second)
 		{
 			iter.first->second.emplace_back(component);
-		}		
+		}
+	}
+
+	void RenderComponentFactory::AddPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component)
+	{
+		if (component->GetRenderState() == RenderState::Ready)
+		{
+			auto iter = m_PrepareComponents.emplace(type, std::vector<SPtr<RenderComponent>>{component});
+			if (!iter.second)
+			{
+				iter.first->second.emplace_back(component);
+			}
+		}
 	}
 
 	void RenderComponentFactory::RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
@@ -129,12 +124,6 @@ namespace PARS
 				}
 			}
 		}
-	}
-
-	void RenderComponentFactory::MoveToPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component)
-	{
-		RemoveRenderComponent(type, component);
-		AddRenderComponent(type, component);
 	}
 
 	const SPtr<Mesh>& RenderComponentFactory::GetMesh(const std::string& fileName) const
