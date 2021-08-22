@@ -31,7 +31,6 @@ namespace PARS
 			}));
 		actor->AddComponent(meshComp);
 		
-		SetRenderProjectionOrtho(-1.0f, 1.0f, -1.0f, 1.0f);
 		SetDefaultControllerKeyEvent(false);
 	}
 

@@ -64,25 +64,6 @@ namespace PARS
 	void LevelManager::OpenLevel(const SPtr<Level>& level)
 	{
 		m_ReadyLevel = level;
-
-		//임시로 EditorLayer, ContentLayer, ViewportLayer는 숨기자
-		//나중에 ViewportLayer가 완성되면 그때 다시 수정하는걸로.
-
-		const auto& Editorlayer = LayerManager::GetLayerManager()->GetLayerByName("Editor Layer");
-		if (Editorlayer != nullptr)
-		{
-			Editorlayer->SetLayerState(Layer::LayerState::Hide);
-		}
-		const auto& Contentlayer = LayerManager::GetLayerManager()->GetLayerByName("Content Layer");
-		if (Contentlayer != nullptr)
-		{
-			Contentlayer->SetLayerState(Layer::LayerState::Hide);
-		}
-		const auto& Viewportlayer = LayerManager::GetLayerManager()->GetLayerByName("Viewport Layer");
-		if (Viewportlayer != nullptr)
-		{
-			Viewportlayer->SetLayerState(Layer::LayerState::Hide);
-		}
 	}
 
 	void LevelManager::AddLevelToDetailLayer()

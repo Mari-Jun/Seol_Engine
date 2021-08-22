@@ -5,23 +5,24 @@
 
 namespace PARS
 {
-	CameraComponent::CameraComponent()
-		: m_CameraState(CameraState::Active)
-		, m_CameraType(CameraType::Default)
+	CameraComponent::CameraComponent(const std::string& name)
+		: Component(name)
+		, m_CameraState(CameraState::Active)
 		, m_ViewMatrix(Mat4::Identity)
+		, m_Projection(Mat4::Identity)
 	{
 	}
 
 	void CameraComponent::Initialize()
 	{
 		const auto& factory = RenderFactory::GetRenderFactory();
-		factory->AddCameraComponent(m_CameraType, std::reinterpret_pointer_cast<CameraComponent>(shared_from_this()));
+		factory->AddCameraComponent(std::reinterpret_pointer_cast<CameraComponent>(shared_from_this()));
 	}
 
 	void CameraComponent::Shutdown()
 	{
 		const auto& factory = RenderFactory::GetRenderFactory();
-		factory->RemoveCameraComponent(m_CameraType, std::reinterpret_pointer_cast<CameraComponent>(shared_from_this()));
+		factory->RemoveCameraComponent(std::reinterpret_pointer_cast<CameraComponent>(shared_from_this()));
 	}
 
 	void CameraComponent::Update(float deltaTime)
@@ -31,12 +32,15 @@ namespace PARS
 
 	void CameraComponent::UpdateWorldMatrix()
 	{
-		const auto& owner = m_Owner.lock();
+		if (IsActive())
+		{
+			const auto& owner = m_Owner.lock();
 
-		Vec3 eye = owner->GetPosition();
-		Vec3 target = eye + owner->GetForward() * 100.0f;
-		Vec3 up = owner->GetUp();
+			Vec3 eye = owner->GetPosition();
+			Vec3 target = eye + owner->GetForward() * 100.0f;
+			Vec3 up = owner->GetUp();
 
-		m_ViewMatrix = Mat4::LookAt(eye, target, up);
+			m_ViewMatrix = Mat4::LookAt(eye, target, up);
+		}
 	}
 }

@@ -113,7 +113,7 @@ namespace PARS
 
 		WaitForGpuCompelete();
 
-		SetViewAndScissor();
+		SetViewAndScissor(0.0f, 0.0f, static_cast<float>(m_WindowInfo->m_Width), static_cast<float>(m_WindowInfo->m_Height));
 
 		return true;
 	}
@@ -327,16 +327,19 @@ namespace PARS
 		return true;
 	}
 
-	void DirectX12::SetViewAndScissor()
+	void DirectX12::SetViewAndScissor(float left, float top, float width, float height, UINT index)
 	{
-		m_Viewport.TopLeftX = 0;
-		m_Viewport.TopLeftY = 0;
-		m_Viewport.Width = static_cast<float>(m_WindowInfo->m_Width - m_WindowInfo->m_LayerWidth);
-		m_Viewport.Height = static_cast<float>(m_WindowInfo->m_Height);
+		m_Viewport.TopLeftX = left;
+		m_Viewport.TopLeftY = top;
+		m_Viewport.Width = width;
+		m_Viewport.Height = height;
 		m_Viewport.MaxDepth = 1.0f;
 		m_Viewport.MinDepth = 0.0f;
 
-		m_ScissorRect = { 0, 0, static_cast<LONG>(m_WindowInfo->m_Width - m_WindowInfo->m_LayerWidth), static_cast<LONG>(m_WindowInfo->m_Height) };
+		m_ScissorRect.left = static_cast<LONG>(left);
+		m_ScissorRect.top = static_cast<LONG>(top);
+		m_ScissorRect.right = static_cast<LONG>(left + width);
+		m_ScissorRect.bottom = static_cast<LONG>(top + height);
 	}
 
 	void DirectX12::WaitForGpuCompelete()

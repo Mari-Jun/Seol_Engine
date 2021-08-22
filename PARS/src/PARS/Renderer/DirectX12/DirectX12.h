@@ -6,6 +6,7 @@
 namespace PARS
 {
 	struct WindowInfo;
+	struct ViewportInfo;
 
 	class DirectX12 : public std::enable_shared_from_this<DirectX12>
 	{
@@ -30,9 +31,8 @@ namespace PARS
 		bool CreateRenderTargetViews();
 		bool CreateDepthStecilView();
 		
-		void SetViewAndScissor();
-
 	public:
+		void SetViewAndScissor(float left, float top, float width, float height, UINT index = 0);
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
 	
@@ -58,6 +58,7 @@ namespace PARS
 
 	private:
 		WindowInfo* m_WindowInfo = nullptr;
+		ViewportInfo* m_ViewportInfo = nullptr;
 
 		IDXGIFactory4* m_Factory = nullptr;
 		IDXGISwapChain3* m_SwapChain = nullptr;
