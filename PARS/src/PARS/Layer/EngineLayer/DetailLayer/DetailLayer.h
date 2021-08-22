@@ -30,7 +30,6 @@ namespace PARS
 		void SetLevelToLayer(const WPtr<Level>& level);
 
 	private:
-		bool m_IsOpen = true;
 		ImGuiWindowFlags m_WindowFlags = 0;
 		ImVec2 m_WindowSize;
 		ImVec2 m_WindowPos;

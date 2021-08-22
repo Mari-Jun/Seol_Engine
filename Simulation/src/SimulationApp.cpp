@@ -1,5 +1,6 @@
 #include <PARS.h>
 #include "PARS/Core/EntryPoint.h"
+#include "PARS/Layer/EngineLayer/DockLayer/DockLayer.h"
 #include "EditorLayer.h"
 #include "PARS/Layer/EngineLayer/ContentLayer/ContentLayer.h"
 #include "PARS/Layer/EngineLayer/ViewportLayer/ViewportLayer.h"
@@ -16,6 +17,7 @@ public:
 	{
 		bool result = Application::Initialize();
 
+		AddLayer(PARS::CreateSPtr<PARS::DockLayer>());
 		AddLayer(PARS::CreateSPtr<PARS::EditorLayer>());
 		AddLayer(PARS::CreateSPtr<PARS::ContentLayer>());
 		AddLayer(PARS::CreateSPtr<PARS::DetailLayer>());	

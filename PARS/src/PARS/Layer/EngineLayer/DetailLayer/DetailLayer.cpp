@@ -22,7 +22,7 @@ namespace PARS
 			{
 				static ImGuiWindowFlags objectsFlags = ImGuiWindowFlags_NoScrollbar;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("ObjectsChild", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.25f), true, objectsFlags);
+				ImGui::BeginChild("ObjectsChild", ImVec2(m_WindowSize.x, m_WindowSize.y * 0.25f), true, objectsFlags);
 				if (ImGui::BeginTabBar("Objects Tab"))
 				{
 					if (ImGui::BeginTabItem("Objects"))
@@ -40,7 +40,7 @@ namespace PARS
 			{
 				static ImGuiWindowFlags detailFlags = ImGuiWindowFlags_NoScrollbar;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.69f), true, detailFlags);
+				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x, m_WindowSize.y * 0.745f), true, detailFlags);
 				if (ImGui::BeginTabBar("Detail Tab"))
 				{
 					if (ImGui::BeginTabItem("Detail"))
@@ -60,19 +60,22 @@ namespace PARS
 				ImGui::PopStyleVar();
 			}
 		}
-		m_WindowSize = ImGui::GetWindowSize();
-		ImGui::End();
 	
+		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+		ImVec2 vMax = ImGui::GetWindowContentRegionMax();
 
-		if (!m_IsOpen)
-		{
-			//Destroy();
-		}
+		vMin.x += ImGui::GetWindowPos().x;
+		vMin.y += ImGui::GetWindowPos().y;
+		vMax.x += ImGui::GetWindowPos().x;
+		vMax.y += ImGui::GetWindowPos().y;
+
+		m_WindowSize = ImVec2{ vMax.x - vMin.x, vMax.y - vMin.y };
+
+		ImGui::End();
 	}
 
 	void DetailLayer::Shutdown()
 	{
-		//f_Destroy();
 	}
 
 	void DetailLayer::UpdateObjects()

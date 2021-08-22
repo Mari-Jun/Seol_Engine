@@ -81,7 +81,7 @@ namespace PARS
 		style.ScrollbarRounding = 9.0f;
 		style.GrabMinSize = 7.0f;
 		style.GrabRounding = 3.0f;
-		style.WindowBorderSize = 0.0f;
+		style.WindowBorderSize = 1.0f;
 		style.FrameBorderSize = 0.5f;
 		style.ChildRounding = 6.0f;
 		style.FrameRounding = 10.0f;
