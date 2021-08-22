@@ -27,16 +27,24 @@ namespace PARS
 	void ColorShader::UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBColorPass& cbPass)
 	{
 		//이동된 객체만 Update해야한다.
-
 		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
 		for (int i = 0; i < renderComps.size(); ++i)
 		{
-			CBWorldMat mappedWorldMat;
-			Mat4 worldMatrix = renderComps[i]->GetOwner().lock()->GetWorldMatrix();
-			worldMatrix.Transpose();
-			mappedWorldMat.m_WorldMatrix = worldMatrix;
-			
-			memcpy(&m_WorldMatMappedData[i * worldCBByteSize], &mappedWorldMat, sizeof(CBWorldMat));
+			const auto& owner = renderComps[i]->GetOwner().lock();
+			if (owner->IsChangedWorldMatrix())
+			{
+				owner->ResetChangedWorldMatrix();
+
+				CBWorldMat mappedWorldMat;
+				Mat4 worldMatrix = owner->GetWorldMatrix();
+				Mat4 worldInverseTranspose = worldMatrix;
+				worldMatrix.Transpose();
+				worldInverseTranspose.Invert();
+				mappedWorldMat.m_WorldMatrix = worldMatrix;
+				mappedWorldMat.m_WorldInverseTranspose = worldInverseTranspose;
+
+				memcpy(&m_WorldMatMappedData[i * worldCBByteSize], &mappedWorldMat, sizeof(CBWorldMat));
+			}
 		}
 
 		memcpy(m_ColorPassMappedData, &cbPass, sizeof(CBColorPass));

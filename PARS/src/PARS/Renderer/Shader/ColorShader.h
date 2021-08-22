@@ -7,6 +7,7 @@ namespace PARS
 	struct CBWorldMat
 	{
 		Mat4 m_WorldMatrix;
+		Mat4 m_WorldInverseTranspose;
 	};
 
 	struct CBColorPass

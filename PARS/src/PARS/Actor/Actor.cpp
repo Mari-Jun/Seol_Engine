@@ -59,8 +59,9 @@ namespace PARS
 
 			//Change Component World Matrix
 			m_ComponentManager->UpdateWorldMatrix();
-
+			
 			m_RechangeWorldMatrix = false;
+			m_IsChangedWorldMatrix = true;
 		}
 	}
 

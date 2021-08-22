@@ -51,6 +51,7 @@ namespace PARS
 		Quaternion m_Rotation = Quaternion::Identity;
 		Vec3 m_Scale = Vec3::One;
 		bool m_RechangeWorldMatrix = true;
+		bool m_IsChangedWorldMatrix = false;
 
 		UPtr<ComponentManager> m_ComponentManager;
 		UPtr<InputFactory> m_InputFactory;
@@ -75,6 +76,9 @@ namespace PARS
 		Vec3 GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
+
+		bool IsChangedWorldMatrix() const { return m_IsChangedWorldMatrix; }
+		void ResetChangedWorldMatrix() { m_IsChangedWorldMatrix = false; }
 
 	protected:
 		UPtr<ActorDetailFunction> m_DetailFunction;
