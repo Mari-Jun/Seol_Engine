@@ -8,13 +8,14 @@ namespace PARS
 {
 	RenderFactory::RenderFactory(const SPtr<DirectX12>& directX)
 		: m_DirectX12(directX)
-		, m_Projection(Mat4::Identity)
 	{
 		
 	}
 
 	bool RenderFactory::Initialize()
 	{
+		m_Viewports.emplace_back(CreateSPtr<Viewport>());
+
 		m_RenderCompFactory = CreateUPtr<RenderComponentFactory>(m_DirectX12);
 		if (!m_RenderCompFactory->Initialize())
 		{
@@ -47,6 +48,33 @@ namespace PARS
 
 	void RenderFactory::RenderReady()
 	{
+		for (const auto& viewport : m_Viewports)
+		{
+			const auto& camera = viewport->GetCameraOwner().lock();
+
+			if (viewport->IsChangeViewport())
+			{
+				const auto& directX = DirectX12::GetDirectX12();
+				if (directX != nullptr)
+				{
+					directX->SetViewAndScissor(viewport->GetLeft(), viewport->GetTop(),
+						viewport->GetWidth(), viewport->GetHeight());
+				}
+
+				if (camera != nullptr)
+				{
+					camera->ChangeProjectionInfo();
+				}
+				viewport->ChangedViewport();
+			}
+
+			if (camera != nullptr && camera->IsUpdateProjection())
+			{
+				camera->UpdateProjection(viewport->GetWidth(), viewport->GetHeight());
+			}
+
+		}
+
 		m_RenderCompFactory->RenderReady();
 	}
 
@@ -56,44 +84,39 @@ namespace PARS
 		commandList->SetGraphicsRootSignature(m_RootSignatures["Default"]);
 
 		Mat4 viewProj;
-
-		auto cameraIter = m_CameraComps.find(CameraComponent::CameraType::Default);
-		if (cameraIter != m_CameraComps.cend())
+		for (const auto& camera : m_CameraComps)
 		{
-			for (const auto& camera : m_CameraComps[CameraComponent::CameraType::Default])
+			if (camera->IsActive())
 			{
-				if (camera->IsActive())
+				CBColorPass cbPass;
+
+				viewProj = camera->GetViewMatrix();
+				viewProj *= camera->GetProjection();
+				viewProj.Transpose();
+
+				const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
+
+				cbPass.m_ViewProj = viewProj;
+				cbPass.m_EyePos = eyePos;
+
+				std::vector<LightCB> lights;
+				LightCount lightCount;
+				for (const auto& light : m_LightComps)
 				{
-					CBColorPass cbPass;
+					lights.push_back(light->GetLightCB());
+					lightCount.AddLightCount(light->GetLightType());
+				}
 
-					viewProj = camera->GetViewMatrix();
-					viewProj *= m_Projection;
-					viewProj.Transpose();
+				cbPass.m_LightCount = lightCount;
+				cbPass.m_AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
+				if (!lights.empty())
+					*cbPass.m_Lights = *lights.data();
+				else
+					cbPass.m_AmbientLight = { 1.0f,  1.0f, 1.0f, 1.0f };
 
-					const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
-
-					cbPass.m_ViewProj = viewProj;
-					cbPass.m_EyePos = eyePos;
-
-					std::vector<LightCB> lights;
-					LightCount lightCount;
-					for (const auto& light : m_LightComps)
-					{
-						lights.push_back(light->GetLightCB());
-						lightCount.AddLightCount(light->GetLightType());
-					}
-
-					cbPass.m_LightCount = lightCount;
-					cbPass.m_AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
-					if (!lights.empty())
-						*cbPass.m_Lights = *lights.data();
-					else
-						cbPass.m_AmbientLight = { 1.0f,  1.0f, 1.0f, 1.0f };
-
-					if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, cbPass))
-					{
-						m_RenderCompFactory->Draw(ShaderType::Color, RenderType::Mesh);
-					}
+				if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, cbPass))
+				{
+					m_RenderCompFactory->Draw(ShaderType::Color, RenderType::Mesh);
 				}
 			}
 		}
@@ -164,37 +187,28 @@ namespace PARS
 		}
 	}
 
-	void RenderFactory::AddCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera)
+	void RenderFactory::AddCameraComponent(const SPtr<CameraComponent>& camera)
 	{
-		auto iter = m_CameraComps.emplace(type, std::vector<SPtr<CameraComponent>>{camera});
-		if (!iter.second)
-		{
-			iter.first->second.emplace_back(camera);
-		}
+		m_CameraComps.push_back(camera);
+
+		//아직 viewport는 1개이다. 따라서 main viewport에 플레이어 컨트롤러가 제어하는 camera가 담겨진다. <임시>
+		m_Viewports[0]->SetCamera(camera);
 	}
 
-	void RenderFactory::RemoveCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera)
+	void RenderFactory::RemoveCameraComponent(const SPtr<CameraComponent>& camera)
 	{
-		auto rComp = m_CameraComps.find(type);
-		if (rComp != m_CameraComps.end())
+		auto iter = std::find_if(m_CameraComps.begin(), m_CameraComps.end(),
+			[&camera](const SPtr<CameraComponent>& comp)
+			{return camera == comp; });
+		if (iter != m_CameraComps.end())
 		{
-			auto iter = std::find_if(rComp->second.begin(), rComp->second.end(),
-				[&camera](const SPtr<CameraComponent>& comp)
-				{return camera == comp; });
-			if (iter != rComp->second.end())
-			{
-				rComp->second.erase(iter);
-				if (rComp->second.empty())
-				{
-					m_CameraComps.erase(type);
-				}
-			}
+			m_CameraComps.erase(iter);
 		}
 	}
 
 	void RenderFactory::AddLightComponent(const SPtr<LightComponent>& light)
 	{
-		m_LightComps.emplace_back(light);
+		m_LightComps.push_back(light);
 	}
 
 	void RenderFactory::RemoveLightComponent(const SPtr<LightComponent>& light)
@@ -206,6 +220,11 @@ namespace PARS
 		{
 			m_LightComps.erase(iter);
 		}
+	}
+
+	void RenderFactory::UpdateProjection(float left, float top, float width, float height)
+	{
+
 	}
 
 	RenderFactory* RenderFactory::s_Instance = nullptr;

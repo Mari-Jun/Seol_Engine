@@ -43,8 +43,6 @@ namespace PARS
 	protected:
 		virtual void SetDefaultControllerKeyEvent(bool use) override final;
 		virtual void SetDefaultControllerMouseEvent(bool use) override final;
-		void SetRenderProjectionOrtho(float left, float right, float bottom, float top, float near = 0.0f, float far = 1000.0f);
-
 	};
 
 	class Level3D : public DefaultLevel
@@ -58,8 +56,6 @@ namespace PARS
 	protected:
 		virtual void SetDefaultControllerKeyEvent(bool use) override final;
 		virtual void SetDefaultControllerMouseEvent(bool use) override final;
-		void SetRenderProjectionPerspective(float fovy, float aspect, float near = 1.0f, float far = 10000.0f);
-
 	};
 
 }

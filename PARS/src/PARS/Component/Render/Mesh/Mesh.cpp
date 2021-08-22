@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
+#include "PARS/Util/Helper/ContentHelper.h"
 
 namespace PARS
 {
@@ -15,7 +16,9 @@ namespace PARS
 		if (m_VertexUploadBuffer != nullptr) m_VertexUploadBuffer->Release();
 		m_VertexUploadBuffer = nullptr;
 		if (m_IndexBuffer != nullptr) m_IndexBuffer->Release();
+		m_IndexBuffer = nullptr;
 		if (m_IndexUploadBuffer != nullptr) m_IndexUploadBuffer->Release();
+		m_IndexUploadBuffer = nullptr;
 	}
 
 	void Mesh::Draw(ID3D12GraphicsCommandList* commandList)
@@ -55,7 +58,7 @@ namespace PARS
 		}
 	}
 
-	bool Mesh::LoadObj(const std::string& fileName)
+	bool Mesh::LoadObj(const std::string& path)
 	{
 		return true;
 	}
@@ -80,48 +83,44 @@ namespace PARS
 		m_IndexCount = static_cast<UINT>(indices.size());
 
 		b_DrawIndex = true;
+		m_RealVertexCount = m_VertexCount;
 	}
 
 	void DiffuseMesh::SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		if (m_VertexBuffer == nullptr)
-		{
-			m_VertexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_DiffuseVertices.data(), m_Stride * m_VertexCount,
-				D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_VertexUploadBuffer);
+		Shutdown();
 
-			m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
-			m_VertexBufferView.StrideInBytes = m_Stride;
-			m_VertexBufferView.SizeInBytes = m_VertexCount * m_Stride;
-		}
+		m_VertexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_DiffuseVertices.data(), m_Stride * m_VertexCount,
+			D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_VertexUploadBuffer);
 
+		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+		m_VertexBufferView.StrideInBytes = m_Stride;
+		m_VertexBufferView.SizeInBytes = m_VertexCount * m_Stride;
 
 		if (b_DrawIndex)
 		{
-			if (m_IndexBuffer == nullptr)
-			{
-				m_IndexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_Indices.data(), sizeof(UINT) * m_IndexCount,
-					D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_IndexUploadBuffer);
+			m_IndexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_Indices.data(), sizeof(UINT) * m_IndexCount,
+				D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_IndexUploadBuffer);
 
-				m_IndexBufferView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
-				m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-				m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
-			}
+			m_IndexBufferView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
+			m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+			m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
 		}
 	}
 
-	bool DiffuseMesh::LoadObj(const std::string& fileName)
+	bool DiffuseMesh::LoadObj(const std::string& path)
 	{
-		std::string objName = CONTENT_DIR + fileName + ".obj";
-		std::ifstream objFile(objName);
+		m_FileName = ContentHelper::GetFileNameFromPath(path);
+		std::ifstream objFile(path);
 
 		if (!objFile.is_open())
 		{
-			PARS_ERROR("Obj file could not be found : {0}", objName);
+			PARS_ERROR("Obj file could not be found : {0}", m_FileName);
 			return false;
 		}
 
 		std::unordered_map<std::string, Vec4> diffuseColor;
-		if (!LoadMtl(fileName, diffuseColor))
+		if (!LoadMtl(path.substr(0, path.size() - 4), diffuseColor))
 		{
 			return false;
 		}
@@ -196,6 +195,14 @@ namespace PARS
 					}
 				}
 			}
+			else if (prefix == "#" && m_RealVertexCount == 0)
+			{
+				int count;
+				std::string name;
+				ss >> count >> name;
+				if (name == "vertices")
+					m_RealVertexCount = count;
+			}
 		}
 
 		m_DiffuseVertices.resize(posIndex.size(), DiffuseVertex());
@@ -224,9 +231,9 @@ namespace PARS
 	}
 
 
-	bool DiffuseMesh::LoadMtl(const std::string& fileName, std::unordered_map<std::string, Vec4>& diffuse)
+	bool DiffuseMesh::LoadMtl(const std::string& path, std::unordered_map<std::string, Vec4>& diffuse)
 	{
-		std::string mtlName = CONTENT_DIR + fileName + ".mtl";
+		std::string mtlName = CONTENT_DIR + path + ".mtl";
 		std::ifstream mtlFile(mtlName);
 
 		if (!mtlFile.is_open())

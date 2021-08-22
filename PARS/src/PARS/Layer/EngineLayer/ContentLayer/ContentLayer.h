@@ -10,14 +10,21 @@ namespace PARS
 		ContentLayer(const std::string& name = "Content Layer");
 		virtual ~ContentLayer() = default;
 
-		virtual void Initialize() override {}
+		virtual void Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Update() override final;
+
+	private:
+		bool m_IsUpdateContentView = true;
+
+	public:
+		void AddNewContent() { m_IsUpdateContentView = true; }
 
 	private:
 		void UpdateFolderList();
 		std::string RecursiveFolderList(const std::filesystem::path& path);
 		void UpdateContentView(float width);
+
 
 	private:
 		bool m_IsFirstOpen = true;

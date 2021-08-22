@@ -1,11 +1,17 @@
 #include "stdafx.h"
 #include "PARS/Layer/EngineLayer/ContentLayer/ContentLayer.h"
+#include "PARS/Util/Helper/ContentHelper.h"
 
 namespace PARS
 {
 	ContentLayer::ContentLayer(const std::string& name)
 		: Layer(name)
 	{
+	}
+
+	void ContentLayer::Initialize()
+	{
+		ContentHelper::ReloadContents();
 	}
 
 	void ContentLayer::Shutdown()
@@ -41,6 +47,8 @@ namespace PARS
 		}
 		m_WindowSize = ImGui::GetItemRectSize();
 		ImGui::End();
+
+		m_IsUpdateContentView = false;
 	}
 
 	void ContentLayer::UpdateFolderList()
@@ -51,6 +59,7 @@ namespace PARS
 			if (!select.empty())
 			{
 				m_SelectFolder = select;
+				m_IsUpdateContentView = true;
 			}
 		}
 	}
@@ -80,17 +89,17 @@ namespace PARS
 
 	void ContentLayer::UpdateContentView(float width)
 	{
+		static std::vector<std::filesystem::directory_entry> files;
+
+		if (m_IsUpdateContentView)
+		{
+			files = ContentHelper::GetContentsInDirectory(m_SelectFolder, {}, { ".mtl" });
+		}
+
 		int cnt = 0;
 
-		for (const auto& file : std::filesystem::directory_iterator(m_SelectFolder))
+		for (const auto& file : files)
 		{
-			if (!file.is_directory() && !file.is_regular_file())
-				continue;
-
-			std::string extension = file.path().extension().u8string();
-			if (extension == ".mtl")
-				continue;			
-
 			std::string stemName = file.path().stem().u8string();
 			std::string fileName = file.path().filename().u8string();
 			ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));

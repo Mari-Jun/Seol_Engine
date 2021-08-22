@@ -18,10 +18,13 @@ namespace PARS
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}
 		virtual void ReleaseUploadBuffers() {}
 
-	protected:
-		void ChangeComponentItem();
+	public:
+		void SetRenderState(RenderState state);
+		RenderState GetRenderState() const { return m_RenderState; }
 
 	protected:
 		RenderType m_RenderType;
+		RenderState m_RenderState;
+
 	};
 }

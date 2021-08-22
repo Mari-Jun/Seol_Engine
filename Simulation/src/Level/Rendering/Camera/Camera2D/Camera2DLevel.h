@@ -1,7 +1,6 @@
 #pragma once
 
 #include <PARS.h>
-#include "Camera2DLayer.h"
 
 namespace PARS
 {

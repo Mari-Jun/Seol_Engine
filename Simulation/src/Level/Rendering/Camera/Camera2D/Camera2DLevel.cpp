@@ -1,5 +1,5 @@
 #include "Camera2DLevel.h"
-#include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Component/Render/Mesh/Handmade/HandmadeMeshComp.h"
 
 namespace PARS
 {
@@ -13,8 +13,8 @@ namespace PARS
 		Level2D::InitializeLevel();
 
 		auto rectangle = CreateSPtr<Actor>("Rectangle");
-		auto meshComp = CreateSPtr<MeshComponent>(); 
-		meshComp->SetHandMadeMesh<DiffuseMesh>(
+		auto meshComp = CreateSPtr<HandmadeMeshComponent>(); 
+		meshComp->SetMesh<DiffuseMesh>(
 			std::vector<DiffuseVertex>({ {Vec3(-200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
 				{Vec3(200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
 				{Vec3(200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)},
@@ -23,17 +23,6 @@ namespace PARS
 			);
 		rectangle->AddComponent(meshComp);
 		AddActor(rectangle);
-
-		/*auto layer = PARS::CreateSPtr<PARS::Camera2DLayer>();
-		layer->OnDestroy([this]() {Destroy(); });
-		AddLayer(layer);
-
-		layer->AddObjectToLayer("Rectangle");
-		layer->SetRectangleActor(rectangle);
-		layer->SetRectMeshComp(meshComp);
-
-		layer->AddObjectToLayer("Camera");
-		layer->SetCameraActor(std::reinterpret_pointer_cast<Actor>(GetDefaultPawn()));*/
 	}
 
 	void Camera2DLevel::UpdateLevel(float deltaTime)

@@ -7,7 +7,6 @@
 
 //임시
 #include "PARS/Level/LevelManager.h"
-#include "PARS/Layer/LayerManager.h"
 
 namespace PARS
 {
@@ -41,7 +40,7 @@ namespace PARS
 			{
 				static ImGuiWindowFlags detailFlags = ImGuiWindowFlags_NoScrollbar;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.65f), true, detailFlags);
+				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.69f), true, detailFlags);
 				if (ImGui::BeginTabBar("Detail Tab"))
 				{
 					if (ImGui::BeginTabItem("Detail"))
@@ -57,15 +56,6 @@ namespace PARS
 
 					ImGui::EndTabBar();
 				}
-				ImGui::EndChild();
-				ImGui::PopStyleVar();
-			}
-
-			{
-				static ImGuiWindowFlags menuFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("Menu Child", ImVec2(m_WindowSize.x - 30.0f, m_WindowSize.y * 0.04f), true, menuFlags);
-				UpdateEndMenu();
 				ImGui::EndChild();
 				ImGui::PopStyleVar();
 			}
@@ -142,39 +132,6 @@ namespace PARS
 					ImGui::Separator();
 					ImGui::TreePop();
 				}
-			}
-		}
-	}
-
-	void DetailLayer::UpdateEndMenu()
-	{
-		if (ImGui::Button("Reset Level", ImVec2(ImGui::GetWindowWidth() * 0.4f, ImGui::GetWindowHeight() * 0.6f)))
-		{
-
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Return To Menu", ImVec2(ImGui::GetWindowWidth() * 0.4f, ImGui::GetWindowHeight() * 0.6f)))
-		{
-			//f_Destroy();
-			// 
-			//임시로 Level 지우기
-			LevelManager::GetLevelManager()->Shutdown();
-			// 
-			//임시로 다시 띄우기
-			const auto& Editorlayer = LayerManager::GetLayerManager()->GetLayerByName("Editor Layer");
-			if (Editorlayer != nullptr)
-			{
-				Editorlayer->SetLayerState(Layer::LayerState::Active);
-			}
-			const auto& Contentlayer = LayerManager::GetLayerManager()->GetLayerByName("Content Layer");
-			if (Contentlayer != nullptr)
-			{
-				Contentlayer->SetLayerState(Layer::LayerState::Active);
-			}
-			const auto& Viewportlayer = LayerManager::GetLayerManager()->GetLayerByName("Viewport Layer");
-			if (Viewportlayer != nullptr)
-			{
-				Viewportlayer->SetLayerState(Layer::LayerState::Active);
 			}
 		}
 	}

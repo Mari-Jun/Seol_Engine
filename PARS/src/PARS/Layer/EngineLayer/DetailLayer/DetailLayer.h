@@ -17,14 +17,12 @@ namespace PARS
 		virtual void Initialize() override {}
 		virtual void Shutdown() override;
 		virtual void Update() override final;
-		void OnDestroy(std::function<void()> func) { f_Destroy = func; }
 
 	private:
 		void UpdateObjects();
 		void UpdateDetail();
 		void UpdateLevelSetting();
 		void UpdateDetailInfo(const DetailInfo& info);
-		void UpdateEndMenu();
 
 	public:
 		void AddActorToLayer(const SPtr<Actor>& actor);
@@ -36,7 +34,6 @@ namespace PARS
 		ImGuiWindowFlags m_WindowFlags = 0;
 		ImVec2 m_WindowSize;
 		ImVec2 m_WindowPos;
-		std::function<void()> f_Destroy;
 
 	private:
 		std::string m_SelectActorName;

@@ -6,8 +6,8 @@
 
 namespace PARS
 {
-	MeshComponent::MeshComponent()
-		: RenderComponent("Mesh Component")
+	MeshComponent::MeshComponent(const std::string& name)
+		: RenderComponent(name)
 	{
 		
 	}
