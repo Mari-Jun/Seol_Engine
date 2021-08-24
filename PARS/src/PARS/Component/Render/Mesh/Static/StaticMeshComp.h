@@ -19,7 +19,7 @@ namespace PARS
 			if (m_Mesh != nullptr)
 			{
 				m_Mesh = nullptr;
-				SetRenderState(RenderState::Ready);
+				SetRenderState(RenderState::Changed);
 			}
 
 			//이미 Load된적이 있는지 Cache데이터에서 찾는다. 

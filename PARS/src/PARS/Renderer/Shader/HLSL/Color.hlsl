@@ -45,7 +45,7 @@ VS_OUT VSMain(VS_IN input)
     float4 pos = mul(float4(input.position, 1.0f), gWorld);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-    output.normal = mul(input.normal, (float3x3) gWorldInverseTranspose);
+    output.normal = mul(input.normal, (float3x3)gWorldInverseTranspose);
     output.normal = normalize(output.normal);
     output.color = input.color;
     

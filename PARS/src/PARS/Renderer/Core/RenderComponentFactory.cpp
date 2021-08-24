@@ -38,14 +38,19 @@ namespace PARS
 	{
 		for (auto& comps : m_PrepareComponents)
 		{
+			bool isNewComponent = false;
 			for (auto& comp : comps.second)
 			{
 				comp->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
+				if (comp->GetRenderState() == RenderState::Ready) 
+					isNewComponent = true;
 			}
-			UpdateShaderDueToRender(comps.first);
+
+			if (isNewComponent)	
+				UpdateShaderDueToRender(comps.first);
 		}
 
-		for (auto& updateInfo : m_ShaderUpdateInfos)
+		for (const auto& updateInfo : m_ShaderUpdateInfos)
 		{
 			m_Shaders[updateInfo.m_ShaderType]->RenderReady(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList(),
 				static_cast<UINT>(m_RenderComponents[updateInfo.m_RenderType].size()));
@@ -93,7 +98,8 @@ namespace PARS
 
 	void RenderComponentFactory::AddPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component)
 	{
-		if (component->GetRenderState() == RenderState::Ready)
+		RenderState state = component->GetRenderState();
+		if (state == RenderState::Ready || state == RenderState::Changed)
 		{
 			auto iter = m_PrepareComponents.emplace(type, std::vector<SPtr<RenderComponent>>{component});
 			if (!iter.second)

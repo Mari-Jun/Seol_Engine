@@ -25,7 +25,7 @@ namespace PARS
 	void RenderComponent::SetRenderState(RenderState state)
 	{
 		m_RenderState = state;
-		if (m_RenderState == RenderState::Ready)
+		if (m_RenderState == RenderState::Changed)
 		{
 			auto factory = RenderComponentFactory::GetRenderComponentFactory();
 			factory->AddPrepareComponent(m_RenderType, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));

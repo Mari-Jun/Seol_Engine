@@ -17,6 +17,7 @@ namespace PARS
 	enum class RenderState
 	{
 		Ready,
+		Changed,
 		Render,
 		Invisible
 	};

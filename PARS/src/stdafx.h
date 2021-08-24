@@ -41,6 +41,7 @@ using Microsoft::WRL::ComPtr;
 #include <array>
 #include <charconv>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <string_view>

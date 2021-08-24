@@ -28,9 +28,11 @@ namespace PARS
 	{
 		//이동된 객체만 Update해야한다.
 		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
+
 		for (int i = 0; i < renderComps.size(); ++i)
 		{
 			const auto& owner = renderComps[i]->GetOwner().lock();
+
 			if (owner->IsChangedWorldMatrix())
 			{
 				owner->ResetChangedWorldMatrix();
@@ -40,6 +42,7 @@ namespace PARS
 				Mat4 worldInverseTranspose = worldMatrix;
 				worldMatrix.Transpose();
 				worldInverseTranspose.Invert();
+
 				mappedWorldMat.m_WorldMatrix = worldMatrix;
 				mappedWorldMat.m_WorldInverseTranspose = worldInverseTranspose;
 
@@ -102,6 +105,10 @@ namespace PARS
 
 	void ColorShader::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT numOfObject)
 	{
+		//Mesh를 바꾸면 여기에 다시 들어오는구나..
+		//근데 바꿀 때 마다 모든거를 다시 그리는 건 너무 비효율적이다.
+		//따라서 어떤 방법으로 해결해야한다.
+		
 		if (m_WorldMatCB != nullptr)
 		{
 			m_WorldMatCB->Unmap(0, nullptr);
