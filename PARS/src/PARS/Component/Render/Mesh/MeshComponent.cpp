@@ -7,9 +7,9 @@
 namespace PARS
 {
 	MeshComponent::MeshComponent(const std::string& name)
-		: RenderComponent(name)
+		: RenderComponent(name, RenderType::Mesh)
 	{
-		
+
 	}
 
 	void MeshComponent::Initialize()
@@ -25,7 +25,6 @@ namespace PARS
 	void MeshComponent::Shutdown()
 	{
 		RenderComponent::Shutdown();
-		//Mesh는 자동으로 Cache에 저장되기 때문에 여기서 Shutdown을 하지 않음.
 	}
 
 	void MeshComponent::Draw(ID3D12GraphicsCommandList* commandList)

@@ -1,5 +1,6 @@
 #pragma once
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Renderer/Core/AssetStore.h"
 
 namespace PARS
 {
@@ -23,8 +24,8 @@ namespace PARS
 			}
 
 			//이미 Load된적이 있는지 Cache데이터에서 찾는다. 
-			const auto& factory = RenderComponentFactory::GetRenderComponentFactory();
-			m_Mesh = factory->GetMesh(path);
+			const auto& store = AssetStore::GetAssetStore();
+			m_Mesh = store->GetMesh(path);
 
 			if (m_Mesh == nullptr)
 			{
@@ -40,7 +41,7 @@ namespace PARS
 					break;
 				}
 
-				factory->SaveMesh(path, m_Mesh);
+				store->SaveMesh(path, m_Mesh);
 				return true;
 			}
 

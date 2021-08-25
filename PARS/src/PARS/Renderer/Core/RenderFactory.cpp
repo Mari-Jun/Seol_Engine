@@ -16,8 +16,8 @@ namespace PARS
 	{
 		m_Viewports.emplace_back(CreateSPtr<Viewport>());
 
-		m_RenderCompFactory = CreateUPtr<RenderComponentFactory>(m_DirectX12);
-		if (!m_RenderCompFactory->Initialize())
+		m_AssetStore = CreateUPtr<AssetStore>(m_DirectX12);
+		if (!m_AssetStore->Initialize())
 		{
 			PARS_ERROR("Could not initialize RenderComponentFactory");
 			return false;
@@ -36,17 +36,34 @@ namespace PARS
 	{
 		for (auto iter = m_RootSignatures.begin(); iter != m_RootSignatures.end(); ++iter)
 		{
-			if (iter->second != nullptr)
+			if (iter->second.m_RootSignature != nullptr)
 			{
-				iter->second->Release();
+				iter->second.m_RootSignature->Release();
+				for (const auto& [type, shader] : iter->second.m_Shaders)
+				{
+					shader->Shutdown();
+				}
+				iter->second.m_Shaders.clear();
 			}
 		}
 		m_RootSignatures.clear();
 
-		m_RenderCompFactory->Shutdown();
+		m_AssetStore->Shutdown();
 	}
 
-	void RenderFactory::RenderReady()
+	void RenderFactory::Update()
+	{
+		UpdateViewport();
+		for (const auto& [string, signature] : m_RootSignatures)
+		{
+			for (const auto& [type, shader] : signature.m_Shaders)
+			{
+				shader->Update(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
+			}
+		}
+	}
+
+	void RenderFactory::UpdateViewport()
 	{
 		for (const auto& viewport : m_Viewports)
 		{
@@ -72,59 +89,32 @@ namespace PARS
 			{
 				camera->UpdateProjection(viewport->GetWidth(), viewport->GetHeight());
 			}
-
 		}
-
-		m_RenderCompFactory->RenderReady();
 	}
 
 	void RenderFactory::Draw()
 	{
 		auto commandList = m_DirectX12->GetCommandList();
-		commandList->SetGraphicsRootSignature(m_RootSignatures["Default"]);
 
-		Mat4 viewProj;
-		for (const auto& camera : m_CameraComps)
+		for (const auto& [string, signature] : m_RootSignatures)
 		{
-			if (camera->IsActive())
+			commandList->SetGraphicsRootSignature(signature.m_RootSignature);
+			for (const auto& [type, shader] : signature.m_Shaders)
 			{
-				CBColorPass cbPass;
-
-				viewProj = camera->GetViewMatrix();
-				viewProj *= camera->GetProjection();
-				viewProj.Transpose();
-
-				const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
-
-				cbPass.m_ViewProj = viewProj;
-				cbPass.m_EyePos = eyePos;
-
-				std::vector<LightCB> lights;
-				LightCount lightCount;
-				for (const auto& light : m_LightComps)
-				{
-					lights.push_back(light->GetLightCB());
-					lightCount.AddLightCount(light->GetLightType());
-				}
-
-				cbPass.m_LightCount = lightCount;
-				cbPass.m_AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
-				if (!lights.empty())
-					*cbPass.m_Lights = *lights.data();
-				else
-					cbPass.m_AmbientLight = { 1.0f,  1.0f, 1.0f, 1.0f };
-
-				if (m_RenderCompFactory->BeginDraw<ColorShader>(ShaderType::Color, RenderType::Mesh, cbPass))
-				{
-					m_RenderCompFactory->Draw(ShaderType::Color, RenderType::Mesh);
-				}
+				shader->Draw(commandList);
 			}
 		}
 	}
 
 	void RenderFactory::PrepareToNextDraw()
 	{
-		m_RenderCompFactory->PrepareToNextDraw();
+		for (const auto& [string, signature] : m_RootSignatures)
+		{
+			for (const auto& [type, shader] : signature.m_Shaders)
+			{
+				shader->PrepareToNextDraw();
+			}
+		}
 	}
 
 	bool RenderFactory::CreateDefaultRootSignatures()
@@ -160,7 +150,7 @@ namespace PARS
 
 		auto device = m_DirectX12->GetDevice();
 		device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&defaultRootSignature));
-		m_RootSignatures.insert({ "Default", defaultRootSignature });
+		m_RootSignatures.insert({ "Default", {defaultRootSignature} });
 
 		if (signatureBlob != nullptr)
 		{
@@ -176,16 +166,56 @@ namespace PARS
 
 	void RenderFactory::CreateShaders()
 	{
-		CreateShader("Default", ShaderType::Color, CreateSPtr<ColorShader>(m_DirectX12));		
+		CreateShader("Default", CreateSPtr<ColorShader>(m_DirectX12));		
 	}
 
-	void RenderFactory::CreateShader(std::string&& signatureType, ShaderType type, SPtr<Shader>&& shader)
+	void RenderFactory::CreateShader(std::string&& signatureType, SPtr<Shader>&& shader)
 	{
-		if (m_RootSignatures[signatureType] !=nullptr && shader->Initialize(m_RootSignatures[signatureType]))
+		auto& signature = m_RootSignatures[signatureType];
+			
+		if (signature.m_RootSignature != nullptr && shader->Initialize(signature.m_RootSignature))
 		{
-			m_RenderCompFactory->AddShader(type, std::move(shader));
+			signature.m_Shaders[shader->GetShaderType()] = shader;
 		}
 	}
+
+	const SPtr<Shader>& RenderFactory::GetShader(RenderType type) const
+	{
+		switch (type)
+		{
+		case PARS::RenderType::Mesh: 
+			return m_RootSignatures.at("Default").m_Shaders.at(ShaderType::Color);
+		default:
+			return nullptr;
+		}
+	}
+
+	void RenderFactory::AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
+	{
+		AddPrepareComponent(type, component);
+		const auto& shader = GetShader(type);
+		if (shader != nullptr)
+			shader->AddRenderComponent(component);
+	}
+
+	void RenderFactory::AddPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component)
+	{
+		RenderState state = component->GetRenderState();
+		if (state == RenderState::Ready || state == RenderState::Changed)
+		{
+			const auto& shader = GetShader(type);
+			if (shader != nullptr)
+				shader->AddPrepareComponent(component);
+		}
+	}
+
+	void RenderFactory::RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
+	{
+		const auto& shader = GetShader(type);
+		if (shader != nullptr)
+			shader->RemoveRenderComponent(component);
+	}
+
 
 	void RenderFactory::AddCameraComponent(const SPtr<CameraComponent>& camera)
 	{
@@ -220,11 +250,6 @@ namespace PARS
 		{
 			m_LightComps.erase(iter);
 		}
-	}
-
-	void RenderFactory::UpdateProjection(float left, float top, float width, float height)
-	{
-
 	}
 
 	RenderFactory* RenderFactory::s_Instance = nullptr;

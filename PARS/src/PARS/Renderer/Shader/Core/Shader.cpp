@@ -30,6 +30,46 @@ namespace PARS
 		m_PSBlob = nullptr;
 	}
 
+	void Shader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+	{
+		for (auto& comp : m_PrepareComponents)
+		{
+			comp->RenderReady(device, commandList);
+			if (comp->GetRenderState() == RenderState::Ready)
+				m_IsNeedUpdateMappedData = true;
+		}
+
+		if (m_IsNeedUpdateMappedData)
+		{
+			RenderReady(device, commandList, static_cast<UINT>(m_RenderComponents.size()));
+			m_IsNeedUpdateMappedData = false;
+		}
+
+		Update(m_DirectX12->GetCommandList());
+	}
+
+	void Shader::Draw(ID3D12GraphicsCommandList* commandList)
+	{
+		m_DirectX12->GetCommandList()->SetPipelineState(GetPipelineState());
+
+		DrawPassFrame(m_DirectX12->GetCommandList());
+		for (int index = 0; index < m_RenderComponents.size(); ++index)
+		{
+			DrawRenderComp(m_DirectX12->GetCommandList(), index);
+			m_RenderComponents[index]->Draw(m_DirectX12->GetCommandList());
+		}
+	}
+
+	void Shader::PrepareToNextDraw()
+	{
+		for (auto& comp : m_PrepareComponents)
+		{
+			comp->ReleaseUploadBuffers();
+			comp->SetRenderState(RenderState::Render);
+		}
+		m_PrepareComponents.clear();
+	}
+
 	D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 	{
 		D3D12_RASTERIZER_DESC rasterizerDesc;
@@ -111,5 +151,27 @@ namespace PARS
 		}
 
 		return byteCode;
+	}
+
+	void Shader::AddRenderComponent(const SPtr<class RenderComponent>& component)
+	{
+		m_RenderComponents.push_back(component);
+	}
+
+	void Shader::AddPrepareComponent(const SPtr<class RenderComponent>& component)
+	{
+		m_PrepareComponents.push_back(component);
+	}
+
+	void Shader::RemoveRenderComponent(const SPtr<class RenderComponent>& component)
+	{
+		auto iter = std::find_if(m_RenderComponents.begin(), m_RenderComponents.end(),
+			[&component](const SPtr<RenderComponent>& comp)
+			{return component == comp; });
+		if (iter != m_RenderComponents.end())
+		{
+			m_RenderComponents.erase(iter);
+			m_IsNeedUpdateMappedData = true;
+		}
 	}
 }

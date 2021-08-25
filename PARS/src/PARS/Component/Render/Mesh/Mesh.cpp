@@ -88,23 +88,27 @@ namespace PARS
 
 	void DiffuseMesh::SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		Shutdown();
+		if (m_VertexBuffer == nullptr)
+		{
+			m_VertexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_DiffuseVertices.data(), m_Stride * m_VertexCount,
+				D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_VertexUploadBuffer);
 
-		m_VertexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_DiffuseVertices.data(), m_Stride * m_VertexCount,
-			D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_VertexUploadBuffer);
-
-		m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
-		m_VertexBufferView.StrideInBytes = m_Stride;
-		m_VertexBufferView.SizeInBytes = m_VertexCount * m_Stride;
+			m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+			m_VertexBufferView.StrideInBytes = m_Stride;
+			m_VertexBufferView.SizeInBytes = m_VertexCount * m_Stride;
+		}
 
 		if (b_DrawIndex)
 		{
-			m_IndexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_Indices.data(), sizeof(UINT) * m_IndexCount,
-				D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_IndexUploadBuffer);
+			if (m_IndexBuffer == nullptr)
+			{
+				m_IndexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_Indices.data(), sizeof(UINT) * m_IndexCount,
+					D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_IndexUploadBuffer);
 
-			m_IndexBufferView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
-			m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-			m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
+				m_IndexBufferView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
+				m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+				m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
+			}
 		}
 	}
 

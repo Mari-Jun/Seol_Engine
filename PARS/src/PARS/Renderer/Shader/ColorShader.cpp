@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Shader/ColorShader.h"
+#include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS
@@ -7,6 +8,7 @@ namespace PARS
 	ColorShader::ColorShader(const SPtr<DirectX12>& directX)
 		: Shader(directX)
 	{
+		m_Type = ShaderType::Color;
 	}
 
 	void ColorShader::Shutdown()
@@ -24,14 +26,95 @@ namespace PARS
 		}
 	}
 
-	void ColorShader::UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const std::vector<SPtr<RenderComponent>>& renderComps, const CBColorPass& cbPass)
+	void ColorShader::Update(ID3D12GraphicsCommandList* commandList)
 	{
-		//이동된 객체만 Update해야한다.
-		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
+		const auto& factory = RenderFactory::GetRenderFactory();
 
-		for (int i = 0; i < renderComps.size(); ++i)
+		CBColorPass cbPass;
+		
+		for (const auto& camera : factory->GetCameraComps())
 		{
-			const auto& owner = renderComps[i]->GetOwner().lock();
+			if (camera->IsActive())
+			{
+				Mat4 viewProj;
+
+				viewProj = camera->GetViewMatrix();
+				viewProj *= camera->GetProjection();
+				viewProj.Transpose();
+
+				const Vec3& eyePos = camera->GetOwner().lock()->GetPosition();
+
+				cbPass.m_ViewProj = viewProj;
+				cbPass.m_EyePos = eyePos;
+
+				std::vector<LightCB> lights;
+				LightCount lightCount;
+				for (const auto& light : factory->GetLightComps())
+				{
+					lights.push_back(light->GetLightCB());
+					lightCount.AddLightCount(light->GetLightType());
+				}
+
+				cbPass.m_LightCount = lightCount;
+				cbPass.m_AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
+				if (!lights.empty())
+					*cbPass.m_Lights = *lights.data();
+				else
+					cbPass.m_AmbientLight = { 1.0f,  1.0f, 1.0f, 1.0f };
+			}
+		}
+
+		UpdateShaderVariables(commandList, cbPass);
+	}
+
+	void ColorShader::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT numOfObject)
+	{
+		//Mesh를 바꾸면 여기에 다시 들어오는구나..
+		//근데 바꿀 때 마다 모든거를 다시 그리는 건 너무 비효율적이다.
+		//따라서 어떤 방법으로 해결해야한다.
+
+		if (m_WorldMatCB != nullptr)
+		{
+			m_WorldMatCB->Unmap(0, nullptr);
+			m_WorldMatCB->Release();
+			m_WorldMatCB = nullptr;
+		}
+
+		//이 부분도 뭔가 비효율적이다. 애초에 원래 있는 데이터를 다시 작성하는게 아니라 복사를 하는 방법은 없는 걸까?
+		if (numOfObject > 0)
+		{
+			UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
+
+			m_WorldMatCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, worldCBByteSize * numOfObject,
+				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
+
+			if (FAILED(m_WorldMatCB->Map(0, nullptr, (void**)&m_WorldMatMappedData)))
+			{
+				PARS_ERROR("WorldMatCB Mapping Error");
+			}
+		}
+
+		if (m_ColorPassCB == nullptr)
+		{
+			UINT ColorPassCBByteSize = ((sizeof(CBColorPass) + 255) & ~255);
+			m_ColorPassCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, ColorPassCBByteSize,
+				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
+
+			if (FAILED(m_ColorPassCB->Map(0, nullptr, (void**)&m_ColorPassMappedData)))
+			{
+				PARS_ERROR("ColorPass Mapping Error");
+			}
+		}
+	}
+
+	void ColorShader::UpdateShaderVariables(ID3D12GraphicsCommandList* commandList, const CBColorPass& cbPass)
+	{
+		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
+		//UINT materialCBByteSize = ((sizeof(CBMaterial) + 255) & ~255);
+
+		for (int i = 0; i < m_RenderComponents.size(); ++i)
+		{
+			const auto& owner = m_RenderComponents[i]->GetOwner().lock();
 
 			if (owner->IsChangedWorldMatrix())
 			{
@@ -47,13 +130,13 @@ namespace PARS
 				mappedWorldMat.m_WorldInverseTranspose = worldInverseTranspose;
 
 				memcpy(&m_WorldMatMappedData[i * worldCBByteSize], &mappedWorldMat, sizeof(CBWorldMat));
-			}
+			}			
 		}
 
 		memcpy(m_ColorPassMappedData, &cbPass, sizeof(CBColorPass));
 	}
 
-	void ColorShader::DrawRenderComp(ID3D12GraphicsCommandList* commandList, const SPtr<RenderComponent>& renderComp, int index)
+	void ColorShader::DrawRenderComp(ID3D12GraphicsCommandList* commandList, int index)
 	{
 		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
 		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_WorldMatCB->GetGPUVirtualAddress() + index * worldCBByteSize;
@@ -101,56 +184,5 @@ namespace PARS
 		if (FAILED(result)) return false;
 
 		return true; 
-	}
-
-	void ColorShader::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT numOfObject)
-	{
-		//Mesh를 바꾸면 여기에 다시 들어오는구나..
-		//근데 바꿀 때 마다 모든거를 다시 그리는 건 너무 비효율적이다.
-		//따라서 어떤 방법으로 해결해야한다.
-		
-		if (m_WorldMatCB != nullptr)
-		{
-			m_WorldMatCB->Unmap(0, nullptr);
-			m_WorldMatCB->Release();
-			m_WorldMatCB = nullptr;
-		}
-
-		if (numOfObject > 0)
-		{
-			UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
-
-			m_WorldMatCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, worldCBByteSize * numOfObject,
-				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
-
-			if (FAILED(m_WorldMatCB->Map(0, nullptr, (void**)&m_WorldMatMappedData)))
-			{
-				PARS_ERROR("WorldMatCB Mapping Error");
-			}
-		}
-	
-		/*if (m_ColorPassCB != nullptr)
-		{
-			m_ColorPassCB->Unmap(0, nullptr);
-			m_ColorPassCB->Release();
-		}
-
-		UINT ColorPassCBByteSize = ((sizeof(CBColorPass) + 255) & ~255);
-		m_ColorPassCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, ColorPassCBByteSize,
-			D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
-
-		m_ColorPassCB->Map(0, nullptr, (void**)&m_MappedColorPass);*/
-
-		if (m_ColorPassCB == nullptr)
-		{
-			UINT ColorPassCBByteSize = ((sizeof(CBColorPass) + 255) & ~255);
-			m_ColorPassCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, ColorPassCBByteSize,
-				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
-
-			if (FAILED(m_ColorPassCB->Map(0, nullptr, (void**)&m_ColorPassMappedData)))
-			{
-				PARS_ERROR("ColorPass Mapping Error");
-			}
-		}
 	}
 }

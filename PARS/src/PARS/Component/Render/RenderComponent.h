@@ -1,10 +1,21 @@
 #pragma once
-
 #include "PARS/Component/Component.h"
-#include "PARS/Renderer/Core/RenderFactory.h"
 
 namespace PARS
 {
+	enum class RenderState
+	{
+		Ready,
+		Changed,
+		Render,
+		Invisible
+	};
+
+	enum class RenderType
+	{
+		Mesh
+	};
+
 	class RenderComponent : public Component
 	{
 	public:
@@ -23,8 +34,7 @@ namespace PARS
 		RenderState GetRenderState() const { return m_RenderState; }
 
 	protected:
-		RenderType m_RenderType;
 		RenderState m_RenderState;
-
+		RenderType m_Type;
 	};
 }

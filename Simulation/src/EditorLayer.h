@@ -48,8 +48,6 @@ namespace PARS
 			ImGui::PopStyleVar();
 			ImGui::EndChild();
 
-			static std::string buttonName = "Start " + newLevel->GetLevelName() + " Simulation";
-
 			if (ImGui::Button(("Start Simulation!##" + levelNum).c_str(), ImVec2(-FLT_MIN, 0)))
 			{
 				AddLevel(newLevel);

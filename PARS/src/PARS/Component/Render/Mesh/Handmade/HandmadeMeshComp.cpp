@@ -13,4 +13,16 @@ namespace PARS
 	{
 		m_CompDetailFunction = CreateUPtr<HandmadeMeshCompDetailFunction>();
 	}
+
+	void HandmadeMeshComponent::Shutdown()
+	{
+		MeshComponent::Shutdown();
+		m_Mesh->Shutdown();
+	}
+
+	void HandmadeMeshComponent::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+	{
+		m_Mesh->Shutdown();
+		MeshComponent::RenderReady(device, commandList);
+	}
 }

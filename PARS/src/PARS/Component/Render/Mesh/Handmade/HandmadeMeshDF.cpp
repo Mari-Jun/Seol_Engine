@@ -36,7 +36,7 @@ namespace PARS
 				{
 					vertices[i].SetPosition(pos);
 					vertices[i].SetDiffuseColor(color);
-					meshComp->SetRenderState(RenderState::Ready);
+					meshComp->SetRenderState(RenderState::Changed);
 				}
 			}
 		}

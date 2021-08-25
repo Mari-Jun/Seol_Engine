@@ -10,6 +10,9 @@ namespace PARS
         virtual ~HandmadeMeshComponent() = default;
 
         virtual void InitializeDetailFunction() override;
+		virtual void Shutdown() override;
+
+		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
 
 		template<typename T, typename ... Args>
 		constexpr void SetMesh(Args&& ... args)
@@ -17,7 +20,7 @@ namespace PARS
 			if (m_Mesh != nullptr)
 			{
 				m_Mesh->Shutdown();
-				SetRenderState(RenderState::Ready);
+				SetRenderState(RenderState::Changed);
 			}
 			else
 			{
