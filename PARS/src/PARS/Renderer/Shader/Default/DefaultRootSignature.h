@@ -36,7 +36,7 @@ namespace PARS
 		CBDefaultPass* m_DefaultPassMappedData = nullptr;
 
 		ID3D12Resource* m_MaterialCB = nullptr;
-		CBMaterials* m_MaterialMappedData = nullptr;
+		BYTE* m_MaterialMappedData = nullptr;
 	};
 }
 

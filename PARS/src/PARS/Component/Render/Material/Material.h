@@ -45,14 +45,9 @@ namespace PARS
 
 	struct CBMaterial
 	{
-		Vec4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-		Vec3 FresnelR0 = { 0.01f, 0.01f, 0.0f };
-		float Shininess = 0.25f;
-	};
-
-	struct CBMaterials
-	{
-		CBMaterial m_Materials[1024];
+		Vec4 DiffuseAlbedo;
+		Vec3 FresnelR0;
+		float Shininess;
 	};
 }
 

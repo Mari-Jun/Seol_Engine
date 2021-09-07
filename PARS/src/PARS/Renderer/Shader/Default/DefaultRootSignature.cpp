@@ -41,12 +41,12 @@ namespace PARS
 		rootParameter[1].Descriptor.ShaderRegister = 1;
 		rootParameter[1].Descriptor.RegisterSpace = 0;
 		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[2].Descriptor.ShaderRegister = 2;
+		rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+		rootParameter[2].Descriptor.ShaderRegister = 0;
 		rootParameter[2].Descriptor.RegisterSpace = 0;
 		rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[3].Descriptor.ShaderRegister = 3;
+		rootParameter[3].Descriptor.ShaderRegister = 2;
 		rootParameter[3].Descriptor.RegisterSpace = 0;
 		rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -103,8 +103,9 @@ namespace PARS
 
 		if (m_MaterialCB == nullptr)
 		{
-			UINT materialCBByteSize = ((sizeof(CBMaterials) + 255) & ~255);
-			m_MaterialCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, materialCBByteSize,
+			const auto& matSize = GraphicsAssetStore::GetAssetStore()->GetMaterials().size() * sizeof(CBMaterial);
+
+			m_MaterialCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, matSize,
 				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
 
 			if (FAILED(m_MaterialCB->Map(0, nullptr, (void**)&m_MaterialMappedData)))
@@ -116,15 +117,24 @@ namespace PARS
 
 	void DefaultRootSignature::UpdateShaderVariables()
 	{
+
+		//마찬가지로 이 부분도 계속 업데이트 할 필요가 없다.
+		//새로운 Material이 생성되면 그 때 업데이트 하면 된다.
+		//일단은 그 부분은 생각해야 할 부분이 있기 때문에 지금은 임시로 매 프레임마다 업데이트 되게 한다.
 		const auto& assetStore = GraphicsAssetStore::GetAssetStore();
 
 		int matIndex = 0;
 		for (const auto& [path, material] : assetStore->GetMaterials())
 		{
 			material->SetMatCBIndex(matIndex);
-			m_MaterialMappedData->m_Materials[matIndex].DiffuseAlbedo = material->GetDiffuseAlbedo();
-			m_MaterialMappedData->m_Materials[matIndex].FresnelR0 = material->GetFresnelR0();
-			m_MaterialMappedData->m_Materials[matIndex++].Shininess = 1.0f - material->GetRoughness();
+
+			CBMaterial cbMat;
+			cbMat.DiffuseAlbedo = material->GetDiffuseAlbedo();
+			cbMat.FresnelR0 = material->GetFresnelR0();
+			cbMat.Shininess = 1.0f - material->GetRoughness();
+
+			memcpy(&m_MaterialMappedData[matIndex * sizeof(CBMaterial)], &cbMat, sizeof(CBMaterial));
+			++matIndex;
 		}
 
 		const auto& factory = RenderFactory::GetRenderFactory();
@@ -167,7 +177,7 @@ namespace PARS
 
 	void DefaultRootSignature::DrawPassFrame(ID3D12GraphicsCommandList* commandList)
 	{
-		commandList->SetGraphicsRootConstantBufferView(2, m_MaterialCB->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootShaderResourceView(2, m_MaterialCB->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootConstantBufferView(3, m_DefaultPassCB->GetGPUVirtualAddress());
 	}
 }

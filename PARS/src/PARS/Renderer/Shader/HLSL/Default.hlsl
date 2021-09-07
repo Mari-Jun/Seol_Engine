@@ -4,6 +4,7 @@
 
 #include "Light.hlsl"
 
+StructuredBuffer<Material> gMaterials : register(t0, space0);
 
 cbuffer cbWorldInfo : register(b0)
 {
@@ -16,13 +17,7 @@ cbuffer cbConvertMatIndex : register(b1)
     int4 gConvertIndice[MaxMaterial];
 }
 
-//ConstantBuffer<Material> gMaterial[MaxMaterials] : register(b2);
-cbuffer cbMaterialInfo : register(b2)
-{
-    Material gMaterials[MaxMaterials];
-}
-
-cbuffer cbColorPass : register(b3)
+cbuffer cbColorPass : register(b2)
 {
     matrix gViewProj;
     float3 gEyePos;
