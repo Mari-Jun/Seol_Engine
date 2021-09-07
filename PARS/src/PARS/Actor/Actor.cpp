@@ -11,6 +11,11 @@ namespace PARS
 		m_InputFactory = CreateUPtr<InputFactory>();
 	}
 
+	Actor::~Actor()
+	{
+		PARS_INFO(GetActorName() + " is dead");
+	}
+
 	void Actor::InitializeActor()
 	{
 		InitializeDetailFunction();
@@ -23,8 +28,9 @@ namespace PARS
 
 	void Actor::ShutdownActor()
 	{
-		Shutdown();
+		m_DetailFunction->Shutdown();
 		m_ComponentManager->Shutdown();
+		Shutdown();
 	}
 
 	void Actor::InitializeDetailFunction()

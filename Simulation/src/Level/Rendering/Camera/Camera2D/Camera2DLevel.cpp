@@ -14,7 +14,7 @@ namespace PARS
 
 		auto rectangle = CreateSPtr<Actor>("Rectangle");
 		auto meshComp = CreateSPtr<HandmadeMeshComponent>(); 
-		meshComp->SetMesh<DiffuseMesh>(
+		meshComp->SetMesh(
 			std::vector<DiffuseVertex>({ {Vec3(-200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
 				{Vec3(200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
 				{Vec3(200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)},

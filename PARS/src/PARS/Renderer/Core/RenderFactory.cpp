@@ -1,66 +1,34 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Core/Window.h"
-#include "PARS/Renderer/Shader/ColorShader.h"
-#include "PARS/Actor/Actor.h"
 
 namespace PARS
 {
 	RenderFactory::RenderFactory(const SPtr<DirectX12>& directX)
-		: m_DirectX12(directX)
 	{
-		
+		m_ShaderFactory = CreateUPtr<ShaderFactory>(directX);
 	}
 
 	bool RenderFactory::Initialize()
 	{
-		m_Viewports.emplace_back(CreateSPtr<Viewport>());
-
-		m_AssetStore = CreateUPtr<AssetStore>(m_DirectX12);
-		if (!m_AssetStore->Initialize())
-		{
-			PARS_ERROR("Could not initialize RenderComponentFactory");
-			return false;
-		}
-
-		if (!CreateDefaultRootSignatures()) return false;
-
-		CreateShaders();
-
 		s_Instance = this;
 
+		m_Viewports.emplace_back(CreateSPtr<Viewport>());
+
+		m_ShaderFactory->Initialize();
 		return true;
 	}
 
 	void RenderFactory::Shutdown()
 	{
-		for (auto iter = m_RootSignatures.begin(); iter != m_RootSignatures.end(); ++iter)
-		{
-			if (iter->second.m_RootSignature != nullptr)
-			{
-				iter->second.m_RootSignature->Release();
-				for (const auto& [type, shader] : iter->second.m_Shaders)
-				{
-					shader->Shutdown();
-				}
-				iter->second.m_Shaders.clear();
-			}
-		}
-		m_RootSignatures.clear();
-
-		m_AssetStore->Shutdown();
+		m_ShaderFactory->Shutdown();
 	}
 
 	void RenderFactory::Update()
 	{
 		UpdateViewport();
-		for (const auto& [string, signature] : m_RootSignatures)
-		{
-			for (const auto& [type, shader] : signature.m_Shaders)
-			{
-				shader->Update(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
-			}
-		}
+
+		m_ShaderFactory->Update();		
 	}
 
 	void RenderFactory::UpdateViewport()
@@ -94,106 +62,19 @@ namespace PARS
 
 	void RenderFactory::Draw()
 	{
-		auto commandList = m_DirectX12->GetCommandList();
-
-		for (const auto& [string, signature] : m_RootSignatures)
-		{
-			commandList->SetGraphicsRootSignature(signature.m_RootSignature);
-			for (const auto& [type, shader] : signature.m_Shaders)
-			{
-				shader->Draw(commandList);
-			}
-		}
+		m_ShaderFactory->Draw();
 	}
 
 	void RenderFactory::PrepareToNextDraw()
 	{
-		for (const auto& [string, signature] : m_RootSignatures)
-		{
-			for (const auto& [type, shader] : signature.m_Shaders)
-			{
-				shader->PrepareToNextDraw();
-			}
-		}
+		m_ShaderFactory->PrepareToNextDraw();
 	}
 
-	bool RenderFactory::CreateDefaultRootSignatures()
-	{
-		ID3D12RootSignature* defaultRootSignature = nullptr;
-
-		D3D12_ROOT_PARAMETER rootParameter[2];
-		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[0].Descriptor.ShaderRegister = 0;
-		rootParameter[0].Descriptor.RegisterSpace = 0;
-		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[1].Descriptor.ShaderRegister = 1;
-		rootParameter[1].Descriptor.RegisterSpace = 0;
-		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-		D3D12_ROOT_SIGNATURE_DESC rsDesc;
-		rsDesc.NumParameters = _countof(rootParameter);
-		rsDesc.pParameters = rootParameter;
-		rsDesc.NumStaticSamplers = 0;
-		rsDesc.pStaticSamplers = nullptr;
-		rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-		ID3DBlob* signatureBlob = nullptr;
-		ID3DBlob* errorBlob = nullptr;
-		HRESULT result = D3D12SerializeRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
-
-		if (errorBlob != nullptr)
-		{
-			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-		}
-		if (FAILED(result)) return false;
-
-		auto device = m_DirectX12->GetDevice();
-		device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&defaultRootSignature));
-		m_RootSignatures.insert({ "Default", {defaultRootSignature} });
-
-		if (signatureBlob != nullptr)
-		{
-			signatureBlob->Release();
-		}
-		if (errorBlob != nullptr)
-		{
-			errorBlob->Release();
-		}
-
-		return true;
-	}
-
-	void RenderFactory::CreateShaders()
-	{
-		CreateShader("Default", CreateSPtr<ColorShader>(m_DirectX12));		
-	}
-
-	void RenderFactory::CreateShader(std::string&& signatureType, SPtr<Shader>&& shader)
-	{
-		auto& signature = m_RootSignatures[signatureType];
-			
-		if (signature.m_RootSignature != nullptr && shader->Initialize(signature.m_RootSignature))
-		{
-			signature.m_Shaders[shader->GetShaderType()] = shader;
-		}
-	}
-
-	const SPtr<Shader>& RenderFactory::GetShader(RenderType type) const
-	{
-		switch (type)
-		{
-		case PARS::RenderType::Mesh: 
-			return m_RootSignatures.at("Default").m_Shaders.at(ShaderType::Color);
-		default:
-			return nullptr;
-		}
-	}
 
 	void RenderFactory::AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
 	{
 		AddPrepareComponent(type, component);
-		const auto& shader = GetShader(type);
+		const auto& shader = m_ShaderFactory->GetShader(type);
 		if (shader != nullptr)
 			shader->AddRenderComponent(component);
 	}
@@ -203,7 +84,7 @@ namespace PARS
 		RenderState state = component->GetRenderState();
 		if (state == RenderState::Ready || state == RenderState::Changed)
 		{
-			const auto& shader = GetShader(type);
+			const auto& shader = m_ShaderFactory->GetShader(type);
 			if (shader != nullptr)
 				shader->AddPrepareComponent(component);
 		}
@@ -211,7 +92,7 @@ namespace PARS
 
 	void RenderFactory::RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
 	{
-		const auto& shader = GetShader(type);
+		const auto& shader = m_ShaderFactory->GetShader(type);
 		if (shader != nullptr)
 			shader->RemoveRenderComponent(component);
 	}

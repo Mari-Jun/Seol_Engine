@@ -6,8 +6,8 @@
 
 namespace PARS
 {
-	MeshComponent::MeshComponent(const std::string& name)
-		: RenderComponent(name, RenderType::Mesh)
+	MeshComponent::MeshComponent(const std::string& name, RenderType type)
+		: RenderComponent(name, type)
 	{
 
 	}
@@ -24,21 +24,31 @@ namespace PARS
 
 	void MeshComponent::Shutdown()
 	{
+		m_Mesh = nullptr;
 		RenderComponent::Shutdown();
 	}
 
 	void MeshComponent::Draw(ID3D12GraphicsCommandList* commandList)
 	{
-		m_Mesh->Draw(commandList);
+		if (m_Mesh != nullptr)
+		{
+			m_Mesh->Draw(commandList);
+		}
 	}
 
 	void MeshComponent::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		m_Mesh->SetBuffer(device, commandList);
+		if (m_Mesh != nullptr)
+		{
+			m_Mesh->SetBuffer(device, commandList);
+		}
 	}
 
 	void MeshComponent::ReleaseUploadBuffers()
 	{
-		m_Mesh->ReleaseUploadBuffers();
+		if (m_Mesh != nullptr)
+		{
+			m_Mesh->ReleaseUploadBuffers();
+		}
 	}
 }

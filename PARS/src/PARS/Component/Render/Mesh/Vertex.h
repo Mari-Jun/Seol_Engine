@@ -35,4 +35,18 @@ namespace PARS
 	protected:
 		Vec4 m_DiffuseColor;
 	};
+
+	class MaterialVertex : public Vertex
+	{
+	public:
+		MaterialVertex() : Vertex(), m_MatIndex(0) {}
+		MaterialVertex(Vec3 && position, int matIndex) : Vertex(std::move(position)), m_MatIndex(matIndex) {}
+		MaterialVertex(Vec3 && position, Vec3 && normal, int matIndex) : Vertex(std::move(position), std::move(normal)), m_MatIndex(matIndex) {}
+
+		int GetMaterialIndex() const { return m_MatIndex; }
+		void SetMaterialIndex(int matIndex) { m_MatIndex = matIndex; }
+
+	protected:
+		int m_MatIndex;
+	};
 }

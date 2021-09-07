@@ -5,8 +5,8 @@
 #include "PARS/Layer/LayerManager.h"
 #include "PARS/Renderer/Core/Renderer.h"
 #include "PARS/ImGui/ImGuiLayer.h"
+#include "PARS/Util/Content/AssetStore.h"
 #include "PARS/Core/Application.h"
-
 
 namespace PARS
 {
@@ -33,10 +33,13 @@ namespace PARS
 			PARS_ERROR("Could not initialize Timer");
 			return false;
 		}
+		m_Timer->OnFpsDeltaChanged([this](UINT fps) {m_Window->AddFpsToWindowName(fps); });
 
 		m_LevelManager = CreateUPtr<LevelManager>();
 
 		m_LayerManager = CreateUPtr<LayerManager>();
+
+		m_AssetStore = CreateUPtr<AssetStore>();
 	
 		m_Renderer = CreateUPtr<Renderer>();
 		result = m_Renderer->Initialize();
@@ -56,6 +59,7 @@ namespace PARS
 	{
 		m_LayerManager->Shutdown();
 		m_LevelManager->Shutdown();
+		m_AssetStore->Shutdown();
 		m_Renderer->ShutDown();
 		m_Window->Shutdown();
 
@@ -108,10 +112,10 @@ namespace PARS
 	{
 		m_Timer->Tick();
 		m_Window->Update();
-		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());		
 
 		m_LevelManager->Update(m_Timer->GetDeltaTime());
 		m_LayerManager->Update();
+		m_AssetStore->Update();
 	}
 
 	void Application::Draw()

@@ -9,7 +9,7 @@ namespace PARS
 	class MeshComponent : public RenderComponent
 	{
 	public:
-		MeshComponent(const std::string& name = "Mesh Component");
+		MeshComponent(const std::string& name, RenderType type);
 		virtual ~MeshComponent() = default;
 
 		virtual void Initialize() override;

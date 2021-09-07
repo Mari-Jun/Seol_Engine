@@ -21,6 +21,7 @@ namespace PARS
 		m_ActorManager = CreateUPtr<ActorManager>();
 		InitializeLevel();
 		m_DetailFunction->Initailize(GetLevelName());
+		PARS_INFO("\nOpen " + GetLevelName() + "\n");
 	}
 
 	void Level::Shutdown()

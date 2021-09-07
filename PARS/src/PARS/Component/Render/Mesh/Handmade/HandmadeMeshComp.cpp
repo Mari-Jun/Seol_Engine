@@ -5,7 +5,7 @@
 namespace PARS
 {
 	HandmadeMeshComponent::HandmadeMeshComponent()
-		: MeshComponent("Handmade Mesh Component")
+		: MeshComponent("Handmade Mesh Component", RenderType::HandMadeMesh)
 	{
 	}
 
@@ -16,8 +16,8 @@ namespace PARS
 
 	void HandmadeMeshComponent::Shutdown()
 	{
-		MeshComponent::Shutdown();
 		m_Mesh->Shutdown();
+		MeshComponent::Shutdown();
 	}
 
 	void HandmadeMeshComponent::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)

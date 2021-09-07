@@ -1,19 +1,13 @@
 #pragma once
 #include "PARS/Renderer/Core/Viewport.h"
-#include "PARS/Renderer/Core/AssetStore.h"
 #include "PARS/Component/Render/RenderComponent.h"
 #include "PARS/Component/Camera/CameraComponent.h"
 #include "PARS/Component/Light/LightComponent.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
+#include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 
 namespace PARS
 {
-	struct RootSignature
-	{
-		ID3D12RootSignature* m_RootSignature;
-		std::map<ShaderType, SPtr<Shader>> m_Shaders;
-	};
-
 	class RenderFactory
 	{
 	private:
@@ -30,14 +24,7 @@ namespace PARS
 		void PrepareToNextDraw();
 		
 	private:
-		bool CreateDefaultRootSignatures();
-		void CreateShaders();
-		void CreateShader(std::string&& signatureType, SPtr<Shader>&& shader);
-
 		void UpdateViewport();
-
-	private:
-		const SPtr<Shader>& GetShader(RenderType type) const;
 
 	public:
 		const SPtr<Viewport>& GetViewport(int index) { return m_Viewports[index]; }
@@ -45,10 +32,8 @@ namespace PARS
 		inline static RenderFactory* GetRenderFactory() { return s_Instance; }
 
 	private:
-		SPtr<DirectX12> m_DirectX12;
-		UPtr<AssetStore> m_AssetStore;
+		UPtr<ShaderFactory> m_ShaderFactory;
 		std::vector<SPtr<Viewport>> m_Viewports;
-		std::unordered_map<std::string, RootSignature> m_RootSignatures;
 
 	private:
 		std::vector<SPtr<CameraComponent>> m_CameraComps;

@@ -43,6 +43,8 @@ namespace PARS
 			m_FrameRate = m_FrameCount;
 			m_FrameCount = 0;
 			m_FPSDeltaTime -= 1.0f;
+
+			m_FuncFpsDeltaChanged(m_FrameRate);
 		}
 	}
 }

@@ -41,18 +41,17 @@ namespace PARS
 
 		if (m_IsNeedUpdateMappedData)
 		{
-			RenderReady(device, commandList, static_cast<UINT>(m_RenderComponents.size()));
+			RenderReady(device, commandList, static_cast<UINT>(m_PrepareComponents.size()), static_cast<UINT>(m_RenderComponents.size()));
 			m_IsNeedUpdateMappedData = false;
 		}
 
-		Update(m_DirectX12->GetCommandList());
+		Update();
 	}
 
 	void Shader::Draw(ID3D12GraphicsCommandList* commandList)
 	{
 		m_DirectX12->GetCommandList()->SetPipelineState(GetPipelineState());
 
-		DrawPassFrame(m_DirectX12->GetCommandList());
 		for (int index = 0; index < m_RenderComponents.size(); ++index)
 		{
 			DrawRenderComp(m_DirectX12->GetCommandList(), index);

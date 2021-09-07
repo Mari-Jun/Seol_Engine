@@ -10,11 +10,12 @@ namespace PARS
 	{
 	public:
 		Component(const std::string& name = "Component", int updateOrder = 100);
-		virtual ~Component() = default;
+		virtual ~Component();
 	
 		void InitializeComponent();
 		virtual void Initialize() {}
 		virtual void InitializeDetailFunction();
+		void ShutdownComponent();
 		virtual void Shutdown() {}
 		virtual void Update(float deltaTime) {}
 		virtual void UpdateWorldMatrix() {}

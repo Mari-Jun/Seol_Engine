@@ -24,7 +24,7 @@ namespace PARS
 		static Vec4 colors[3] = { {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f} };
 		static Vec3 positions[3] = { {0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f} };
 
-		meshComp->SetMesh<DiffuseMesh>(std::vector({
+		meshComp->SetMesh(std::vector({
 				DiffuseVertex(Vec3(positions[0]), Vec4(colors[0])),
 				DiffuseVertex(Vec3(positions[1]), Vec4(colors[1])),
 				DiffuseVertex(Vec3(positions[2]), Vec4(colors[2]))

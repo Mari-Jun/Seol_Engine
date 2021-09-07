@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Component/Render/RenderComponent.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
+#include "PARS/Actor/Actor.h"
 
 
 namespace PARS
@@ -22,6 +23,30 @@ namespace PARS
 	{
 		auto factory = RenderFactory::GetRenderFactory();
 		factory->RemoveRenderComponent(m_Type, std::reinterpret_pointer_cast<RenderComponent>(shared_from_this()));
+	}
+
+	void RenderComponent::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
+	{
+		if (variables.find("CBWorld") != variables.cend())
+		{
+			const auto& owner = m_Owner.lock();
+		
+			if (owner->IsChangedWorldMatrix())
+			{
+				owner->ResetChangedWorldMatrix();
+
+				CBWorldMat mappedWorldMat;
+				Mat4 worldMatrix = owner->GetWorldMatrix();
+				Mat4 worldInverseTranspose = worldMatrix;
+				worldMatrix.Transpose();
+				worldInverseTranspose.Invert();
+
+				mappedWorldMat.m_WorldMatrix = worldMatrix;
+				mappedWorldMat.m_WorldInverseTranspose = worldInverseTranspose;
+
+				memcpy(variables["CBWorld"], &mappedWorldMat, sizeof(CBWorldMat));
+			}
+		}
 	}
 
 	void RenderComponent::SetRenderState(RenderState state)

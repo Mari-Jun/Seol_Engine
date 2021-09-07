@@ -11,6 +11,8 @@ namespace PARS
 		bool Initialize();
 		void Tick();
 
+		void OnFpsDeltaChanged(const std::function<void(UINT)>& function) { m_FuncFpsDeltaChanged = function; }
+
 		float GetDeltaTime() const { return m_DeltaTime; }
 		UINT GetFrameRate() const { return m_FrameRate; }
 
@@ -23,6 +25,7 @@ namespace PARS
 		float m_SecondsPerCount = 0.0f;
 		float m_DeltaTime = 0.0f;
 		float m_FPSDeltaTime = 0.0f;
+		std::function<void(UINT)> m_FuncFpsDeltaChanged;
 	};
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PARS/Core/Core.h"
 #include "PARS/Component/Render/Mesh/Vertex.h"
 
 namespace PARS
@@ -14,18 +15,18 @@ namespace PARS
 		virtual void Draw(ID3D12GraphicsCommandList* commandList);
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
-		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}		
+		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}	
+		virtual void UpdateShaderVariables(std::map<std::string, BYTE*> variables) {}
 		virtual void ReleaseUploadBuffers();
 
 		int GetVertexCount() const { return m_RealVertexCount; }
+		void SetRealVertexCount(int count) { m_RealVertexCount = count; }
 
-		const std::string& GetFileName() const { return m_FileName; }
-
-	public:
-		virtual bool LoadObj(const std::string& path);
+		const std::string& GetObjectName() const { return m_ObjectName; }
+		void SetObjectName(const std::string& name) { m_ObjectName = name; }
 
 	protected:
-		std::string m_FileName;
+		std::string m_ObjectName;
 
 	protected:
 		ID3D12Resource* m_VertexBuffer = nullptr;
@@ -64,14 +65,48 @@ namespace PARS
 		const std::vector<DiffuseVertex>& GetDiffuseVertices() const { return m_DiffuseVertices; }
 		std::vector<DiffuseVertex>& GetDiffseVertices() { return m_DiffuseVertices; }
 
-	public:
-		virtual bool LoadObj(const std::string& path) override;
-		bool LoadMtl(const std::string& path, std::unordered_map<std::string, Vec4>& diffuse);
-
 	private:
 		std::vector<DiffuseVertex> m_DiffuseVertices;
 		std::vector<UINT> m_Indices;
 	};
+
+	struct CBConvertMatIndex
+	{
+		std::array<std::array<int, 4>, 8> indice;
+	};
+
+	class Material;
+
+	class MaterialMesh : public Mesh
+	{
+	public:
+		MaterialMesh();
+		virtual ~MaterialMesh() = default;
+
+		virtual void Shutdown() override;
+		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
+
+		void SetVertex(const std::vector<MaterialVertex>& vertices);
+		void SetVertex(const std::vector<MaterialVertex>& vertices, const std::vector<UINT>& indices);
+		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
+		virtual void UpdateShaderVariables(std::map<std::string, BYTE*> variables) override;
+
+	public:
+		const std::vector<MaterialVertex>& GetMaterialVertices() const { return m_MaterialVertices; }
+		std::vector<MaterialVertex>& GetMaterialVertices() { return m_MaterialVertices; }
+		void SetMaterial(const SPtr<Material>& material, int index) { m_Materials[index] = material; }
+		const std::vector<SPtr<Material>>& GetMaterials() const  { return m_Materials; }
+
+		void AddMaterial(const SPtr<Material>& material) { m_Materials.push_back(material); }
+
+	private:
+		std::vector<MaterialVertex> m_MaterialVertices;
+		std::vector<UINT> m_Indices;
+		std::vector<SPtr<Material>> m_Materials;
+	};
+
+	namespace OBJ
+	{
+		std::vector<SPtr<MaterialMesh>> LoadObj(const std::string& path, const std::string& parentPath);
+	}
 }
-
-

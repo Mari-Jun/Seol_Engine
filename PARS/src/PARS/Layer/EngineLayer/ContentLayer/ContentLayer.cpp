@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Layer/EngineLayer/ContentLayer/ContentLayer.h"
-#include "PARS/Util/Helper/ContentHelper.h"
+#include "PARS/Util/Content/AssetStore.h"
 
 namespace PARS
 {
@@ -11,7 +11,6 @@ namespace PARS
 
 	void ContentLayer::Initialize()
 	{
-		ContentHelper::ReloadContents();
 	}
 
 	void ContentLayer::Shutdown()
@@ -93,7 +92,7 @@ namespace PARS
 
 		if (m_IsUpdateContentView)
 		{
-			files = ContentHelper::GetContentsInDirectory(m_SelectFolder, {}, { ".mtl" });
+			files = AssetStore::GetAssetStore()->GetContentsInDirectory(m_SelectFolder, {}, { ".mtl" });
 		}
 
 		int cnt = 0;

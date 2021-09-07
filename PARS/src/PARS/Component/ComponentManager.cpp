@@ -30,7 +30,7 @@ namespace PARS
 		{
 			if (component != nullptr)
 			{
-				component->Shutdown();
+				component->ShutdownComponent();
 			}
 		}
 	}

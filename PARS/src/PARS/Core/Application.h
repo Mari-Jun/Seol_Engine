@@ -9,6 +9,7 @@ namespace PARS
 	class Timer;
 	class LevelManager;
 	class LayerManager;
+	class AssetStore;
 	class Renderer;
 
 	enum class AppState
@@ -41,6 +42,7 @@ namespace PARS
 		UPtr<Timer> m_Timer;
 		UPtr<LevelManager> m_LevelManager;
 		UPtr<LayerManager> m_LayerManager;
+		UPtr<AssetStore> m_AssetStore;
 		UPtr<Renderer> m_Renderer;
 
 	public:

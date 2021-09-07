@@ -17,7 +17,7 @@ namespace PARS
 		};
 
 		Actor(const std::string& name = "Actor");
-		virtual ~Actor() = default;
+		virtual ~Actor();
 
 		void InitializeActor();
 		void ShutdownActor();

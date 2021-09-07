@@ -1,4 +1,6 @@
-#define MaxLights 16
+#define MaxLights           16
+#define MaxMaterial         8
+#define MaxMaterials        1024
 
 struct Light
 {

@@ -8,6 +8,15 @@ namespace PARS
 		m_DetailInfo.headerName = name;
 	}
 
+	void DetailFunction::Shutdown()
+	{
+		for (auto& function : m_DetailInfo.functionInfos)
+		{
+			function.function = nullptr;
+		}
+		m_DetailInfo.functionInfos.clear();		
+	}
+
 	void DetailFunction::AddFunctionInfo(FunctionInfo&& info)
 	{
 		m_DetailInfo.functionInfos.emplace_back(std::move(info));

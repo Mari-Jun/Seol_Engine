@@ -7,12 +7,10 @@
 
 namespace PARS
 {
-	struct CBPass
-	{};
-
 	enum class ShaderType
 	{
 		Color,
+		Material
 	};
 
 	class Shader
@@ -24,12 +22,12 @@ namespace PARS
 		virtual bool Initialize(ID3D12RootSignature* rootSignature);
 		virtual void Shutdown();
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
-		void Draw(ID3D12GraphicsCommandList* commandList);
-		void PrepareToNextDraw();
+		virtual void Draw(ID3D12GraphicsCommandList* commandList);
+		virtual void PrepareToNextDraw();
 
 	private:
-		virtual void Update(ID3D12GraphicsCommandList* commandList) {}
-		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT numOfObject) {}
+		virtual void Update() {}
+		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT newObjectCnt, UINT numOfObject) {}
 		virtual void DrawRenderComp(ID3D12GraphicsCommandList* commandList, int index) {}
 		virtual void DrawPassFrame(ID3D12GraphicsCommandList* commandList) {}
 

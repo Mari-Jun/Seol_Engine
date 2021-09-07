@@ -14,7 +14,7 @@ namespace PARS
 
 		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
 
-		template<typename T, typename ... Args>
+		template<typename ... Args>
 		constexpr void SetMesh(Args&& ... args)
 		{
 			if (m_Mesh != nullptr)
@@ -24,10 +24,10 @@ namespace PARS
 			}
 			else
 			{
-				m_Mesh = CreateSPtr<T>();
+				m_Mesh = CreateSPtr<DiffuseMesh>();
 			}
 
-			std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
+			std::reinterpret_pointer_cast<DiffuseMesh>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
 		}
     };
 }

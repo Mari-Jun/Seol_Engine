@@ -13,6 +13,7 @@ namespace PARS
 
 	private:
 		void SetMeshDetail(const SPtr<StaticMeshComponent>& meshComp);
+		void SetMaterialDetail(const SPtr<StaticMeshComponent>& meshComp);
 	};
 }
 

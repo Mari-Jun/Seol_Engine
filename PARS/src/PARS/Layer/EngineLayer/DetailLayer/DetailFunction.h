@@ -44,6 +44,8 @@ namespace PARS
 		DetailFunction() = default;
 
 		void Initailize(const std::string& name);
+		void Shutdown();
+
 		void AddFunctionInfo(FunctionInfo&& info);
 
 		void SetDetailVisibleState(DVS state);

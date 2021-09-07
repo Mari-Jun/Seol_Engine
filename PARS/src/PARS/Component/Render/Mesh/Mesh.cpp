@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
+#include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
-#include "PARS/Util/Helper/ContentHelper.h"
+#include "PARS/Util/Content/AssetStore.h"
 
 namespace PARS
 {
@@ -58,11 +59,6 @@ namespace PARS
 		}
 	}
 
-	bool Mesh::LoadObj(const std::string& path)
-	{
-		return true;
-	}
-
 	DiffuseMesh::DiffuseMesh()
 	{
 	}
@@ -112,165 +108,242 @@ namespace PARS
 		}
 	}
 
-	bool DiffuseMesh::LoadObj(const std::string& path)
+	MaterialMesh::MaterialMesh()
 	{
-		m_FileName = ContentHelper::GetFileNameFromPath(path);
-		std::ifstream objFile(path);
-
-		if (!objFile.is_open())
-		{
-			PARS_ERROR("Obj file could not be found : {0}", m_FileName);
-			return false;
-		}
-
-		std::unordered_map<std::string, Vec4> diffuseColor;
-		if (!LoadMtl(path.substr(0, path.size() - 4), diffuseColor))
-		{
-			return false;
-		}
-
-		std::vector<Vec3> position;
-		std::vector<Vec3> normal;
-		
-		std::vector<UINT> posIndex;
-		std::vector<UINT> normalIndex;
-		std::vector<std::string> mtlIndex;
-
-		std::stringstream ss;
-		std::string line;
-		std::string prefix;
-		std::string mtlName;
-
-		Vec3 tempVec3;
-		UINT tempUInt = 0;
-
-		while (std::getline(objFile, line))
-		{
-			ss.clear();
-			ss.str(line);
-			ss >> prefix;
-
-
-			if (prefix == "v")
-			{
-				ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
-				tempVec3.z *= -1.0f;
-				position.emplace_back(tempVec3);
-			}
-			else if (prefix == "vn")
-			{
-				ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
-				tempVec3.z *= -1.0f;
-				normal.emplace_back(tempVec3);
-			}
-			else if (prefix == "usemtl")
-			{
-				ss >> mtlName;
-			}
-			else if (prefix == "f")
-			{
-				int count = 0;
-				
-				while (ss >> tempUInt)
-				{
-					if (count == 0)
-					{
-						posIndex.emplace_back(tempUInt - 1);
-						mtlIndex.emplace_back(mtlName);
-					}
-					else if (count == 1)
-					{
-						//texcoord °ª
-					}
-					else if (count == 2)
-					{
-						normalIndex.emplace_back(tempUInt - 1);
-					}
-
-					if (ss.peek() == '/')
-					{
-						++count;
-						ss.ignore();
-					}
-					else if (ss.peek() == ' ')
-					{
-						ss.ignore(1, ' ');
-						count = 0;
-					}
-				}
-			}
-			else if (prefix == "#" && m_RealVertexCount == 0)
-			{
-				int count;
-				std::string name;
-				ss >> count >> name;
-				if (name == "vertices")
-					m_RealVertexCount = count;
-			}
-		}
-
-		m_DiffuseVertices.resize(posIndex.size(), DiffuseVertex());
-
-		for (auto i = 0; i < posIndex.size(); ++i)
-		{
-			auto index = i;
-			if (index % 3 == 0)
-			{
-				index += 2;
-			}
-			else if (index % 3 == 2)
-			{
-				index -= 2;
-			}
-
-			m_DiffuseVertices[index].SetPosition(position[posIndex[i]]);
-			m_DiffuseVertices[index].SetNormal(normal[normalIndex[i]]);
-			m_DiffuseVertices[index].SetDiffuseColor(diffuseColor[mtlIndex[i]]);
-		}
-
-		m_VertexCount = static_cast<UINT>(m_DiffuseVertices.size());
-		m_Stride = sizeof(DiffuseVertex);
-
-		return true;
 	}
 
-
-	bool DiffuseMesh::LoadMtl(const std::string& path, std::unordered_map<std::string, Vec4>& diffuse)
+	void MaterialMesh::Shutdown()
 	{
-		std::string mtlName = CONTENT_DIR + path + ".mtl";
-		std::ifstream mtlFile(mtlName);
+		Mesh::Shutdown();
+		m_Materials.clear();
+	}
 
-		if (!mtlFile.is_open())
+	void MaterialMesh::Draw(ID3D12GraphicsCommandList* commandList)
+	{
+		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+		commandList->IASetVertexBuffers(m_Slot, 1, &m_VertexBufferView);
+
+		if (b_DrawIndex)
 		{
-			PARS_ERROR("Obj file could not be found : {0}", mtlName);
-			return false;
+			commandList->IASetIndexBuffer(&m_IndexBufferView);
+			commandList->DrawIndexedInstanced(m_IndexCount, 1, 0, 0, 0);
+		}
+		else
+		{
+			commandList->DrawInstanced(m_VertexCount, 1, m_Offset, 0);
+		}
+	}
+
+	void MaterialMesh::SetVertex(const std::vector<MaterialVertex>& vertices)
+	{
+		m_MaterialVertices = vertices;
+
+		m_VertexCount = static_cast<UINT>(vertices.size());
+		m_Stride = sizeof(MaterialVertex);
+	}
+
+	void MaterialMesh::SetVertex(const std::vector<MaterialVertex>& vertices, const std::vector<UINT>& indices)
+	{
+		SetVertex(vertices);
+
+		m_Indices = indices;
+		m_IndexCount = static_cast<UINT>(indices.size());
+
+		b_DrawIndex = true;
+		m_RealVertexCount = m_VertexCount;
+	}
+
+	void MaterialMesh::SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+	{
+		if (m_VertexBuffer == nullptr)
+		{
+			m_VertexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_MaterialVertices.data(), m_Stride * m_VertexCount,
+				D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_VertexUploadBuffer);
+
+			m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+			m_VertexBufferView.StrideInBytes = m_Stride;
+			m_VertexBufferView.SizeInBytes = m_VertexCount * m_Stride;
 		}
 
-		std::stringstream ss;
-		std::string line;
-		std::string prefix;
-		std::string name;
-
-		Vec4 tempVec4;
-
-		while (std::getline(mtlFile, line))
+		if (b_DrawIndex)
 		{
-			ss.clear();
-			ss.str(line);
-			ss >> prefix;
+			if (m_IndexBuffer == nullptr)
+			{
+				m_IndexBuffer = D3DUtil::CreateBufferResource(device, commandList, m_Indices.data(), sizeof(UINT) * m_IndexCount,
+					D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_IndexUploadBuffer);
 
-			if (prefix == "newmtl")
-			{
-				ss >> name;
-			}
-			else if (prefix == "Kd")
-			{
-				ss >> tempVec4.x >> tempVec4.y >> tempVec4.z;
-				tempVec4.w = 1.0f;
-				diffuse.emplace(name, std::move(tempVec4));
+				m_IndexBufferView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
+				m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+				m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
 			}
 		}
+	}
 
-		return true;
+	void MaterialMesh::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
+	{
+		if (variables.find("CBConvertMatIndex") != variables.cend())
+		{
+			CBConvertMatIndex mappedConvertIndex;
+
+			int index = 0;
+			for (const auto& material : m_Materials)
+			{
+				mappedConvertIndex.indice[index / 4][index % 4] = material->GetMatCBIndex();
+				++index;
+			}
+				
+			memcpy(variables["CBConvertMatIndex"], &mappedConvertIndex, sizeof(CBConvertMatIndex));
+		}
+	}
+
+	namespace OBJ
+	{
+		std::vector<SPtr<MaterialMesh>> LoadObj(const std::string& path, const std::string& parentPath)
+		{
+			std::vector<SPtr<MaterialMesh>> meshes;
+
+			std::ifstream objFile(path);
+			std::string stem = AssetStore::GetAssetStore()->GetFileNameFromPath(path);
+
+			if (!objFile.is_open())
+			{
+				PARS_ERROR("Obj file could not be found : {0}", path);
+			}
+			else
+			{
+				std::vector<Vec3> positions;
+				std::vector<Vec3> normals;
+
+				std::vector<UINT> posIndices;
+				std::vector<UINT> normalIndices;
+				std::vector<UINT> mtlIndices;
+				int mtlIndex = -1;
+
+				std::stringstream ss;
+				std::string line;
+				std::string prefix;
+				std::string mtlName;
+				std::string objectName;
+
+				Vec3 tempVec3;
+				UINT tempUInt = 0;
+				size_t vertexCount = 0;
+
+				SPtr<MaterialMesh> mesh = nullptr;
+
+				auto AddMesh([&]() {
+					if (mesh != nullptr)
+					{
+						std::vector<MaterialVertex> materialVertices;
+						materialVertices.resize(posIndices.size(), MaterialVertex());
+
+						for (auto i = 0; i < posIndices.size(); ++i)
+						{
+							auto index = i;
+							if (index % 3 == 0)
+							{
+								index += 2;
+							}
+							else if (index % 3 == 2)
+							{
+								index -= 2;
+							}
+
+							materialVertices[index].SetPosition(positions[posIndices[i]]);
+							materialVertices[index].SetNormal(normals[normalIndices[i]]);
+							materialVertices[index].SetMaterialIndex(mtlIndices[i]);
+						}
+
+						mesh->SetRealVertexCount(positions.size() - vertexCount);
+						vertexCount = positions.size();
+						mesh->SetVertex(materialVertices);
+						meshes.emplace_back(std::move(mesh));
+
+						mesh = nullptr;
+						posIndices.clear();
+						normalIndices.clear();
+						mtlIndices.clear();
+						mtlIndex = -1;
+					}
+					});
+
+				while (std::getline(objFile, line))
+				{
+					ss.clear();
+					ss.str(line);
+					ss >> prefix;
+
+					if (prefix == "#")
+					{
+						ss >> prefix;
+						if (prefix == "object")
+						{
+							AddMesh();
+							mesh = CreateSPtr<MaterialMesh>();
+							ss >> objectName;
+							mesh->SetObjectName(stem + "_" + objectName);
+						}
+					}
+					else if (prefix == "v")
+					{
+						ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+						tempVec3.z *= -1.0f;
+						positions.emplace_back(tempVec3);
+					}
+					else if (prefix == "vn")
+					{
+						ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+						tempVec3.z *= -1.0f;
+						normals.emplace_back(tempVec3);
+					}
+					else if (prefix == "usemtl")
+					{
+						ss >> mtlName;
+						mesh->AddMaterial(GraphicsAssetStore::GetAssetStore()->GetMaterial(parentPath + "\\" + mtlName));
+						++mtlIndex;
+					}
+					else if (prefix == "f")
+					{
+						int count = 0;
+
+						while (ss >> tempUInt)
+						{
+							if (count == 0)
+							{
+								posIndices.emplace_back(tempUInt - 1);
+								mtlIndices.emplace_back(mtlIndex);
+							}
+							else if (count == 1)
+							{
+								//texcoord °ª
+							}
+							else if (count == 2)
+							{
+								normalIndices.emplace_back(tempUInt - 1);
+							}
+
+							if (ss.peek() == '/')
+							{
+								++count;
+								ss.ignore();
+							}
+							else if (ss.peek() == ' ')
+							{
+								ss.ignore(1, ' ');
+								count = 0;
+							}
+						}
+					}
+				}
+				AddMesh();		
+			}
+
+			if (meshes.size() == 1)
+			{
+				meshes[0]->SetObjectName(stem);
+			}
+
+			return meshes;
+		}
 	}
 }

@@ -113,7 +113,7 @@ namespace PARS
 
 		WaitForGpuCompelete();
 
-		SetViewAndScissor(0.0f, 0.0f, static_cast<float>(m_WindowInfo->m_Width), static_cast<float>(m_WindowInfo->m_Height));
+		//SetViewAndScissor(0.0f, 0.0f, static_cast<float>(m_WindowInfo->m_Width), static_cast<float>(m_WindowInfo->m_Height));
 
 		return true;
 	}

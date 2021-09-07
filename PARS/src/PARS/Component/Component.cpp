@@ -10,6 +10,11 @@ namespace PARS
 	{
 	}
 
+	Component::~Component()
+	{
+		PARS_INFO(GetCompName() + " is dead");
+	}
+
 	void Component::InitializeComponent()
 	{
 		Initialize();
@@ -24,6 +29,12 @@ namespace PARS
 	{
 		m_CompDetailFunction = CreateUPtr<ComponentDetailFunction>();
 		SetDetailVisibleState(DVS::HideAll);
+	}
+
+	void Component::ShutdownComponent()
+	{
+		m_CompDetailFunction->Shutdown();
+		Shutdown();
 	}
 
 	void Component::AddDetailFunctionInfo(FunctionInfo&& info)
