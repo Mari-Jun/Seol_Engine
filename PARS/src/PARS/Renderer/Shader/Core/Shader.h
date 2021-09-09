@@ -45,6 +45,8 @@ namespace PARS
 		void AddRenderComponent(const SPtr<class RenderComponent>& component);
 		void AddPrepareComponent(const SPtr<class RenderComponent>& component);
 		void RemoveRenderComponent(const SPtr<class RenderComponent>& component);
+		void AddMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
+		void RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
 		
 	public:
 		ShaderType GetShaderType() const { return m_Type; }
@@ -65,6 +67,7 @@ namespace PARS
 	protected:
 		std::vector<SPtr<class RenderComponent>> m_PrepareComponents;
 		std::vector<SPtr<class RenderComponent>> m_RenderComponents;
+		std::vector<SPtr<class RenderItem>> m_RenderItems;
 		bool m_IsNeedUpdateMappedData = true;
 
 	private:

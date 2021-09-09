@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
+#include "PARS/Renderer/Core/RenderItem.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
 
 namespace PARS
 {
@@ -22,6 +24,10 @@ namespace PARS
 
 	void Shader::Shutdown()
 	{
+		for (auto& renderItem : m_RenderItems)
+			renderItem->Shutdown();
+		m_RenderItems.clear();
+
 		if (m_PipelineState != nullptr) m_PipelineState->Release();
 		m_PipelineState = nullptr;
 		if (m_VSBlob != nullptr) m_VSBlob->Release();
@@ -45,6 +51,11 @@ namespace PARS
 			m_IsNeedUpdateMappedData = false;
 		}
 
+		for (const auto& renderItem : m_RenderItems)
+		{
+			renderItem->Update(device, commandList);
+		}
+
 		Update();
 	}
 
@@ -56,6 +67,11 @@ namespace PARS
 		{
 			DrawRenderComp(m_DirectX12->GetCommandList(), index);
 			m_RenderComponents[index]->Draw(m_DirectX12->GetCommandList());
+		}
+
+		for (const auto& renderItem : m_RenderItems)
+		{
+			renderItem->Draw(commandList);
 		}
 	}
 
@@ -167,10 +183,47 @@ namespace PARS
 		auto iter = std::find_if(m_RenderComponents.begin(), m_RenderComponents.end(),
 			[&component](const SPtr<RenderComponent>& comp)
 			{return component == comp; });
+
 		if (iter != m_RenderComponents.end())
 		{
 			m_RenderComponents.erase(iter);
 			m_IsNeedUpdateMappedData = true;
+		}
+	}
+
+	void Shader::AddMeshCompForDraw(const SPtr<MeshComponent>& meshComp)
+	{
+		const auto& mesh = meshComp->GetMesh();
+
+		auto iter = find_if(m_RenderItems.begin(), m_RenderItems.end(), [&mesh](const SPtr<RenderItem>& renderItem)
+			{ return mesh == renderItem->GetMesh(); });
+
+		if (iter != m_RenderItems.end())
+		{
+			iter->get()->AddMeshCompDrwanWithMesh(meshComp);
+		}
+		else
+		{
+			SPtr<RenderItem> renderItem = CreateSPtr<RenderItem>(mesh);
+			renderItem->AddMeshCompDrwanWithMesh(meshComp);
+			m_RenderItems.emplace_back(std::move(renderItem));
+		}
+	}
+
+	void Shader::RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp)
+	{
+		const auto & mesh = meshComp->GetMesh();
+
+		auto iter = find_if(m_RenderItems.begin(), m_RenderItems.end(), [&mesh](const SPtr<RenderItem>& renderItem)
+			{ return mesh == renderItem->GetMesh(); });
+
+		if (iter != m_RenderItems.end())
+		{
+			if (iter->get()->RemoveInstanceData(meshComp))
+			{
+				iter->get()->Shutdown();
+				m_RenderItems.erase(iter);
+			}
 		}
 	}
 }

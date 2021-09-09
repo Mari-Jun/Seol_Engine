@@ -43,6 +43,8 @@ namespace PARS
 		void AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component);
 		void AddPrepareComponent(RenderType type, const SPtr<RenderComponent>& component);
 		void RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component);
+		void AddMeshCompForDraw(RenderType type, const SPtr<class MeshComponent>& meshComp);
+		void RemoveMeshCompForDraw(RenderType type, const SPtr<class MeshComponent>& meshComp);
 
 		void AddCameraComponent(const SPtr<CameraComponent>& camera);
 		void RemoveCameraComponent(const SPtr<CameraComponent>& camera);

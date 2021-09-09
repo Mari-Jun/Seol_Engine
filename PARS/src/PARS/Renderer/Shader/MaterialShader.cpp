@@ -28,14 +28,6 @@ namespace PARS
 
 	void MaterialShader::PrepareToNextDraw()
 	{
-
-		if (m_WorldMatCB != nullptr)
-		{
-			
-			//m_WorldMatCB->Release();
-			//m_WorldMatCB = nullptr;
-		}
-
 		Shader::PrepareToNextDraw();
 	}
 

@@ -97,6 +97,19 @@ namespace PARS
 			shader->RemoveRenderComponent(component);
 	}
 
+	void RenderFactory::AddMeshCompForDraw(RenderType type, const SPtr<class MeshComponent>& meshComp)
+	{
+		const auto& shader = m_ShaderFactory->GetShader(type);
+		if (shader != nullptr)
+			shader->AddMeshCompForDraw(meshComp);
+	}
+
+	void RenderFactory::RemoveMeshCompForDraw(RenderType type, const SPtr<class MeshComponent>& meshComp)
+	{
+		const auto& shader = m_ShaderFactory->GetShader(type);
+		if (shader != nullptr)
+			shader->RemoveMeshCompForDraw(meshComp);
+	}
 
 	void RenderFactory::AddCameraComponent(const SPtr<CameraComponent>& camera)
 	{

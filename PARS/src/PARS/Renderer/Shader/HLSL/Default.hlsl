@@ -4,7 +4,15 @@
 
 #include "Light.hlsl"
 
-StructuredBuffer<Material> gMaterials : register(t0, space0);
+struct InstanceData
+{
+    matrix world;
+    matrix worldInverseTranspose;
+    uint4 convertIndice[MaxMaterial];
+};
+
+StructuredBuffer<InstanceData> gInstanceDatas : register(t0, space0);
+StructuredBuffer<Material> gMaterials : register(t1, space0);
 
 cbuffer cbWorldInfo : register(b0)
 {
@@ -15,6 +23,11 @@ cbuffer cbWorldInfo : register(b0)
 cbuffer cbConvertMatIndex : register(b1)
 {
     int4 gConvertIndice[MaxMaterial];
+}
+
+cbuffer cbConvertMatIndex : register(b1, space1)
+{
+    uint gConvertIndex;
 }
 
 cbuffer cbColorPass : register(b2)
@@ -44,14 +57,16 @@ struct VS_DIFFUSE_OUT
     float4 color : COLOR;
 };
 
-VS_DIFFUSE_OUT VSDiffuseMain(VS_DIFFUSE_IN input)
+VS_DIFFUSE_OUT VSDiffuseMain(VS_DIFFUSE_IN input, uint instanceID : SV_InstanceID)
 {
     VS_DIFFUSE_OUT output;
+    
+    InstanceData instData = gInstanceDatas[instanceID];
 
-    float4 pos = mul(float4(input.position, 1.0f), gWorld);
+    float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-    output.normal = mul(input.normal, (float3x3)gWorldInverseTranspose);
+    output.normal = mul(input.normal, (float3x3)instData.worldInverseTranspose);
     output.normal = normalize(output.normal);
     output.color = input.color;
     
@@ -89,16 +104,18 @@ struct VS_MATERIAL_OUT
     float4 color : COLOR;
 };
 
-VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input)
+VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_InstanceID)
 {
     VS_MATERIAL_OUT output;
-
-    float4 pos = mul(float4(input.position, 1.0f), gWorld);
+    
+    InstanceData instData = gInstanceDatas[instanceID];
+    
+    float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-    output.normal = mul(input.normal, (float3x3) gWorldInverseTranspose);
+    output.normal = mul(input.normal, (float3x3) instData.worldInverseTranspose);
     output.normal = normalize(output.normal);
-    output.color = gMaterials[gConvertIndice[input.index / 4][input.index % 4]].DiffuseAlbedo;
+    output.color = gMaterials[instData.convertIndice[0][0]].DiffuseAlbedo;
     
     return output;
 }

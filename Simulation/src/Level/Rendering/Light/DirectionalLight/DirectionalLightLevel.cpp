@@ -41,17 +41,17 @@ namespace PARS
 		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
 		AddActor(light);
 
-		auto rectangle = CreateSPtr<Actor>("Rectangle");
-		auto hmeshComp = CreateSPtr<HandmadeMeshComponent>();
-		hmeshComp->SetMesh(
-			std::vector<DiffuseVertex>({ {Vec3(-200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
-				{Vec3(200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
-				{Vec3(200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)},
-				{Vec3(-200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)} }),
-			std::vector<UINT>({ 0,1,2,0,2,3 })
-		);
-		rectangle->AddComponent(hmeshComp);
-		AddActor(rectangle);
+		//auto rectangle = CreateSPtr<Actor>("Rectangle");
+		//auto hmeshComp = CreateSPtr<HandmadeMeshComponent>();
+		//hmeshComp->SetMesh(
+		//	std::vector<DiffuseVertex>({ {Vec3(-200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
+		//		{Vec3(200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
+		//		{Vec3(200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)},
+		//		{Vec3(-200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)} }),
+		//	std::vector<UINT>({ 0,1,2,0,2,3 })
+		//);
+		//rectangle->AddComponent(hmeshComp);
+		//AddActor(rectangle);
 	}
 
 	void DirectionalLightLevel::UpdateLevel(float deltaTime)

@@ -39,6 +39,22 @@ namespace PARS
 		
 	}
 
+	void Mesh::Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount)
+	{
+		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+		commandList->IASetVertexBuffers(m_Slot, 1, &m_VertexBufferView);
+
+		if (b_DrawIndex)
+		{
+			commandList->IASetIndexBuffer(&m_IndexBufferView);
+			commandList->DrawIndexedInstanced(m_IndexCount, instanceCount, 0, 0, 0);
+		}
+		else
+		{
+			commandList->DrawInstanced(m_VertexCount, instanceCount, m_Offset, 0);
+		}
+	}
+
 	void Mesh::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_PrimitiveTopology = topology;
@@ -115,7 +131,6 @@ namespace PARS
 	void MaterialMesh::Shutdown()
 	{
 		Mesh::Shutdown();
-		m_Materials.clear();
 	}
 
 	void MaterialMesh::Draw(ID3D12GraphicsCommandList* commandList)
@@ -176,23 +191,6 @@ namespace PARS
 				m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 				m_IndexBufferView.SizeInBytes = sizeof(UINT) * m_IndexCount;
 			}
-		}
-	}
-
-	void MaterialMesh::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
-	{
-		if (variables.find("CBConvertMatIndex") != variables.cend())
-		{
-			CBConvertMatIndex mappedConvertIndex;
-
-			int index = 0;
-			for (const auto& material : m_Materials)
-			{
-				mappedConvertIndex.indice[index / 4][index % 4] = material->GetMatCBIndex();
-				++index;
-			}
-				
-			memcpy(variables["CBConvertMatIndex"], &mappedConvertIndex, sizeof(CBConvertMatIndex));
 		}
 	}
 
