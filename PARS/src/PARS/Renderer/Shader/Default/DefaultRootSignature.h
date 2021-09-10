@@ -1,7 +1,6 @@
 #pragma once
 #include "PARS/Renderer/Shader/Core/RootSignature.h"
 #include "PARS/Component/Light/LightComponent.h"
-#include "PARS/Component/Render/Material/Material.h"
 
 namespace PARS
 {

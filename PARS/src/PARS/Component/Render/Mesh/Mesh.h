@@ -71,11 +71,6 @@ namespace PARS
 		std::vector<UINT> m_Indices;
 	};
 
-	struct CBConvertMatIndex
-	{
-		std::array<int, 32> indice;
-	};
-
 	struct DrawInfo
 	{
 		UINT vertexCount;

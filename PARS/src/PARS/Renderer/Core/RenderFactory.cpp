@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Component/Camera/CameraComponent.h"
+#include "PARS/Component/Light/LightComponent.h"
 #include "PARS/Core/Window.h"
 
 namespace PARS
@@ -70,43 +73,16 @@ namespace PARS
 		m_ShaderFactory->PrepareToNextDraw();
 	}
 
-
-	void RenderFactory::AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
+	void RenderFactory::AddMeshCompForDraw(const SPtr<MeshComponent>& meshComp)
 	{
-		AddPrepareComponent(type, component);
-		const auto& shader = m_ShaderFactory->GetShader(type);
-		if (shader != nullptr)
-			shader->AddRenderComponent(component);
-	}
-
-	void RenderFactory::AddPrepareComponent(RenderType type, const SPtr<class RenderComponent>& component)
-	{
-		RenderState state = component->GetRenderState();
-		if (state == RenderState::Ready || state == RenderState::Changed)
-		{
-			const auto& shader = m_ShaderFactory->GetShader(type);
-			if (shader != nullptr)
-				shader->AddPrepareComponent(component);
-		}
-	}
-
-	void RenderFactory::RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component)
-	{
-		const auto& shader = m_ShaderFactory->GetShader(type);
-		if (shader != nullptr)
-			shader->RemoveRenderComponent(component);
-	}
-
-	void RenderFactory::AddMeshCompForDraw(RenderType type, const SPtr<class MeshComponent>& meshComp)
-	{
-		const auto& shader = m_ShaderFactory->GetShader(type);
+		const auto& shader = m_ShaderFactory->GetShader(meshComp->GetMeshType());
 		if (shader != nullptr)
 			shader->AddMeshCompForDraw(meshComp);
 	}
 
-	void RenderFactory::RemoveMeshCompForDraw(RenderType type, const SPtr<class MeshComponent>& meshComp)
+	void RenderFactory::RemoveMeshCompForDraw(const SPtr<MeshComponent>& meshComp)
 	{
-		const auto& shader = m_ShaderFactory->GetShader(type);
+		const auto& shader = m_ShaderFactory->GetShader(meshComp->GetMeshType());
 		if (shader != nullptr)
 			shader->RemoveMeshCompForDraw(meshComp);
 	}

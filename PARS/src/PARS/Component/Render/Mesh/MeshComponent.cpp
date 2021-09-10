@@ -9,15 +9,15 @@
 
 namespace PARS
 {
-	MeshComponent::MeshComponent(const std::string& name, RenderType type)
-		: RenderComponent(name, type)
+	MeshComponent::MeshComponent(const std::string& name, MeshType type)
+		: Component(name)
+		, m_MeshType(type)
 	{
 
 	}
 
 	void MeshComponent::Initialize()
 	{
-		//RenderComponent::Initialize();
 	}
 
 	void MeshComponent::InitializeDetailFunction()
@@ -29,17 +29,16 @@ namespace PARS
 	{
 		m_Mesh = nullptr;
 		m_Materials.clear();
-		//RenderComponent::Shutdown();
 	}
 
 	void MeshComponent::AddToRenderFactory()
 	{
-		RenderFactory::GetRenderFactory()->AddMeshCompForDraw(m_Type, std::reinterpret_pointer_cast<MeshComponent>(shared_from_this()));
+		RenderFactory::GetRenderFactory()->AddMeshCompForDraw(std::reinterpret_pointer_cast<MeshComponent>(shared_from_this()));
 	}
 
 	void MeshComponent::RemoveFromRenderFactory()
 	{
-		RenderFactory::GetRenderFactory()->RemoveMeshCompForDraw(m_Type, std::reinterpret_pointer_cast<MeshComponent>(shared_from_this()));
+		RenderFactory::GetRenderFactory()->RemoveMeshCompForDraw(std::reinterpret_pointer_cast<MeshComponent>(shared_from_this()));
 	}
 
 
@@ -62,9 +61,6 @@ namespace PARS
 
 	void MeshComponent::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
 	{
-		//나중에 지워야함.
-		RenderComponent::UpdateShaderVariables(variables);
-
 		//일단은 이렇게 해놓았음.
 		if (variables.find("InstanceData") != variables.cend())
 		{
@@ -78,17 +74,9 @@ namespace PARS
 			RenderInstanceData data;
 			data.worldMatrix = worldMatrix;
 			data.worldInverseTranspose = worldInverseTranspose;
-			//data.materialIndice = GetMaterialIndices();
 
 			memcpy(variables["InstanceData"], &data, sizeof(RenderInstanceData));
 		}
-		
-		/*if (variables.find("MatInstanceData") != variables.cend())
-		{
-			MaterialInstanceData data;
-			data.matIndex = m_Materials[0]->GetMatCBIndex();
-			memcpy(variables["MatInstanceData"], &data, sizeof(MaterialInstanceData));
-		}*/
 	}
 
 	void MeshComponent::UpdateMaterialShaderVariables(BYTE* variable, UINT instance, UINT offset)

@@ -8,7 +8,6 @@ struct InstanceData
 {
     matrix world;
     matrix worldInverseTranspose;
-    //uint4 convertIndice[MaxMaterial];
 };
 
 struct MaterialInstanceData
@@ -26,22 +25,12 @@ StructuredBuffer<Material> gMaterials : register(t1, space0);
 //    matrix gWorldInverseTranspose;
 //}
 
-//cbuffer cbConvertMatIndex : register(b1)
-//{
-//    int4 gConvertIndice[MaxMaterial];
-//}
-
-//cbuffer cbConvertMatIndex : register(b1, space1)
-//{
-//    uint gConvertIndex;
-//}
-
 cbuffer cbCurMatIndex : register(b0, space0)
 {
     uint gMatIndex;
 };
 
-cbuffer cbColorPass : register(b1, space0)
+cbuffer cbDefaultPass : register(b1, space0)
 {
     matrix gViewProj;
     float3 gEyePos;

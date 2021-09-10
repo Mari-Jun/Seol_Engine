@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 #include "PARS/Renderer/Shader/Default/DefaultRootSignature.h"
+#include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 
 namespace PARS
 {
@@ -59,13 +59,13 @@ namespace PARS
 		m_RootSignatures.insert({ "Default", CreateUPtr<DefaultRootSignature>(m_DirectX12) });
 	}
 
-	const SPtr<Shader>& ShaderFactory::GetShader(RenderType type) const
+	const SPtr<Shader>& ShaderFactory::GetShader(MeshType type) const
 	{
 		switch (type)
 		{
-		case PARS::RenderType::HandMadeMesh:
+		case PARS::MeshType::Handmade:
 			return m_RootSignatures.at("Default")->GetShaders().at(ShaderType::Color);
-		case PARS::RenderType::StaticMesh:
+		case PARS::MeshType::Static:
 			return m_RootSignatures.at("Default")->GetShaders().at(ShaderType::Material);
 		default:
 			return nullptr;

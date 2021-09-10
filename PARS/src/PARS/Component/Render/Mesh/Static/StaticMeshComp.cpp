@@ -6,7 +6,7 @@
 namespace PARS
 {
 	StaticMeshComponent::StaticMeshComponent()
-		: MeshComponent("Static Mesh Component", RenderType::StaticMesh)
+		: MeshComponent("Static Mesh Component", MeshType::Static)
 	{
 	}
 
@@ -18,22 +18,6 @@ namespace PARS
 	void StaticMeshComponent::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
 	{
 		MeshComponent::UpdateShaderVariables(variables);
-
-		if (variables.find("CBConvertMatIndex") != variables.cend())
-		{
-			CBConvertMatIndex mappedConvertIndex;
-
-			int index = 0;
-			for (const auto& material : m_Materials)
-			{
-				mappedConvertIndex.indice[index] = material->GetMatCBIndex();
-				++index;
-			}
-
-			memcpy(variables["CBConvertMatIndex"], &mappedConvertIndex, sizeof(CBConvertMatIndex));
-		}
-
-		//m_Mesh->UpdateShaderVariables(variables);
 	}
 
 	bool StaticMeshComponent::SetMesh(std::string&& path)
@@ -43,7 +27,6 @@ namespace PARS
 		{
 			RemoveFromRenderFactory();
 			m_Mesh = nullptr;
-			SetRenderState(RenderState::Changed);
 		}
 
 		//이미 Load된적이 있는지 Cache데이터에서 찾는다. 

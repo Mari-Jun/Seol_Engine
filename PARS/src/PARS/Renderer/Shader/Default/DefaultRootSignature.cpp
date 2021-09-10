@@ -5,6 +5,7 @@
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Util/Content/GraphicsAssetStore.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
+#include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS
