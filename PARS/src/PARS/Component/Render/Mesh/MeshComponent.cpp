@@ -27,6 +27,7 @@ namespace PARS
 
 	void MeshComponent::Shutdown()
 	{
+		RenderFactory::GetRenderFactory()->RemoveMeshCompForDraw(std::reinterpret_pointer_cast<MeshComponent>(shared_from_this()));
 		m_Mesh = nullptr;
 		m_Materials.clear();
 	}
