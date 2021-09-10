@@ -12,11 +12,12 @@ namespace PARS
 		virtual ~Mesh() = default;
 
 		virtual void Shutdown();
+		virtual void BeginDraw(ID3D12GraphicsCommandList* commandList);
 		virtual void Draw(ID3D12GraphicsCommandList* commandList);
+		virtual void Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount, UINT subMeshCount) {}
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}	
-		virtual void UpdateShaderVariables(std::map<std::string, BYTE*> variables) {}
 		virtual void ReleaseUploadBuffers();
 
 		int GetVertexCount() const { return m_RealVertexCount; }
@@ -70,9 +71,10 @@ namespace PARS
 		std::vector<UINT> m_Indices;
 	};
 
-	struct CBConvertMatIndex
+	struct DrawInfo
 	{
-		std::array<std::array<int, 4>, 8> indice;
+		UINT vertexCount;
+		UINT startLocation;
 	};
 
 	class Material;
@@ -84,25 +86,27 @@ namespace PARS
 		virtual ~MaterialMesh() = default;
 
 		virtual void Shutdown() override;
-		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
+		virtual void Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount, UINT subMeshCount) override;
 
 		void SetVertex(const std::vector<MaterialVertex>& vertices);
 		void SetVertex(const std::vector<MaterialVertex>& vertices, const std::vector<UINT>& indices);
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
-		virtual void UpdateShaderVariables(std::map<std::string, BYTE*> variables) override;
 
 	public:
 		const std::vector<MaterialVertex>& GetMaterialVertices() const { return m_MaterialVertices; }
 		std::vector<MaterialVertex>& GetMaterialVertices() { return m_MaterialVertices; }
-		void SetMaterial(const SPtr<Material>& material, int index) { m_Materials[index] = material; }
-		const std::vector<SPtr<Material>>& GetMaterials() const  { return m_Materials; }
 
-		void AddMaterial(const SPtr<Material>& material) { m_Materials.push_back(material); }
+		void SetMaterial(const SPtr<Material>& material, int index) { m_DefaultMaterials[index] = material; }
+		const std::vector<SPtr<Material>>& GetMaterials() const  { return m_DefaultMaterials; }
+		void AddMaterial(const SPtr<Material>& material) { m_DefaultMaterials.push_back(material); }
+
+		void AddDrawInfo(DrawInfo&& info) { m_DrawInfos.emplace_back(std::move(info)); }
 
 	private:
 		std::vector<MaterialVertex> m_MaterialVertices;
 		std::vector<UINT> m_Indices;
-		std::vector<SPtr<Material>> m_Materials;
+		std::vector<SPtr<Material>> m_DefaultMaterials;
+		std::vector<DrawInfo> m_DrawInfos;
 	};
 
 	namespace OBJ

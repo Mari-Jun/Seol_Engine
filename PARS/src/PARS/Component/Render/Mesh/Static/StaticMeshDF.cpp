@@ -51,10 +51,10 @@ namespace PARS
 		const auto& assetStore = AssetStore::GetAssetStore();
 		const auto& gAssetStore = GraphicsAssetStore::GetAssetStore();
 
-		const auto& mesh = std::reinterpret_pointer_cast<MaterialMesh>(meshComp->GetMesh());
+		const auto& materials = meshComp->GetMaterials();
 
 		int index = 0;
-		for (auto& material : mesh->GetMaterials())
+		for (auto& material : materials)
 		{
 			SPtr<Material> selectMaterial = nullptr;
 
@@ -75,7 +75,7 @@ namespace PARS
 			}
 
 			if (selectMaterial != nullptr)
-				mesh->SetMaterial(selectMaterial, index);
+				meshComp->SetMaterial(selectMaterial, index);
 
 			++index;
 		}

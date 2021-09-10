@@ -46,12 +46,9 @@ namespace PARS
 			shader->Draw(commandList);
 		}
 	}
+
 	void RootSignature::PrepareToNextDraw()
 	{
-		for (const auto& [type, shader] : m_Shaders)
-		{
-			shader->PrepareToNextDraw();
-		}
 	}
 
 	void RootSignature::CreateShader(SPtr<Shader>&& shader)

@@ -4,6 +4,8 @@
 #include "PARS/Renderer/Shader/MaterialShader.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Util/Content/GraphicsAssetStore.h"
+#include "PARS/Component/Render/Mesh/Mesh.h"
+#include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS
@@ -33,20 +35,20 @@ namespace PARS
 	void DefaultRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
 		D3D12_ROOT_PARAMETER rootParameter[4];
-		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 		rootParameter[0].Descriptor.ShaderRegister = 0;
 		rootParameter[0].Descriptor.RegisterSpace = 0;
-		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[1].Descriptor.ShaderRegister = 1;
+		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+		rootParameter[1].Descriptor.ShaderRegister = 2;
 		rootParameter[1].Descriptor.RegisterSpace = 0;
 		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-		rootParameter[2].Descriptor.ShaderRegister = 0;
+		rootParameter[2].Descriptor.ShaderRegister = 1;
 		rootParameter[2].Descriptor.RegisterSpace = 0;
 		rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[3].Descriptor.ShaderRegister = 2;
+		rootParameter[3].Descriptor.ShaderRegister = 1;
 		rootParameter[3].Descriptor.RegisterSpace = 0;
 		rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 

@@ -10,121 +10,6 @@ namespace PARS
 		m_Type = ShaderType::Material;
 	}
 
-	void MaterialShader::Shutdown()
-	{
-		Shader::Shutdown();
-		if (m_WorldMatCB != nullptr)
-		{
-			m_WorldMatCB->Unmap(0, nullptr);
-			m_WorldMatCB->Release();
-		}
-
-		if (m_ConvertMatIndexCB != nullptr)
-		{
-			m_ConvertMatIndexCB->Unmap(0, nullptr);
-			m_ConvertMatIndexCB->Release();
-		}
-	}
-
-	void MaterialShader::PrepareToNextDraw()
-	{
-
-		if (m_WorldMatCB != nullptr)
-		{
-			
-			//m_WorldMatCB->Release();
-			//m_WorldMatCB = nullptr;
-		}
-
-		Shader::PrepareToNextDraw();
-	}
-
-	void MaterialShader::Update()
-	{
-		UpdateShaderVariables();
-	}
-
-	void MaterialShader::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT newObjectCnt, UINT numOfObject)
-	{
-		//Mesh를 바꾸면 여기에 다시 들어오는구나..
-		//근데 바꿀 때 마다 모든거를 다시 그리는 건 너무 비효율적이다.
-		//따라서 어떤 방법으로 해결해야한다.
-
-		if (m_WorldMatCB != nullptr)
-		{
-			m_WorldMatCB->Unmap(0, nullptr);
-			m_WorldMatCB->Release();
-			m_WorldMatCB = nullptr;
-		}
-
-		if (m_ConvertMatIndexCB != nullptr)
-		{
-			m_ConvertMatIndexCB->Unmap(0, nullptr);
-			m_ConvertMatIndexCB->Release();
-			m_ConvertMatIndexCB = nullptr;
-		}
-
-
-		//이 부분도 뭔가 비효율적이다. 애초에 원래 있는 데이터를 다시 작성하는게 아니라 복사를 하는 방법은 없는 걸까?
-		if (numOfObject > 0)
-		{
-			UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
-
-			m_WorldMatCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, worldCBByteSize * numOfObject,
-				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
-
-			if (FAILED(m_WorldMatCB->Map(0, nullptr, reinterpret_cast<void**>(&m_WorldMatMappedData))))
-			{
-				PARS_ERROR("WorldMatCB Mapping Error");
-			}
-
-			UINT convertIndexCBByteSize = ((sizeof(CBConvertMatIndex) + 255) & ~255);
-
-			m_ConvertMatIndexCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, convertIndexCBByteSize * numOfObject,
-				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
-
-			if (FAILED(m_ConvertMatIndexCB->Map(0, nullptr, reinterpret_cast<void**>(&m_ConvertMatIndexMappedData))))
-			{
-				PARS_ERROR("ConvertMatIndexCB Mapping Error");
-			}
-		}
-	}
-
-	void MaterialShader::UpdateShaderVariables()
-	{
-		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
-		UINT convertIndexCBByteSize = ((sizeof(CBConvertMatIndex) + 255) & ~255);
-
-		for (int i = 0; i < m_RenderComponents.size(); ++i)
-		{
-			//정말 이렇게 설계하는 것이 최선일까? 너무.. 아쉽다.
-			//근데 지금 상태에서는 떠오르는 방법이 없다..
-			switch (m_RenderComponents[i]->GetRenderType())
-			{
-			case RenderType::StaticMesh:
-				m_RenderComponents[i]->UpdateShaderVariables({
-					{"CBWorld", &m_WorldMatMappedData[i * worldCBByteSize]},
-					{"CBConvertMatIndex", &m_ConvertMatIndexMappedData[i * convertIndexCBByteSize]}
-					});
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	void MaterialShader::DrawRenderComp(ID3D12GraphicsCommandList* commandList, int index)
-	{
-		UINT worldCBByteSize = ((sizeof(CBWorldMat) + 255) & ~255);
-		D3D12_GPU_VIRTUAL_ADDRESS worldCBAddress = m_WorldMatCB->GetGPUVirtualAddress() + index * worldCBByteSize;
-		commandList->SetGraphicsRootConstantBufferView(0, worldCBAddress);
-
-		UINT convertIndexCBByteSize = ((sizeof(CBConvertMatIndex) + 255) & ~255);
-		D3D12_GPU_VIRTUAL_ADDRESS convertIndexCBAddress = m_ConvertMatIndexCB->GetGPUVirtualAddress() + index * convertIndexCBByteSize;
-		commandList->SetGraphicsRootConstantBufferView(1, convertIndexCBAddress);
-	}
-
-
 	void MaterialShader::CreateShader()
 	{
 		m_VSBlob = CompileShader(L"Default.hlsl", "VSMaterialMain", "vs_5_1");
@@ -135,7 +20,6 @@ namespace PARS
 	{
 		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-		m_InputLayouts.emplace_back(D3D12_INPUT_ELEMENT_DESC{ "MATINDEX", 0, DXGI_FORMAT_R32_SINT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	}
 
 	bool MaterialShader::CreatePSO(ID3D12RootSignature* rootSignature)

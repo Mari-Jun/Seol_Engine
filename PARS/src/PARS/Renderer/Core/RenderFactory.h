@@ -1,13 +1,13 @@
 #pragma once
 #include "PARS/Renderer/Core/Viewport.h"
-#include "PARS/Component/Render/RenderComponent.h"
-#include "PARS/Component/Camera/CameraComponent.h"
-#include "PARS/Component/Light/LightComponent.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
 #include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 
 namespace PARS
 {
+	class CameraComponent;
+	class LightComponent;
+
 	class RenderFactory
 	{
 	private:
@@ -40,9 +40,8 @@ namespace PARS
 		std::list<SPtr<LightComponent>> m_LightComps;
 
 	public:
-		void AddRenderComponent(RenderType type, const SPtr<RenderComponent>& component);
-		void AddPrepareComponent(RenderType type, const SPtr<RenderComponent>& component);
-		void RemoveRenderComponent(RenderType type, const SPtr<RenderComponent>& component);
+		void AddMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
+		void RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
 
 		void AddCameraComponent(const SPtr<CameraComponent>& camera);
 		void RemoveCameraComponent(const SPtr<CameraComponent>& camera);

@@ -5,7 +5,7 @@
 namespace PARS
 {
 	HandmadeMeshComponent::HandmadeMeshComponent()
-		: MeshComponent("Handmade Mesh Component", RenderType::HandMadeMesh)
+		: MeshComponent("Handmade Mesh Component", MeshType::Handmade)
 	{
 	}
 

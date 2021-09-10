@@ -22,11 +22,18 @@ namespace PARS
 		m_IndexUploadBuffer = nullptr;
 	}
 
-	void Mesh::Draw(ID3D12GraphicsCommandList* commandList)
+	void Mesh::BeginDraw(ID3D12GraphicsCommandList* commandList)
 	{
 		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 		commandList->IASetVertexBuffers(m_Slot, 1, &m_VertexBufferView);
+		if (b_DrawIndex)
+		{
+			commandList->IASetIndexBuffer(&m_IndexBufferView);
+		}
+	}
 
+	void Mesh::Draw(ID3D12GraphicsCommandList* commandList)
+	{
 		if (b_DrawIndex)
 		{
 			commandList->IASetIndexBuffer(&m_IndexBufferView);
@@ -36,7 +43,6 @@ namespace PARS
 		{
 			commandList->DrawInstanced(m_VertexCount, 1, m_Offset, 0);
 		}
-		
 	}
 
 	void Mesh::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
@@ -115,22 +121,18 @@ namespace PARS
 	void MaterialMesh::Shutdown()
 	{
 		Mesh::Shutdown();
-		m_Materials.clear();
 	}
 
-	void MaterialMesh::Draw(ID3D12GraphicsCommandList* commandList)
+	void MaterialMesh::Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount, UINT subMeshCount)
 	{
-		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
-		commandList->IASetVertexBuffers(m_Slot, 1, &m_VertexBufferView);
-
+		const auto& [count, location] = m_DrawInfos[subMeshCount];
 		if (b_DrawIndex)
 		{
-			commandList->IASetIndexBuffer(&m_IndexBufferView);
-			commandList->DrawIndexedInstanced(m_IndexCount, 1, 0, 0, 0);
+			commandList->DrawIndexedInstanced(count, instanceCount, location, 0, 0);
 		}
 		else
 		{
-			commandList->DrawInstanced(m_VertexCount, 1, m_Offset, 0);
+			commandList->DrawInstanced(count, instanceCount, location, 0);
 		}
 	}
 
@@ -179,23 +181,6 @@ namespace PARS
 		}
 	}
 
-	void MaterialMesh::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
-	{
-		if (variables.find("CBConvertMatIndex") != variables.cend())
-		{
-			CBConvertMatIndex mappedConvertIndex;
-
-			int index = 0;
-			for (const auto& material : m_Materials)
-			{
-				mappedConvertIndex.indice[index / 4][index % 4] = material->GetMatCBIndex();
-				++index;
-			}
-				
-			memcpy(variables["CBConvertMatIndex"], &mappedConvertIndex, sizeof(CBConvertMatIndex));
-		}
-	}
-
 	namespace OBJ
 	{
 		std::vector<SPtr<MaterialMesh>> LoadObj(const std::string& path, const std::string& parentPath)
@@ -216,8 +201,7 @@ namespace PARS
 
 				std::vector<UINT> posIndices;
 				std::vector<UINT> normalIndices;
-				std::vector<UINT> mtlIndices;
-				int mtlIndex = -1;
+				std::vector<UINT> locations;
 
 				std::stringstream ss;
 				std::string line;
@@ -251,8 +235,12 @@ namespace PARS
 
 							materialVertices[index].SetPosition(positions[posIndices[i]]);
 							materialVertices[index].SetNormal(normals[normalIndices[i]]);
-							materialVertices[index].SetMaterialIndex(mtlIndices[i]);
 						}
+
+
+						for (int i = 0; i < locations.size() - 1; ++i)
+							mesh->AddDrawInfo({ locations[i + 1] - locations[i], locations[i] });
+						mesh->AddDrawInfo({ static_cast<UINT>(materialVertices.size()) - *(locations.end() - 1), *(locations.end() - 1) });
 
 						mesh->SetRealVertexCount(positions.size() - vertexCount);
 						vertexCount = positions.size();
@@ -262,8 +250,7 @@ namespace PARS
 						mesh = nullptr;
 						posIndices.clear();
 						normalIndices.clear();
-						mtlIndices.clear();
-						mtlIndex = -1;
+						locations.clear();
 					}
 					});
 
@@ -300,7 +287,7 @@ namespace PARS
 					{
 						ss >> mtlName;
 						mesh->AddMaterial(GraphicsAssetStore::GetAssetStore()->GetMaterial(parentPath + "\\" + mtlName));
-						++mtlIndex;
+						locations.push_back(static_cast<UINT>(posIndices.size()));
 					}
 					else if (prefix == "f")
 					{
@@ -311,7 +298,6 @@ namespace PARS
 							if (count == 0)
 							{
 								posIndices.emplace_back(tempUInt - 1);
-								mtlIndices.emplace_back(mtlIndex);
 							}
 							else if (count == 1)
 							{

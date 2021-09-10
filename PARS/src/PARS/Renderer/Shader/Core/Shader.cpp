@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
+#include "PARS/Renderer/Core/RenderItem.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
 
 namespace PARS
 {
@@ -22,6 +24,10 @@ namespace PARS
 
 	void Shader::Shutdown()
 	{
+		for (auto& renderItem : m_RenderItems)
+			renderItem->Shutdown();
+		m_RenderItems.clear();
+
 		if (m_PipelineState != nullptr) m_PipelineState->Release();
 		m_PipelineState = nullptr;
 		if (m_VSBlob != nullptr) m_VSBlob->Release();
@@ -32,41 +38,20 @@ namespace PARS
 
 	void Shader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		for (auto& comp : m_PrepareComponents)
+		for (const auto& renderItem : m_RenderItems)
 		{
-			comp->RenderReady(device, commandList);
-			if (comp->GetRenderState() == RenderState::Ready)
-				m_IsNeedUpdateMappedData = true;
+			renderItem->Update(device, commandList);
 		}
-
-		if (m_IsNeedUpdateMappedData)
-		{
-			RenderReady(device, commandList, static_cast<UINT>(m_PrepareComponents.size()), static_cast<UINT>(m_RenderComponents.size()));
-			m_IsNeedUpdateMappedData = false;
-		}
-
-		Update();
 	}
 
 	void Shader::Draw(ID3D12GraphicsCommandList* commandList)
 	{
 		m_DirectX12->GetCommandList()->SetPipelineState(GetPipelineState());
 
-		for (int index = 0; index < m_RenderComponents.size(); ++index)
+		for (const auto& renderItem : m_RenderItems)
 		{
-			DrawRenderComp(m_DirectX12->GetCommandList(), index);
-			m_RenderComponents[index]->Draw(m_DirectX12->GetCommandList());
+			renderItem->Draw(commandList);
 		}
-	}
-
-	void Shader::PrepareToNextDraw()
-	{
-		for (auto& comp : m_PrepareComponents)
-		{
-			comp->ReleaseUploadBuffers();
-			comp->SetRenderState(RenderState::Render);
-		}
-		m_PrepareComponents.clear();
 	}
 
 	D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
@@ -152,25 +137,40 @@ namespace PARS
 		return byteCode;
 	}
 
-	void Shader::AddRenderComponent(const SPtr<class RenderComponent>& component)
+	void Shader::AddMeshCompForDraw(const SPtr<MeshComponent>& meshComp)
 	{
-		m_RenderComponents.push_back(component);
-	}
+		const auto& mesh = meshComp->GetMesh();
 
-	void Shader::AddPrepareComponent(const SPtr<class RenderComponent>& component)
-	{
-		m_PrepareComponents.push_back(component);
-	}
+		auto iter = find_if(m_RenderItems.begin(), m_RenderItems.end(), [&mesh](const SPtr<RenderItem>& renderItem)
+			{ return mesh == renderItem->GetMesh(); });
 
-	void Shader::RemoveRenderComponent(const SPtr<class RenderComponent>& component)
-	{
-		auto iter = std::find_if(m_RenderComponents.begin(), m_RenderComponents.end(),
-			[&component](const SPtr<RenderComponent>& comp)
-			{return component == comp; });
-		if (iter != m_RenderComponents.end())
+		if (iter != m_RenderItems.end())
 		{
-			m_RenderComponents.erase(iter);
-			m_IsNeedUpdateMappedData = true;
+			iter->get()->AddMeshCompDrwanWithMesh(meshComp);
+		}
+		else
+		{
+			UINT matSize = static_cast<UINT>(meshComp->GetMaterials().size());
+			SPtr<RenderItem> renderItem = CreateSPtr<RenderItem>(mesh, matSize);
+			renderItem->AddMeshCompDrwanWithMesh(meshComp);
+			m_RenderItems.emplace_back(std::move(renderItem));
+		}
+	}
+
+	void Shader::RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp)
+	{
+		const auto & mesh = meshComp->GetMesh();
+
+		auto iter = find_if(m_RenderItems.begin(), m_RenderItems.end(), [&mesh](const SPtr<RenderItem>& renderItem)
+			{ return mesh == renderItem->GetMesh(); });
+
+		if (iter != m_RenderItems.end())
+		{
+			if (iter->get()->RemoveInstanceData(meshComp))
+			{
+				iter->get()->Shutdown();
+				m_RenderItems.erase(iter);
+			}
 		}
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "PARS/Renderer/Shader/Core/Shader.h"	
 #include "PARS/Renderer/Shader/Core/RootSignature.h"
-#include "PARS/Component/Light/LightComponent.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
 
 namespace PARS
 {
@@ -21,11 +21,11 @@ namespace PARS
 		void CreateRootSignatures();
 
 	public:
-		const SPtr<Shader>& GetShader(RenderType type) const;
+		const SPtr<Shader>& GetShader(MeshType type) const;
 
 	private:
 		SPtr<DirectX12> m_DirectX12;
-		std::unordered_map<std::string, UPtr<RootSignature>> m_RootSignatures;
+		std::unordered_map<std::string, UPtr<class RootSignature>> m_RootSignatures;
 	};
 }
 

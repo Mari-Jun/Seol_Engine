@@ -4,20 +4,33 @@
 
 #include "Light.hlsl"
 
-StructuredBuffer<Material> gMaterials : register(t0, space0);
-
-cbuffer cbWorldInfo : register(b0)
+struct InstanceData
 {
-    matrix gWorld;
-    matrix gWorldInverseTranspose;
-}
+    matrix world;
+    matrix worldInverseTranspose;
+};
 
-cbuffer cbConvertMatIndex : register(b1)
+struct MaterialInstanceData
 {
-    int4 gConvertIndice[MaxMaterial];
-}
+    uint index;
+};
 
-cbuffer cbColorPass : register(b2)
+StructuredBuffer<InstanceData> gInstanceDatas : register(t0, space0);
+StructuredBuffer<MaterialInstanceData> gMaterialInstanceDatas : register(t2, space0);
+StructuredBuffer<Material> gMaterials : register(t1, space0);
+
+//cbuffer cbWorldInfo : register(b0)
+//{
+//    matrix gWorld;
+//    matrix gWorldInverseTranspose;
+//}
+
+cbuffer cbCurMatIndex : register(b0, space0)
+{
+    uint gMatIndex;
+};
+
+cbuffer cbDefaultPass : register(b1, space0)
 {
     matrix gViewProj;
     float3 gEyePos;
@@ -44,14 +57,16 @@ struct VS_DIFFUSE_OUT
     float4 color : COLOR;
 };
 
-VS_DIFFUSE_OUT VSDiffuseMain(VS_DIFFUSE_IN input)
+VS_DIFFUSE_OUT VSDiffuseMain(VS_DIFFUSE_IN input, uint instanceID : SV_InstanceID)
 {
     VS_DIFFUSE_OUT output;
+    
+    InstanceData instData = gInstanceDatas[instanceID];
 
-    float4 pos = mul(float4(input.position, 1.0f), gWorld);
+    float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-    output.normal = mul(input.normal, (float3x3)gWorldInverseTranspose);
+    output.normal = mul(input.normal, (float3x3)instData.worldInverseTranspose);
     output.normal = normalize(output.normal);
     output.color = input.color;
     
@@ -78,7 +93,6 @@ struct VS_MATERIAL_IN
 {
     float3 position : POSITION;
     float3 normal : NORMAL;
-    int index : MATINDEX;
 };
 
 struct VS_MATERIAL_OUT
@@ -89,16 +103,19 @@ struct VS_MATERIAL_OUT
     float4 color : COLOR;
 };
 
-VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input)
+VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_InstanceID)
 {
     VS_MATERIAL_OUT output;
-
-    float4 pos = mul(float4(input.position, 1.0f), gWorld);
+    
+    InstanceData instData = gInstanceDatas[instanceID];
+    MaterialInstanceData matData = gMaterialInstanceDatas[instanceID];
+    
+    float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-    output.normal = mul(input.normal, (float3x3) gWorldInverseTranspose);
+    output.normal = mul(input.normal, (float3x3) instData.worldInverseTranspose);
     output.normal = normalize(output.normal);
-    output.color = gMaterials[gConvertIndice[input.index / 4][input.index % 4]].DiffuseAlbedo;
+    output.color = gMaterials[matData.index].DiffuseAlbedo;
     
     return output;
 }

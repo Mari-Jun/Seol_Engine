@@ -20,7 +20,7 @@ namespace PARS
 			if (m_Mesh != nullptr)
 			{
 				m_Mesh->Shutdown();
-				SetRenderState(RenderState::Changed);
+				m_Mesh = nullptr;
 			}
 			else
 			{

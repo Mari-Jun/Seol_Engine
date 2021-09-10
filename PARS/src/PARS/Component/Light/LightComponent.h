@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Math/Math.h"
+#include "PARS/Component/Component.h"
 
 namespace PARS
 {
