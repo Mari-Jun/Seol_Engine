@@ -6,8 +6,9 @@
 
 namespace PARS
 {
-	RenderItem::RenderItem(const SPtr<Mesh>& mesh)
+	RenderItem::RenderItem(const SPtr<Mesh>& mesh, UINT matCount)
 		: m_Mesh(mesh)
+		, m_MaterialCount(matCount)
 	{
 		
 	}
@@ -19,6 +20,13 @@ namespace PARS
 			m_InstanceData->Unmap(0, nullptr);
 			m_InstanceData->Release();
 			m_InstanceData = nullptr;
+		}
+
+		if (m_MatInstanceData != nullptr)
+		{
+			m_MatInstanceData->Unmap(0, nullptr);
+			m_MatInstanceData->Release();
+			m_MatInstanceData = nullptr;
 		}
 	}
 
@@ -61,6 +69,23 @@ namespace PARS
 		{
 			PARS_ERROR("InstanceData Mapping Error");
 		}
+
+		if (m_MatInstanceData != nullptr)
+		{
+			m_MatInstanceData->Unmap(0, nullptr);
+			m_MatInstanceData->Release();
+			m_MatInstanceData = nullptr;
+		}
+
+		m_MatInstanceDataSize = m_Instances.size() * sizeof(MaterialInstanceData);
+
+		m_MatInstanceData = D3DUtil::CreateBufferResource(device, commandList, nullptr, m_MaterialCount * m_MatInstanceDataSize,
+			D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
+
+		if (FAILED(m_MatInstanceData->Map(0, nullptr, (void**)&m_MatInstanceMappedData)))
+		{
+			PARS_ERROR("MatInstanceData Mapping Error");
+		}
 	}
 
 	void RenderItem::UpdateShaderVariables()
@@ -69,18 +94,24 @@ namespace PARS
 		for (const auto& instance : m_Instances)
 		{
 			instance.meshComp.lock()->UpdateShaderVariables({
-				{ "InstanceData", &m_MappedInstanceData[index * sizeof(RenderInstanceData)] }
+				{ "InstanceData", &m_MappedInstanceData[index * sizeof(RenderInstanceData)] },
 				});
+			instance.meshComp.lock()->UpdateMaterialShaderVariables(m_MatInstanceMappedData, index, m_MatInstanceDataSize);
 			++index;
 		}
 	}
 
 	void RenderItem::Draw(ID3D12GraphicsCommandList* commandList)
 	{
-		commandList->SetGraphicsRootShaderResourceView(2, m_InstanceData->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootShaderResourceView(0, m_InstanceData->GetGPUVirtualAddress());
 		if (m_Mesh != nullptr)
 		{
-			m_Mesh->Draw(commandList, m_Instances.size());
+			m_Mesh->BeginDraw(commandList);
+			for (UINT i = 0; i < m_MaterialCount; ++i)
+			{
+				commandList->SetGraphicsRootShaderResourceView(1, m_MatInstanceData->GetGPUVirtualAddress() + i * m_MatInstanceDataSize);
+				m_Mesh->Draw(commandList, m_Instances.size(), i);
+			}
 		}
 	}
 
@@ -101,22 +132,12 @@ namespace PARS
 	{
 		UINT index = meshComp->GetInstanceIndex();
 
-		std::cout << "¹Ù²Ü index : " << index << std::endl;
-		
-		std::cout << m_Instances[index].meshComp.lock()->GetOwner().lock()->GetActorName() << std::endl;
-
 		std::swap(*(m_Instances.begin() + index), *(m_Instances.end() - 1));
 		m_Instances[index].meshComp.lock()->SetInstanceIndex(index);
 
-
-		std::cout << m_Instances[index].meshComp.lock()->GetOwner().lock()->GetActorName() << std::endl;
 		m_Instances.pop_back();
 
 		return m_Instances.empty();
-	}
-
-	void RenderItem::ChangeMaterialForInstanceData(const SPtr<class MeshComponent>& meshComp, UINT index)
-	{
 	}
 
 	const std::string& RenderItem::GetMeshName() const

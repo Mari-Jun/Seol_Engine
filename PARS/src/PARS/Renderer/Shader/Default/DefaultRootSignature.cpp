@@ -4,6 +4,7 @@
 #include "PARS/Renderer/Shader/MaterialShader.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Util/Content/GraphicsAssetStore.h"
+#include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS
@@ -32,27 +33,23 @@ namespace PARS
 
 	void DefaultRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
-		D3D12_ROOT_PARAMETER rootParameter[5];
-		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		D3D12_ROOT_PARAMETER rootParameter[4];
+		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 		rootParameter[0].Descriptor.ShaderRegister = 0;
 		rootParameter[0].Descriptor.RegisterSpace = 0;
-		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[1].Descriptor.ShaderRegister = 1;
+		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+		rootParameter[1].Descriptor.ShaderRegister = 2;
 		rootParameter[1].Descriptor.RegisterSpace = 0;
 		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-		rootParameter[2].Descriptor.ShaderRegister = 0;
+		rootParameter[2].Descriptor.ShaderRegister = 1;
 		rootParameter[2].Descriptor.RegisterSpace = 0;
 		rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+		rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 		rootParameter[3].Descriptor.ShaderRegister = 1;
 		rootParameter[3].Descriptor.RegisterSpace = 0;
 		rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[4].Descriptor.ShaderRegister = 2;
-		rootParameter[4].Descriptor.RegisterSpace = 0;
-		rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 		D3D12_ROOT_SIGNATURE_DESC rsDesc;
 		rsDesc.NumParameters = _countof(rootParameter);
@@ -181,7 +178,7 @@ namespace PARS
 
 	void DefaultRootSignature::DrawPassFrame(ID3D12GraphicsCommandList* commandList)
 	{
-		commandList->SetGraphicsRootShaderResourceView(3, m_MaterialCB->GetGPUVirtualAddress());
-		commandList->SetGraphicsRootConstantBufferView(4, m_DefaultPassCB->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootShaderResourceView(2, m_MaterialCB->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(3, m_DefaultPassCB->GetGPUVirtualAddress());
 	}
 }

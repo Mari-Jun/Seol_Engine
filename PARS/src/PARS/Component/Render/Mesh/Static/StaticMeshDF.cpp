@@ -75,7 +75,7 @@ namespace PARS
 			}
 
 			if (selectMaterial != nullptr)
-				meshComp->ChangeMaterial(selectMaterial, index);
+				meshComp->SetMaterial(selectMaterial, index);
 
 			++index;
 		}

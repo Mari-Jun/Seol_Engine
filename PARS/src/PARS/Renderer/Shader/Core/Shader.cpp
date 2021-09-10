@@ -204,7 +204,8 @@ namespace PARS
 		}
 		else
 		{
-			SPtr<RenderItem> renderItem = CreateSPtr<RenderItem>(mesh);
+			UINT matSize = static_cast<UINT>(meshComp->GetMaterials().size());
+			SPtr<RenderItem> renderItem = CreateSPtr<RenderItem>(mesh, matSize);
 			renderItem->AddMeshCompDrwanWithMesh(meshComp);
 			m_RenderItems.emplace_back(std::move(renderItem));
 		}

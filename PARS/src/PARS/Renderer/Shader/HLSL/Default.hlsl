@@ -8,29 +8,40 @@ struct InstanceData
 {
     matrix world;
     matrix worldInverseTranspose;
-    uint4 convertIndice[MaxMaterial];
+    //uint4 convertIndice[MaxMaterial];
+};
+
+struct MaterialInstanceData
+{
+    uint index;
 };
 
 StructuredBuffer<InstanceData> gInstanceDatas : register(t0, space0);
+StructuredBuffer<MaterialInstanceData> gMaterialInstanceDatas : register(t2, space0);
 StructuredBuffer<Material> gMaterials : register(t1, space0);
 
-cbuffer cbWorldInfo : register(b0)
-{
-    matrix gWorld;
-    matrix gWorldInverseTranspose;
-}
+//cbuffer cbWorldInfo : register(b0)
+//{
+//    matrix gWorld;
+//    matrix gWorldInverseTranspose;
+//}
 
-cbuffer cbConvertMatIndex : register(b1)
-{
-    int4 gConvertIndice[MaxMaterial];
-}
+//cbuffer cbConvertMatIndex : register(b1)
+//{
+//    int4 gConvertIndice[MaxMaterial];
+//}
 
-cbuffer cbConvertMatIndex : register(b1, space1)
-{
-    uint gConvertIndex;
-}
+//cbuffer cbConvertMatIndex : register(b1, space1)
+//{
+//    uint gConvertIndex;
+//}
 
-cbuffer cbColorPass : register(b2)
+cbuffer cbCurMatIndex : register(b0, space0)
+{
+    uint gMatIndex;
+};
+
+cbuffer cbColorPass : register(b1, space0)
 {
     matrix gViewProj;
     float3 gEyePos;
@@ -93,7 +104,6 @@ struct VS_MATERIAL_IN
 {
     float3 position : POSITION;
     float3 normal : NORMAL;
-    int index : MATINDEX;
 };
 
 struct VS_MATERIAL_OUT
@@ -109,13 +119,14 @@ VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_Instan
     VS_MATERIAL_OUT output;
     
     InstanceData instData = gInstanceDatas[instanceID];
+    MaterialInstanceData matData = gMaterialInstanceDatas[instanceID];
     
     float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
     output.normal = mul(input.normal, (float3x3) instData.worldInverseTranspose);
     output.normal = normalize(output.normal);
-    output.color = gMaterials[instData.convertIndice[0][0]].DiffuseAlbedo;
+    output.color = gMaterials[matData.index].DiffuseAlbedo;
     
     return output;
 }

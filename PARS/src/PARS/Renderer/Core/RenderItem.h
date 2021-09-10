@@ -6,16 +6,16 @@ namespace PARS
 {
 	class Mesh;
 
-	struct CBCurMatIndex
-	{
-		UINT index = 0;
-	};
-
 	struct RenderInstanceData
 	{
 		Mat4 worldMatrix;
 		Mat4 worldInverseTranspose;
-		std::array<UINT, 32> materialIndice;
+		//std::array<UINT, 32> materialIndice;
+	};
+
+	struct MaterialInstanceData
+	{
+		UINT matIndex;
 	};
 
 	struct RenderInstance
@@ -27,7 +27,7 @@ namespace PARS
 	class RenderItem
 	{
 	public:
-		RenderItem(const SPtr<Mesh>& mesh);
+		RenderItem(const SPtr<Mesh>& mesh, UINT matCount);
 		virtual ~RenderItem() = default;
 
 		void Shutdown();
@@ -40,14 +40,18 @@ namespace PARS
 	public:
 		void AddMeshCompDrwanWithMesh(const SPtr<class MeshComponent>& meshComp);
 		bool RemoveInstanceData(const SPtr<class MeshComponent>& meshComp);
-		void ChangeMaterialForInstanceData(const SPtr<class MeshComponent>& meshComp, UINT index);
 
 	private:
 		SPtr<Mesh> m_Mesh = nullptr;
+		UINT m_MaterialCount = 0;
 		std::vector<RenderInstance> m_Instances;
 
 		ID3D12Resource* m_InstanceData = nullptr;
 		BYTE* m_MappedInstanceData = nullptr;
+
+		ID3D12Resource* m_MatInstanceData = nullptr;
+		BYTE* m_MatInstanceMappedData = nullptr;
+		UINT m_MatInstanceDataSize = 0;
 
 		bool m_IsNeedMeshBufferUpdate = true;
 		bool m_IsAddNewInstance = false;

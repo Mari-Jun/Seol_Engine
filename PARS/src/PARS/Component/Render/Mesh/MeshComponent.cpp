@@ -47,6 +47,7 @@ namespace PARS
 	{
 		if (m_Mesh != nullptr)
 		{
+			m_Mesh->BeginDraw(commandList);
 			m_Mesh->Draw(commandList);
 		}
 	}
@@ -77,9 +78,28 @@ namespace PARS
 			RenderInstanceData data;
 			data.worldMatrix = worldMatrix;
 			data.worldInverseTranspose = worldInverseTranspose;
-			data.materialIndice = GetMaterialIndices();
+			//data.materialIndice = GetMaterialIndices();
 
 			memcpy(variables["InstanceData"], &data, sizeof(RenderInstanceData));
+		}
+		
+		/*if (variables.find("MatInstanceData") != variables.cend())
+		{
+			MaterialInstanceData data;
+			data.matIndex = m_Materials[0]->GetMatCBIndex();
+			memcpy(variables["MatInstanceData"], &data, sizeof(MaterialInstanceData));
+		}*/
+	}
+
+	void MeshComponent::UpdateMaterialShaderVariables(BYTE* variable, UINT instance, UINT offset)
+	{
+		int index = 0;
+		for (const auto& material : m_Materials)
+		{
+			MaterialInstanceData data;
+			data.matIndex = material->GetMatCBIndex();
+			memcpy(&variable[index * offset + instance * sizeof(MaterialInstanceData)], &data, sizeof(MaterialInstanceData));
+			++index;
 		}
 	}
 
@@ -89,16 +109,5 @@ namespace PARS
 		{
 			m_Mesh->ReleaseUploadBuffers();
 		}
-	}
-
-	std::array<UINT, 32> MeshComponent::GetMaterialIndices() const
-	{
-		std::array<UINT, 32> indices = { 0, };
-
-		UINT index = 0;
-		for (const auto& material : m_Materials)
-			indices[index++] = (material->GetMatCBIndex());
-
-		return indices;
 	}
 }

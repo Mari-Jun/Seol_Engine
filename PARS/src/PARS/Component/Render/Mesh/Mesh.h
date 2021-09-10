@@ -12,8 +12,9 @@ namespace PARS
 		virtual ~Mesh() = default;
 
 		virtual void Shutdown();
+		virtual void BeginDraw(ID3D12GraphicsCommandList* commandList);
 		virtual void Draw(ID3D12GraphicsCommandList* commandList);
-		virtual void Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount);
+		virtual void Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount, UINT subMeshCount) {}
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 		virtual void SetBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {}	
@@ -75,6 +76,12 @@ namespace PARS
 		std::array<int, 32> indice;
 	};
 
+	struct DrawInfo
+	{
+		UINT vertexCount;
+		UINT startLocation;
+	};
+
 	class Material;
 
 	class MaterialMesh : public Mesh
@@ -84,7 +91,7 @@ namespace PARS
 		virtual ~MaterialMesh() = default;
 
 		virtual void Shutdown() override;
-		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
+		virtual void Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount, UINT subMeshCount) override;
 
 		void SetVertex(const std::vector<MaterialVertex>& vertices);
 		void SetVertex(const std::vector<MaterialVertex>& vertices, const std::vector<UINT>& indices);
@@ -98,10 +105,13 @@ namespace PARS
 		const std::vector<SPtr<Material>>& GetMaterials() const  { return m_DefaultMaterials; }
 		void AddMaterial(const SPtr<Material>& material) { m_DefaultMaterials.push_back(material); }
 
+		void AddDrawInfo(DrawInfo&& info) { m_DrawInfos.emplace_back(std::move(info)); }
+
 	private:
 		std::vector<MaterialVertex> m_MaterialVertices;
 		std::vector<UINT> m_Indices;
 		std::vector<SPtr<Material>> m_DefaultMaterials;
+		std::vector<DrawInfo> m_DrawInfos;
 	};
 
 	namespace OBJ
