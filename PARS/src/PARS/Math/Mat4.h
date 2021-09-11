@@ -46,6 +46,9 @@ namespace PARS
 		void Transpose();
 		static Mat4 Transpose(const Mat4& mat);
 
+		void InverseTranspose();
+		static Mat4 InverseTranspose(const Mat4& mat);
+
 		XMMATRIX ConvertToXMMATRIX();
 		void ConvertFromXMMATRIX(const XMMATRIX& matrix);
 

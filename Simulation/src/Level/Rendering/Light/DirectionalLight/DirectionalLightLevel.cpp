@@ -24,7 +24,7 @@ namespace PARS
 
 		actor = CreateSPtr<Actor>("Tree");
 		actor->SetPosition({ 200.0f, 0.0f, 1000.0f });
-		actor->SetScale(100.0f);
+		actor->SetScale({ 500.0f, 100.0f, 500.0f });
 		AddActor(actor);
 		meshComp = CreateSPtr<StaticMeshComponent>();
 		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
@@ -35,7 +35,7 @@ namespace PARS
 		actor->SetScale(100.0f);
 		AddActor(actor);
 		meshComp = CreateSPtr<StaticMeshComponent>();
-		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree2");
 		actor->AddComponent(meshComp);
 
 		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
@@ -56,6 +56,23 @@ namespace PARS
 
 	void DirectionalLightLevel::UpdateLevel(float deltaTime)
 	{
-	
+		/*static float time = 0.0f;
+		static float move = 100.0f;
+
+		time += deltaTime;
+
+		if (time > 0.02f && move <= 1100.0f)
+		{
+			auto actor = CreateSPtr<Actor>("Tree");
+			actor->SetPosition({ move, 0.0f, 1000.0f - move });
+			actor->SetScale(100.0f);
+			AddActor(actor);
+			auto meshComp = CreateSPtr<StaticMeshComponent>();
+			meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+			actor->AddComponent(meshComp);
+
+			time -= 0.02f;
+			move += 1.0f;
+		}*/
 	}
 }

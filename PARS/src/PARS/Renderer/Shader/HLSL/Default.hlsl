@@ -75,17 +75,17 @@ VS_DIFFUSE_OUT VSDiffuseMain(VS_DIFFUSE_IN input, uint instanceID : SV_InstanceI
 
 float4 PSDiffuseMain(VS_DIFFUSE_OUT input) : SV_TARGET
 {
-    //return input.color;
+    return input.color;
     
-    float3 eye = normalize(gEyePos - input.basicPos);
+    //float3 eye = normalize(gEyePos - input.basicPos);
     
-    float4 ambientLight = gAmbientLight * input.color;
+    //float4 ambientLight = gAmbientLight * input.color;
     
-    float4 directLight = ComputeLight(gLights, gLightCounts, input.basicPos, input.normal, eye) * input.color;
+    //float4 directLight = ComputeLight(gLights, gLightCounts, input.basicPos, input.normal, eye) * input.color;
     
-    float4 result = ambientLight + directLight;
+    //float4 result = ambientLight + directLight;
      
-    return result;
+    //return result;
 }
 
 
@@ -100,7 +100,7 @@ struct VS_MATERIAL_OUT
     float4 position : SV_POSITION;
     float3 basicPos : POSITION;
     float3 normal : NORMAL;
-    float4 color : COLOR;
+    nointerpolation uint matIndex : MATINDEX;
 };
 
 VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_InstanceID)
@@ -108,29 +108,40 @@ VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_Instan
     VS_MATERIAL_OUT output;
     
     InstanceData instData = gInstanceDatas[instanceID];
-    MaterialInstanceData matData = gMaterialInstanceDatas[instanceID];
     
     float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-    output.normal = mul(input.normal, (float3x3) instData.worldInverseTranspose);
-    output.normal = normalize(output.normal);
-    output.color = gMaterials[matData.index].DiffuseAlbedo;
+   
+    //노멀을 언리얼, Max에서 scale변환을 하지 않는 행렬을 곱해주는 것 같다..
+    //일단은 역전치행렬 곱해주고..
+    output.normal = mul(input.normal, (float3x3)instData.worldInverseTranspose);
+    //output.normal = input.normal;
+    output.matIndex = gMaterialInstanceDatas[instanceID].index;
     
     return output;
 }
 
 float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
 {
-    return input.color;
+    //return gMaterials[input.matIndex].DiffuseAlbedo;
     
-    //float3 eye = normalize(gEyePos - input.basicPos);
+    Material matData = gMaterials[input.matIndex];
+    float4 diffuseAlbedo = matData.DiffuseAlbedo;
+    float3 fresnelR0 = matData.FresnelR0;
+    float roughness = 1.0f - matData.Shininess;
     
-    //float4 ambientLight = gAmbientLight * input.color;
+    input.normal = normalize(input.normal);
     
-    //float4 directLight = ComputeLight(gLights, gLightCounts, input.basicPos, input.normal, eye) * input.color;
+    //return float4(abs(input.normal), 1.0f);
     
-    //float4 result = ambientLight + directLight;
+    float3 eye = normalize(gEyePos - input.basicPos);
+    
+    float4 ambientLight = gAmbientLight * diffuseAlbedo;
+    
+    float4 directLight = ComputeLight(gLights, matData, gLightCounts, input.basicPos, input.normal, eye);
+    
+    float4 result = ambientLight + directLight;
      
-    //return result;
+    return result;
 }

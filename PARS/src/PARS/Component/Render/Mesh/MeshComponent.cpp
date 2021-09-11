@@ -68,9 +68,9 @@ namespace PARS
 			const auto& owner = m_Owner.lock();
 
 			Mat4 worldMatrix = owner->GetWorldMatrix();
-			Mat4 worldInverseTranspose = worldMatrix;
+			Mat4 worldInverseTranspose = Mat4::InverseTranspose(worldMatrix);
 			worldMatrix.Transpose();
-			worldInverseTranspose.Invert();
+			worldInverseTranspose.Transpose();
 
 			RenderInstanceData data;
 			data.worldMatrix = worldMatrix;

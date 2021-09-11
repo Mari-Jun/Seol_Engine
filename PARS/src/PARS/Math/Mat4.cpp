@@ -227,6 +227,23 @@ namespace PARS
 		return result;
 	}
 
+	void Mat4::InverseTranspose()
+	{
+		XMMATRIX temp = ConvertToXMMATRIX();
+		temp.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		XMVECTOR det = XMMatrixDeterminant(temp);
+		temp = XMMatrixTranspose(XMMatrixInverse(&det, temp));
+		ConvertFromXMMATRIX(temp);
+	}
+
+	Mat4 Mat4::InverseTranspose(const Mat4& mat)
+	{
+		auto result(mat);
+		result.InverseTranspose();
+		return result;
+	}
+
 	XMMATRIX Mat4::ConvertToXMMATRIX()
 	{
 		XMFLOAT4X4 temp;

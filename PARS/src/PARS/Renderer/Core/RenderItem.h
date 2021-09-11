@@ -10,7 +10,6 @@ namespace PARS
 	{
 		Mat4 worldMatrix;
 		Mat4 worldInverseTranspose;
-		//std::array<UINT, 32> materialIndice;
 	};
 
 	struct MaterialInstanceData
