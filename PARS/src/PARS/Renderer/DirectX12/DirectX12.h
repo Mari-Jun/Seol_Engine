@@ -43,7 +43,6 @@ namespace PARS
 		ID3D12CommandQueue* GetCommandQueue() { return m_CommandQueue; }
 		ID3D12CommandAllocator* GetCommandAllocator() { return m_CommandAllocator; }
 		ID3D12GraphicsCommandList* GetCommandList() { return m_CommandList; }
-		ID3D12DescriptorHeap* GetCbvSrvUavHeap() { return m_CbvSrvUavDescriptorHeap; }
 
 		ID3D12Resource* GetCurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
@@ -85,9 +84,6 @@ namespace PARS
 		ID3D12Resource* m_DepthStencilBuffer = nullptr;
 		ID3D12DescriptorHeap* m_DsvDescriptorHeap = nullptr;
 		UINT m_DsvDescriptorSize = 0;
-
-		ID3D12DescriptorHeap* m_CbvSrvUavDescriptorHeap = nullptr;
-		UINT m_CbvSrvUavDescriptorSize = 0;
 
 		D3D12_VIEWPORT m_Viewport;
 		D3D12_RECT m_ScissorRect;

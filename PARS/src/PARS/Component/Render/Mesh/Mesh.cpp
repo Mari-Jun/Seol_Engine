@@ -198,9 +198,11 @@ namespace PARS
 			{
 				std::vector<Vec3> positions;
 				std::vector<Vec3> normals;
+				std::vector<Vec2> texCoords;
 
 				std::vector<UINT> posIndices;
 				std::vector<UINT> normalIndices;
+				std::vector<UINT> texIndices;
 				std::vector<UINT> locations;
 
 				std::stringstream ss;
@@ -235,6 +237,7 @@ namespace PARS
 
 							materialVertices[index].SetPosition(positions[posIndices[i]]);
 							materialVertices[index].SetNormal(normals[normalIndices[i]]);
+							materialVertices[index].SetTexCoord(texCoords[texIndices[i]]);
 						}
 
 
@@ -250,6 +253,7 @@ namespace PARS
 						mesh = nullptr;
 						posIndices.clear();
 						normalIndices.clear();
+						texIndices.clear();
 						locations.clear();
 					}
 					});
@@ -283,6 +287,11 @@ namespace PARS
 						tempVec3.z *= -1.0f;
 						normals.emplace_back(tempVec3);
 					}
+					else if (prefix == "vt")
+					{
+						ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+						texCoords.emplace_back(Vec2{ tempVec3.x, tempVec3.y });
+					}
 					else if (prefix == "usemtl")
 					{
 						ss >> mtlName;
@@ -301,7 +310,7 @@ namespace PARS
 							}
 							else if (count == 1)
 							{
-								//texcoord °ª
+								texIndices.emplace_back(tempUInt - 1);
 							}
 							else if (count == 2)
 							{

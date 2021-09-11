@@ -49,7 +49,6 @@ namespace PARS
 			if (rtvBuffer != nullptr) rtvBuffer->Release();
 		}
 		if (m_RtvDescriptorHeap != nullptr) m_RtvDescriptorHeap->Release();
-		if (m_CbvSrvUavDescriptorHeap != nullptr) m_CbvSrvUavDescriptorHeap->Release();
 		if (m_SwapChain != nullptr) m_SwapChain->Release();
 		if (m_CommandList != nullptr) m_CommandList->Release();
 		if (m_CommandAllocator != nullptr) m_CommandAllocator->Release();
@@ -253,16 +252,6 @@ namespace PARS
 		if (FAILED(result)) return false;
 		m_DsvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
-		D3D12_DESCRIPTOR_HEAP_DESC csuDHDesc;
-		ZeroMemory(&csuDHDesc, sizeof(csuDHDesc));
-		csuDHDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		csuDHDesc.NumDescriptors = 1;
-		csuDHDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		csuDHDesc.NodeMask = 0;
-		result = m_Device->CreateDescriptorHeap(&csuDHDesc, IID_PPV_ARGS(&m_CbvSrvUavDescriptorHeap));
-		if (FAILED(result)) return false;
-		m_CbvSrvUavDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
 		return true;
 	}
 
@@ -411,9 +400,6 @@ namespace PARS
 
 		//Connect RTV and DSV to OM
 		m_CommandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
-
-		ID3D12DescriptorHeap* descriptorHeaps[] = { m_CbvSrvUavDescriptorHeap };
-		m_CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 
 	void DirectX12::EndScene()

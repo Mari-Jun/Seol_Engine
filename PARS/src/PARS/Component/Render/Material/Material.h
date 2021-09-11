@@ -14,13 +14,13 @@ namespace PARS
 		std::string m_Name;
 
 		int m_MatCBIndex = -1;
-		int m_DiffuseSrvHeapIndex = -1;
+		int m_DiffuseMapIndex = -1;
 
 		bool m_IsChangedMaterial = true;
 
 		Vec4 m_DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Vec3 m_FresnelR0 = { 0.01f, 0.01f, 0.0f };
-		float m_Roughness = 0.25f;
+		float m_Roughness = 1.0f;
 
 	public:
 		const std::string& GetName() const { return m_Name; }

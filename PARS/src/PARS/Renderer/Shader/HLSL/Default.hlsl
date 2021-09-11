@@ -15,9 +15,21 @@ struct MaterialInstanceData
     uint index;
 };
 
+struct MaterialData
+{
+    float4 diffuseAlbedo;
+    float3 fresnelR0;
+    float roughness;
+    uint diffuseMapIndex;
+};
+
 StructuredBuffer<InstanceData> gInstanceDatas : register(t0, space0);
-StructuredBuffer<MaterialInstanceData> gMaterialInstanceDatas : register(t2, space0);
-StructuredBuffer<Material> gMaterials : register(t1, space0);
+StructuredBuffer<MaterialInstanceData> gMaterialInstanceDatas : register(t1, space0);
+StructuredBuffer<Material> gMaterials : register(t2, space0);
+
+Texture2D gDiffuseMap[] : register(t3);
+
+SamplerState gSamplerState : register(s0);
 
 //cbuffer cbWorldInfo : register(b0)
 //{
@@ -93,6 +105,7 @@ struct VS_MATERIAL_IN
 {
     float3 position : POSITION;
     float3 normal : NORMAL;
+    float2 texcoord : TEXCOORD;
 };
 
 struct VS_MATERIAL_OUT
@@ -100,11 +113,12 @@ struct VS_MATERIAL_OUT
     float4 position : SV_POSITION;
     float3 basicPos : POSITION;
     float3 normal : NORMAL;
+    float2 texcoord : TEXCOORD;
     nointerpolation uint matIndex : MATINDEX;
 };
 
 VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_InstanceID)
-{
+{    
     VS_MATERIAL_OUT output;
     
     InstanceData instData = gInstanceDatas[instanceID];
@@ -112,11 +126,13 @@ VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_Instan
     float4 pos = mul(float4(input.position, 1.0f), instData.world);
     output.position = mul(pos, gViewProj);
     output.basicPos = pos.xyz;
-   
+        
     //노멀을 언리얼, Max에서 scale변환을 하지 않는 행렬을 곱해주는 것 같다..
     //일단은 역전치행렬 곱해주고..
     output.normal = mul(input.normal, (float3x3)instData.worldInverseTranspose);
     //output.normal = input.normal;
+    output.texcoord = input.texcoord;
+    
     output.matIndex = gMaterialInstanceDatas[instanceID].index;
     
     return output;
@@ -124,12 +140,15 @@ VS_MATERIAL_OUT VSMaterialMain(VS_MATERIAL_IN input, uint instanceID : SV_Instan
 
 float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
 {
+    //return float4(input.texcoord, 0.0f, 0.0f);
     //return gMaterials[input.matIndex].DiffuseAlbedo;
     
     Material matData = gMaterials[input.matIndex];
     float4 diffuseAlbedo = matData.DiffuseAlbedo;
     float3 fresnelR0 = matData.FresnelR0;
-    float roughness = 1.0f - matData.Shininess;
+    float shininess = matData.Shininess;
+    
+    diffuseAlbedo *= gDiffuseMap[0].Sample(gSamplerState, input.texcoord);
     
     input.normal = normalize(input.normal);
     
@@ -139,7 +158,9 @@ float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
     
     float4 ambientLight = gAmbientLight * diffuseAlbedo;
     
-    float4 directLight = ComputeLight(gLights, matData, gLightCounts, input.basicPos, input.normal, eye);
+    Material mat = { diffuseAlbedo, fresnelR0, shininess };
+    
+    float4 directLight = ComputeLight(gLights, mat, gLightCounts, input.basicPos, input.normal, eye);
     
     float4 result = ambientLight + directLight;
      

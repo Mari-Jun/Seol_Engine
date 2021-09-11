@@ -6,6 +6,7 @@
 #include "PARS/Util/Content/GraphicsAssetStore.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
+#include "PARS/Component/Render/Texture/Texture.h"
 #include "PARS/Actor/Actor.h"
 
 namespace PARS
@@ -29,34 +30,64 @@ namespace PARS
 			m_MaterialCB->Release();
 		}
 
+		if (m_SrvDescriptorHeap != nullptr)
+		{
+			m_SrvDescriptorHeap->Release();
+		}
+
 		RootSignature::Shutdown();
 	}
 
 	void DefaultRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
-		D3D12_ROOT_PARAMETER rootParameter[4];
+		D3D12_DESCRIPTOR_RANGE descriptorRanges[1];
+		descriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRanges[0].NumDescriptors = 1;
+		descriptorRanges[0].BaseShaderRegister = 3; 
+		descriptorRanges[0].RegisterSpace = 0;
+		descriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;		
+
+		D3D12_ROOT_PARAMETER rootParameter[5];
 		rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 		rootParameter[0].Descriptor.ShaderRegister = 0;
 		rootParameter[0].Descriptor.RegisterSpace = 0;
 		rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-		rootParameter[1].Descriptor.ShaderRegister = 2;
+		rootParameter[1].Descriptor.ShaderRegister = 1;
 		rootParameter[1].Descriptor.RegisterSpace = 0;
 		rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-		rootParameter[2].Descriptor.ShaderRegister = 1;
+		rootParameter[2].Descriptor.ShaderRegister = 2;
 		rootParameter[2].Descriptor.RegisterSpace = 0;
 		rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		rootParameter[3].Descriptor.ShaderRegister = 1;
-		rootParameter[3].Descriptor.RegisterSpace = 0;
+		rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		rootParameter[3].DescriptorTable.NumDescriptorRanges = 1;
+		rootParameter[3].DescriptorTable.pDescriptorRanges = &descriptorRanges[0];
 		rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		rootParameter[4].Descriptor.ShaderRegister = 1;
+		rootParameter[4].Descriptor.RegisterSpace = 0;
+		rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+		D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.MipLODBias = 0;
+		samplerDesc.MaxAnisotropy = 1;
+		samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+		samplerDesc.ShaderRegister = 0;
+		samplerDesc.RegisterSpace = 0;
+		samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 		D3D12_ROOT_SIGNATURE_DESC rsDesc;
 		rsDesc.NumParameters = _countof(rootParameter);
 		rsDesc.pParameters = rootParameter;
-		rsDesc.NumStaticSamplers = 0;
-		rsDesc.pStaticSamplers = nullptr;
+		rsDesc.NumStaticSamplers = 1;
+		rsDesc.pStaticSamplers = &samplerDesc;
 		rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 		ID3DBlob* signatureBlob = nullptr;
@@ -113,6 +144,38 @@ namespace PARS
 			if (FAILED(m_MaterialCB->Map(0, nullptr, (void**)&m_MaterialMappedData)))
 			{
 				PARS_ERROR("MaterialCB Mapping Error");
+			}
+		}
+
+		if (m_SrvDescriptorHeap == nullptr)
+		{
+			const auto& textures = GraphicsAssetStore::GetAssetStore()->GetTextures();
+
+			D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+			srvHeapDesc.NumDescriptors = textures.size();
+			srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			srvHeapDesc.NodeMask = 0;
+			if (FAILED(device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_SrvDescriptorHeap))))
+			{
+				PARS_ERROR("Colud not create descriptor heap");
+			}
+
+			D3D12_CPU_DESCRIPTOR_HANDLE desHandle(m_SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Texture2D.MostDetailedMip = 0;
+			srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+			for (const auto& [path, texture] : textures)
+			{
+				texture->LoadTextureFromDDSFile(device, commandList, 0x01);
+				srvDesc.Format = texture->GetResource()->GetDesc().Format;
+				srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
+				device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desHandle);
+				desHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			}
 		}
 	}
@@ -179,7 +242,9 @@ namespace PARS
 
 	void DefaultRootSignature::DrawPassFrame(ID3D12GraphicsCommandList* commandList)
 	{
+		commandList->SetDescriptorHeaps(1, &m_SrvDescriptorHeap);
 		commandList->SetGraphicsRootShaderResourceView(2, m_MaterialCB->GetGPUVirtualAddress());
-		commandList->SetGraphicsRootConstantBufferView(3, m_DefaultPassCB->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootDescriptorTable(3, m_SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootConstantBufferView(4, m_DefaultPassCB->GetGPUVirtualAddress());
 	}
 }

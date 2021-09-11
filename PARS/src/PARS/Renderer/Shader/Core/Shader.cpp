@@ -119,7 +119,7 @@ namespace PARS
 	{
 		UINT compileFlags = 0;
 #if defined(_DEBUG)
-		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES;
 #endif
 		std::wstring filePath = s_ShaderFilePath + fileName;
 

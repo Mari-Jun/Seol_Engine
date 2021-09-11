@@ -27,17 +27,25 @@ namespace PARS
 
 		StylePARS();
 
+		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		srvHeapDesc.NumDescriptors = 1;
+		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		srvHeapDesc.NodeMask = 0;
+		m_DirectX12->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_SRVDescriptorHeap));
+		m_SRVDescriptorSize = m_DirectX12->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 		const auto& windowInfo = Window::GetWindowInfo();
-		const auto& srvHeap = m_DirectX12->GetCbvSrvUavHeap();
 
 		ImGui_ImplWin32_Init(windowInfo->m_hwnd);
-		ImGui_ImplDX12_Init(m_DirectX12->GetDevice(), 2, DXGI_FORMAT_R8G8B8A8_UNORM, srvHeap,
-			srvHeap->GetCPUDescriptorHandleForHeapStart(),
-			srvHeap->GetGPUDescriptorHandleForHeapStart());
+		ImGui_ImplDX12_Init(m_DirectX12->GetDevice(), 2, DXGI_FORMAT_R8G8B8A8_UNORM, m_SRVDescriptorHeap,
+			m_SRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			m_SRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 
 	void ImGuiLayer::Shutdown()
 	{
+		if (m_SRVDescriptorHeap != nullptr) m_SRVDescriptorHeap->Release();
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
@@ -53,6 +61,9 @@ namespace PARS
 
 	void ImGuiLayer::Draw()
 	{
+		ID3D12DescriptorHeap* descriptorHeaps[] = { m_SRVDescriptorHeap };
+		m_DirectX12->GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
 		ID3D12GraphicsCommandList* commandList = m_DirectX12->GetCommandList();
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);		

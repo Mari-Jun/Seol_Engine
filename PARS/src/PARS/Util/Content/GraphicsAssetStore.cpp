@@ -2,6 +2,7 @@
 #include "PARS/Util/Content/GraphicsAssetStore.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
+#include "PARS/Component/Render/Texture/Texture.h"
 
 
 namespace PARS
@@ -19,10 +20,14 @@ namespace PARS
 	void GraphicsAssetStore::Shutdown()
 	{
 		for (auto iter = m_MeshCache.begin(); iter != m_MeshCache.end(); ++iter)
-		{
 			iter->second->Shutdown();
-		}
 		m_MeshCache.clear();
+
+		m_MaterialCache.clear();
+
+		for (auto iter = m_TextureCache.begin(); iter != m_TextureCache.end(); ++iter)
+			iter->second->Shutdown();
+		m_TextureCache.clear();
 	}
 
 	const SPtr<Mesh>& GraphicsAssetStore::GetMesh(const std::string& path) const
@@ -49,7 +54,7 @@ namespace PARS
 		//ConvertToPARSFile(path);
 	}
 
-	const SPtr<class Material>& GraphicsAssetStore::GetMaterial(const std::string& path) const
+	const SPtr<Material>& GraphicsAssetStore::GetMaterial(const std::string& path) const
 	{
 		auto iter = m_MaterialCache.find(path);
 		if (iter != m_MaterialCache.end())
@@ -69,9 +74,29 @@ namespace PARS
 		}
 	}
 
-	void GraphicsAssetStore::SaveMaterial(const std::string& name, const SPtr<class Material>& material)
+	void GraphicsAssetStore::SaveMaterial(const std::string& name, const SPtr<Material>& material)
 	{
 		m_MaterialCache.emplace(name, material);
+	}
+
+	const SPtr<Texture>& GraphicsAssetStore::GetTexture(const std::string& path) const
+	{
+		auto iter = m_TextureCache.find(path);
+		if (iter != m_TextureCache.end())
+		{
+			return iter->second;
+		}
+
+		return nullptr;
+	}
+
+	void GraphicsAssetStore::LoadTexture(const std::string& path, const std::string& parentPath, const std::string& stem, const std::string& extension)
+	{
+		if (extension == ".dds")
+		{
+			SPtr<Texture> texture = TEXTURE::LoadDDS(path, stem);
+			m_TextureCache.emplace(parentPath + "\\" + texture->GetName(), texture);
+		}
 	}
 
 	void GraphicsAssetStore::ConvertToPARSFile(const std::string& path)

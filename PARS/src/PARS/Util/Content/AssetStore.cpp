@@ -30,6 +30,13 @@ namespace PARS
 	{
 		GetDirectorys(CONTENT_DIR);
 
+		GetContents(m_TextureContents, { ".dds" }, {});
+		for (const auto& file : m_TextureContents)
+		{
+			m_GraphicsAssetStore->LoadTexture(GetPathFromFile(file), GetParentPathFromFile(file),
+				GetStemFromFile(file), GetExtentionFromFile(file));
+		}
+
 		GetContents(m_MaterialContents, { ".mtl" }, {});
 		for (const auto& file : m_MaterialContents)
 		{

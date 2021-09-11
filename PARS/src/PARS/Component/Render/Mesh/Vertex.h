@@ -40,7 +40,18 @@ namespace PARS
 	{
 	public:
 		MaterialVertex() : Vertex() {}
-		MaterialVertex(Vec3 && position) : Vertex(std::move(position)) {}
-		MaterialVertex(Vec3 && position, Vec3 && normal) : Vertex(std::move(position), std::move(normal)) {}
+		MaterialVertex(Vec3&& position) : Vertex(std::move(position)), m_TexCoord({ 0.0f, 0.0f }) {}
+		MaterialVertex(Vec3 && position, Vec3 && normal) 
+			: Vertex(std::move(position), std::move(normal))
+			, m_TexCoord({ 0.0f, 0.0f }) {}
+		MaterialVertex(Vec3 && position, Vec3 && normal, Vec2&& tex) 
+			: Vertex(std::move(position), std::move(normal))
+			, m_TexCoord(tex) {}
+
+		const Vec2& GetTexCoord() const { return m_TexCoord; }
+		void SetTexCoord(const Vec2& tex) { m_TexCoord = tex; }
+
+	protected:
+		Vec2 m_TexCoord;
 	};
 }

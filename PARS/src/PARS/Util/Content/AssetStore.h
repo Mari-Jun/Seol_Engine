@@ -44,6 +44,7 @@ namespace PARS
 		std::vector<std::string> m_DirectoryPaths;
 		Contents m_StaticMeshContents;
 		Contents m_MaterialContents;
+		Contents m_TextureContents;
 
 		SPtr<GraphicsAssetStore> m_GraphicsAssetStore;
 	};

@@ -36,6 +36,8 @@ namespace PARS
 
 		ID3D12Resource* m_MaterialCB = nullptr;
 		BYTE* m_MaterialMappedData = nullptr;
+
+		ID3D12DescriptorHeap* m_SrvDescriptorHeap = nullptr;
 	};
 }
 

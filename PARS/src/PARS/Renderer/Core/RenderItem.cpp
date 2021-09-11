@@ -32,6 +32,7 @@ namespace PARS
 
 	void RenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
+		//이 부분도 수정해야한다.
 		if (m_IsNeedMeshBufferUpdate)
 		{
 			if (m_Mesh != nullptr)
