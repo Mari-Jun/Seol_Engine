@@ -24,7 +24,7 @@ namespace PARS
 
 		actor = CreateSPtr<Actor>("Tree");
 		actor->SetPosition({ 200.0f, 0.0f, 1000.0f });
-		actor->SetScale({ 500.0f, 100.0f, 500.0f });
+		actor->SetScale({ 100.0f });
 		AddActor(actor);
 		meshComp = CreateSPtr<StaticMeshComponent>();
 		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
@@ -35,7 +35,7 @@ namespace PARS
 		actor->SetScale(100.0f);
 		AddActor(actor);
 		meshComp = CreateSPtr<StaticMeshComponent>();
-		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree2");
+		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
 		actor->AddComponent(meshComp);
 
 		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
