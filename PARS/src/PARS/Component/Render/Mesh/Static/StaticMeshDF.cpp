@@ -28,14 +28,17 @@ namespace PARS
 			ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
 		{
 			int cnt = 0;
-			for (const auto& [file, mesh] : gAssetStore->GetMeshes())
+			for (const auto& [name, path] : assetStore->GetContentInfos(AssetType::StaticMesh))
 			{
-				if (ImGui::Selectable((mesh->GetObjectName() + "##" + std::to_string(cnt++)).c_str()))
+				const auto& mesh = gAssetStore->GetMesh(path);
+				if (mesh != nullptr)
 				{
-					selectFile = file;
+					if (ImGui::Selectable((mesh->GetObjectName() + "##" + std::to_string(cnt++)).c_str()))
+					{
+						selectFile = path;
+					}
+					assetStore->ShowItemInfo({ path });
 				}
-
-				assetStore->ShowItemInfo({ file });
 			}
 			ImGui::EndCombo();
 		}
@@ -62,15 +65,20 @@ namespace PARS
 				ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
 			{
 				int cnt = 0;
-				for (const auto& [file, assetMat] : gAssetStore->GetMaterials())
+				for (const auto& [name, path] : assetStore->GetContentInfos(AssetType::Material))
 				{
-					if (ImGui::Selectable((assetMat->GetName() + "##" + std::to_string(cnt++)).c_str()))
+					const auto& material = gAssetStore->GetMaterial(path);
+					if (material != nullptr)
 					{
-						selectMaterial = assetMat;
-					}
+						if (ImGui::Selectable((material->GetName() + "##" + std::to_string(cnt++)).c_str()))
+						{
+							selectMaterial = material;
+						}
 
-					assetStore->ShowItemInfo({ file });
+						assetStore->ShowItemInfo({ path });
+					}
 				}
+			
 				ImGui::EndCombo();
 			}
 

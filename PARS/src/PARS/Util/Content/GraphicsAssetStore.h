@@ -25,23 +25,21 @@ namespace PARS
 
 	public:
 		inline static GraphicsAssetStore* GetAssetStore() { return s_Instance; }
-		const std::map<std::string, SPtr<Mesh>>& GetMeshes() const { return m_MeshCache; }
-		const std::map<std::string, SPtr<Material>>& GetMaterials() const { return m_MaterialCache; }
-		const std::map<std::string, SPtr<Texture>>& GetTextures() const { return m_TextureCache; }
+		const std::unordered_map<std::string, SPtr<Mesh>>& GetMeshes() const { return m_MeshCache; }
+		const std::unordered_map<std::string, SPtr<Material>>& GetMaterials() const { return m_MaterialCache; }
+		const std::unordered_map<std::string, SPtr<Texture>>& GetTextures() const { return m_TextureCache; }
 
 		const SPtr<Mesh>& GetMesh(const std::string& path) const;
-		void LoadMesh(const std::string& path, const std::string& parentPath, const std::string& extension);
+		void LoadMesh(std::multimap<std::string, std::string>& contents, const std::string& path);
 		const SPtr<Material>& GetMaterial(const std::string& path) const;
-		void LoadMaterial(const std::string& path, const std::string& parentPath, const std::string& extension);
-		void SaveMaterial(const std::string& name, const SPtr<Material>& material);		
+		void LoadMaterial(std::multimap<std::string, std::string>& contents, const std::string& path);
 		const SPtr<Texture>& GetTexture(const std::string& path) const;
-		void LoadTexture(const std::string& path, const std::string& parentPath,
-			const std::string& stem, const std::string& extension);
+		void LoadTexture(std::multimap<std::string, std::string>& contents, const std::string& path);
 
 	private:
-		std::map<std::string, SPtr<Mesh>> m_MeshCache;
-		std::map<std::string, SPtr<Material>> m_MaterialCache;
-		std::map<std::string, SPtr<Texture>> m_TextureCache;
+		std::unordered_map<std::string, SPtr<Mesh>> m_MeshCache;
+		std::unordered_map<std::string, SPtr<Material>> m_MaterialCache;
+		std::unordered_map<std::string, SPtr<Texture>> m_TextureCache;
 	};
 }
 

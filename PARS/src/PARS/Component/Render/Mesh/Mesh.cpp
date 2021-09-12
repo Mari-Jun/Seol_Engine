@@ -188,7 +188,7 @@ namespace PARS
 			std::vector<SPtr<MaterialMesh>> meshes;
 
 			std::ifstream objFile(path);
-			std::string stem = AssetStore::GetAssetStore()->GetFileNameFromPath(path);
+			std::string stem = FILEHELP::GetStemFromPath(path);
 
 			if (!objFile.is_open())
 			{
@@ -295,7 +295,14 @@ namespace PARS
 					else if (prefix == "usemtl")
 					{
 						ss >> mtlName;
-						mesh->AddMaterial(GraphicsAssetStore::GetAssetStore()->GetMaterial(parentPath + "\\" + mtlName));
+						const auto& material = GraphicsAssetStore::GetAssetStore()->GetMaterial(parentPath + "\\" + mtlName);
+						if (material == nullptr)
+						{
+							//obj, mtl관계에서는 mtl이 먼저 Load되는 것이 일반적이라서 발생할 가능성이 없다.
+							//발생할 경우를 대비해서 Engine Content에서 기본 Material을 가져오는 것으로 할 것인데 아직은 작업 X
+							PARS_CRITICAL("material load error!!!" + mesh->GetObjectName());
+						}
+						mesh->AddMaterial(material);
 						locations.push_back(static_cast<UINT>(posIndices.size()));
 					}
 					else if (prefix == "f")

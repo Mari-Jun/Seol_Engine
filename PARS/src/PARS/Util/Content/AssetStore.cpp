@@ -22,33 +22,25 @@ namespace PARS
 		m_GraphicsAssetStore->Shutdown();
 	}
 
-	void AssetStore::Update()
+	void AssetStore::Update(float deltaTime)
 	{
+		static float time = 0.0f;
+		time += deltaTime;
+
+		if (time >= 1.0f)
+		{
+			//std::clock_t start = std::clock();
+			ReloadContents();
+			time -= 1.0f;
+			//std::clock_t end = std::clock();
+
+			//std::cout << difftime(end, start) << "ms" << std::endl;
+		}
 	}
 
 	void AssetStore::ReloadContents()
 	{
-		GetDirectorys(CONTENT_DIR);
-
-		GetContents(m_TextureContents, { ".dds" }, {});
-		for (const auto& file : m_TextureContents)
-		{
-			m_GraphicsAssetStore->LoadTexture(GetPathFromFile(file), GetParentPathFromFile(file),
-				GetStemFromFile(file), GetExtentionFromFile(file));
-		}
-
-		GetContents(m_MaterialContents, { ".mtl" }, {});
-		for (const auto& file : m_MaterialContents)
-		{
-			m_GraphicsAssetStore->LoadMaterial(GetPathFromFile(file), GetParentPathFromFile(file), GetExtentionFromFile(file));
-		}
-
-		GetContents(m_StaticMeshContents, { ".obj" }, {});
-
-		for (const auto& file : m_StaticMeshContents)
-		{
-			m_GraphicsAssetStore->LoadMesh(GetPathFromFile(file), GetParentPathFromFile(file), GetExtentionFromFile(file));
-		}
+		GetContents(CONTENT_DIR);
 	}
 
 	Contents AssetStore::GetContentsInDirectory(const std::string& directory, const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter)
@@ -86,59 +78,98 @@ namespace PARS
 			ImGui::EndTooltip();
 		}
 	}
-	std::string AssetStore::GetPathFromFile(const std::filesystem::directory_entry& file)
-	{
-		return file.path().relative_path().u8string();
-	}
 
-	std::string AssetStore::GetParentPathFromFile(const std::filesystem::directory_entry& file)
+	void AssetStore::GetContents(const std::string& rootPath)
 	{
-		return file.path().parent_path().u8string();
-	}
-
-	std::string AssetStore::GetStemFromFile(const std::filesystem::directory_entry& file)
-	{
-		return file.path().stem().u8string();
-	}
-
-	std::string AssetStore::GetPathNotExtentionFromFile(const std::filesystem::directory_entry& file)
-	{
-		std::string path = GetPathFromFile(file);
-		std::string extention = GetExtentionFromFile(file);
-		return path.substr(0, path.size() - extention.size());
-	}
-
-	std::string AssetStore::GetExtentionFromFile(const std::filesystem::directory_entry& file)
-	{
-		return file.path().extension().u8string();
-	}
-
-	std::string AssetStore::GetFileNameFromPath(std::string path)
-	{
-		path = path.substr(path.rfind('\\') + 1);
-		path = path.substr(0, path.rfind('.'));
-		return path;
-	}
-
-	void AssetStore::GetDirectorys(const std::filesystem::path& path)
-	{
-		for (const auto& file : std::filesystem::directory_iterator(path))
+		for (const auto& file : std::filesystem::directory_iterator(rootPath))
 		{
 			if (file.is_directory())
 			{
 				std::string dirPath = file.path().relative_path().u8string();
-				GetDirectorys(dirPath);
-				m_DirectoryPaths.emplace_back(std::move(dirPath));
+				GetContents(dirPath);
+			}
+			else if(file.is_regular_file())
+			{
+				std::string extension = FILEHELP::GetExtentionFromFile(file);
+				std::string filePath = FILEHELP::GetPathFromFile(file);
+
+				switch (HashCode(extension.c_str()))
+				{
+				case HashCode(".obj"):
+					if(m_LoadedContents[AssetType::StaticMesh].find(filePath) == m_LoadedContents[AssetType::StaticMesh].cend())
+						m_GraphicsAssetStore->LoadMesh(m_ContentsInfos[AssetType::StaticMesh], filePath);
+					m_LoadedContents[AssetType::StaticMesh].emplace(filePath);
+					break;
+				case HashCode(".mtl"):
+					if (m_LoadedContents[AssetType::Material].find(filePath) == m_LoadedContents[AssetType::Material].cend())
+						m_GraphicsAssetStore->LoadMaterial(m_ContentsInfos[AssetType::Material], filePath);
+					m_LoadedContents[AssetType::Material].emplace(filePath);
+					break;
+				case HashCode(".dds"):
+					if (m_LoadedContents[AssetType::Texture].find(filePath) == m_LoadedContents[AssetType::Texture].cend())
+						m_GraphicsAssetStore->LoadTexture(m_ContentsInfos[AssetType::Texture], filePath);
+					m_LoadedContents[AssetType::Texture].emplace(filePath);
+					break;
+				default:
+					//PARS_WARN("don't support files with this extesion yet [" + filePath + "]");
+					break;
+				}
 			}
 		}
 	}
 
-	void AssetStore::GetContents(Contents& contents, const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter)
+	const std::multimap<std::string, std::string>& AssetStore::GetContentInfos(AssetType type) const
 	{
-		for (const auto& path : m_DirectoryPaths)
+		return m_ContentsInfos.at(type);
+	}
+
+	namespace FILEHELP
+	{
+		std::string GetPathFromFile(const std::filesystem::directory_entry& file)
 		{
-			Contents result = GetContentsInDirectory(path, filter, antiFilter);
-			contents.insert(contents.end(), result.begin(), result.end());
+			return file.path().relative_path().string();
+		}
+
+		std::string GetParentPathFromFile(const std::filesystem::directory_entry& file)
+		{
+			return file.path().parent_path().string();
+		}
+
+		std::string GetStemFromFile(const std::filesystem::directory_entry& file)
+		{
+			return file.path().stem().string();
+		}
+
+		std::string GetPathNotExtentionFromFile(const std::filesystem::directory_entry& file)
+		{
+			std::string path = GetPathFromFile(file);
+			std::string extention = GetExtentionFromFile(file);
+			return path.substr(0, path.size() - extention.size());
+		}
+
+		std::string GetExtentionFromFile(const std::filesystem::directory_entry& file)
+		{
+			return file.path().extension().string();
+		}
+
+		std::string GetExtentionFromPath(std::string path)
+		{
+			path = path.substr(path.rfind('\\') + 1);
+			path = path.substr(path.rfind('.'));
+			return path;
+		}
+
+		std::string GetStemFromPath(std::string path)
+		{
+			path = path.substr(path.rfind('\\') + 1);
+			path = path.substr(0, path.rfind('.'));
+			return path;
+		}
+
+		std::string GetParentPathFromPath(std::string path)
+		{
+			path = path.substr(0, path.rfind('\\'));
+			return path;			
 		}
 	}
 }

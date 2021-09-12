@@ -3,6 +3,19 @@
 
 namespace PARS
 {
+	constexpr unsigned int HashCode(const char* str)
+	{
+		return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * HashCode(str + 1) : 8603;
+	}
+
+	enum class AssetType
+	{
+		StaticMesh,
+		Material,
+		Texture,
+
+	};
+
 	using Contents = std::vector<std::filesystem::directory_entry>;
 
 	class AssetStore
@@ -18,7 +31,7 @@ namespace PARS
 		virtual ~AssetStore() = default;
 
 		void Shutdown();
-		void Update();
+		void Update(float deltaTime);
 
 		void ReloadContents();
 
@@ -27,27 +40,30 @@ namespace PARS
 	
 		void ShowItemInfo(std::initializer_list<std::string>&& texts);
 
+	private:
+		void GetContents(const std::string& rootPath);
+
+	private:
+		std::map<AssetType, std::multimap<std::string, std::string>> m_ContentsInfos;
+		std::map<AssetType, std::set<std::string>> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
+
+		SPtr<GraphicsAssetStore> m_GraphicsAssetStore;
+	public:
+		const std::multimap<std::string, std::string>& GetContentInfos(AssetType type) const;
+	};
+
+	namespace FILEHELP
+	{
 		std::string GetPathFromFile(const std::filesystem::directory_entry& file);
 		std::string GetParentPathFromFile(const std::filesystem::directory_entry& file);
 		std::string GetStemFromFile(const std::filesystem::directory_entry& file);
 		std::string GetPathNotExtentionFromFile(const std::filesystem::directory_entry& file);
 		std::string GetExtentionFromFile(const std::filesystem::directory_entry& file);
-		std::string GetFileNameFromPath(std::string path);
 
-		const Contents& GetStaticMeshContents() { return m_StaticMeshContents; }
-
-	private:
-		void GetDirectorys(const std::filesystem::path& path);
-		void GetContents(Contents& contents, const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter);
-
-	private:
-		std::vector<std::string> m_DirectoryPaths;
-		Contents m_StaticMeshContents;
-		Contents m_MaterialContents;
-		Contents m_TextureContents;
-
-		SPtr<GraphicsAssetStore> m_GraphicsAssetStore;
-	};
+		std::string GetExtentionFromPath(std::string path);
+		std::string GetStemFromPath(std::string path);
+		std::string GetParentPathFromPath(std::string path);
+	}
 }
 
 

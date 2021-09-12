@@ -136,6 +136,8 @@ namespace PARS
 
 		if (m_MaterialCB == nullptr)
 		{
+			PARS_INFO("나왔당");
+
 			const auto& matSize = GraphicsAssetStore::GetAssetStore()->GetMaterials().size() * sizeof(CBMaterial);
 
 			m_MaterialCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, matSize,
@@ -182,7 +184,6 @@ namespace PARS
 
 	void DefaultRootSignature::UpdateShaderVariables()
 	{
-
 		//마찬가지로 이 부분도 계속 업데이트 할 필요가 없다.
 		//새로운 Material이 생성되면 그 때 업데이트 하면 된다.
 		//일단은 그 부분은 생각해야 할 부분이 있기 때문에 지금은 임시로 매 프레임마다 업데이트 되게 한다.

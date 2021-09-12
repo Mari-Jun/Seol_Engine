@@ -48,6 +48,8 @@ using Microsoft::WRL::ComPtr;
 #include <limits>
 #include <filesystem>
 #include <typeinfo>
+#include <chrono>
+#include <iomanip>
 
 #include "PARS/Core/Log.h"
 

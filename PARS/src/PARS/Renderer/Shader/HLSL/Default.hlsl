@@ -148,7 +148,7 @@ float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
     float3 fresnelR0 = matData.FresnelR0;
     float shininess = matData.Shininess;
     
-    diffuseAlbedo *= gDiffuseMap[0].Sample(gSamplerState, input.texcoord);
+    //diffuseAlbedo *= gDiffuseMap[0].Sample(gSamplerState, input.texcoord);
     
     input.normal = normalize(input.normal);
     

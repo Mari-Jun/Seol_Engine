@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "PARS/Util/Content/AssetStore.h"
 #include "PARS/Util/Content/GraphicsAssetStore.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
@@ -41,17 +42,20 @@ namespace PARS
 		return nullptr;
 	}
 
-	void GraphicsAssetStore::LoadMesh(const std::string& path, const std::string& parentPath, const std::string& extension)
+	void GraphicsAssetStore::LoadMesh(std::multimap<std::string, std::string>& contents, const std::string& path)
 	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
 		if (extension == ".obj")
 		{
-			std::vector<SPtr<MaterialMesh>> meshes = OBJ::LoadObj(path, parentPath);
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
 
-			for (SPtr<MaterialMesh>& mesh : meshes)
-				m_MeshCache.emplace(parentPath + "\\" + mesh->GetObjectName(), mesh);
-			
+			for (SPtr<MaterialMesh>& mesh : OBJ::LoadObj(path, parentPath))
+			{
+				std::string realPath = parentPath + "\\" + mesh->GetObjectName();
+				m_MeshCache.emplace(realPath, mesh);
+				contents.emplace(mesh->GetObjectName(), realPath);
+			}
 		}
-		//ConvertToPARSFile(path);
 	}
 
 	const SPtr<Material>& GraphicsAssetStore::GetMaterial(const std::string& path) const
@@ -65,18 +69,20 @@ namespace PARS
 		return nullptr;
 	}
 
-	void GraphicsAssetStore::LoadMaterial(const std::string& path, const std::string& parentPath, const std::string& extension)
+	void GraphicsAssetStore::LoadMaterial(std::multimap<std::string, std::string>& contents, const std::string& path)
 	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
 		if (extension == ".mtl")
 		{
-			for (SPtr<Material>& material : MTL::LoadMtl(path))
-				m_MaterialCache.emplace(parentPath + "\\" + material->GetName(), material);
-		}
-	}
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
 
-	void GraphicsAssetStore::SaveMaterial(const std::string& name, const SPtr<Material>& material)
-	{
-		m_MaterialCache.emplace(name, material);
+			for (SPtr<Material>& material : MTL::LoadMtl(path))
+			{
+				std::string realPath = parentPath + "\\" + material->GetName();
+				m_MaterialCache.emplace(realPath, material);
+				contents.emplace(material->GetName(), realPath);
+			}
+		}
 	}
 
 	const SPtr<Texture>& GraphicsAssetStore::GetTexture(const std::string& path) const
@@ -90,12 +96,22 @@ namespace PARS
 		return nullptr;
 	}
 
-	void GraphicsAssetStore::LoadTexture(const std::string& path, const std::string& parentPath, const std::string& stem, const std::string& extension)
+	void GraphicsAssetStore::LoadTexture(std::multimap<std::string, std::string>& contents, const std::string& path)
 	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
 		if (extension == ".dds")
 		{
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			std::string stem = FILEHELP::GetStemFromPath(path);
+
 			SPtr<Texture> texture = TEXTURE::LoadDDS(path, stem);
-			m_TextureCache.emplace(parentPath + "\\" + texture->GetName(), texture);
+
+			if (texture != nullptr)
+			{
+				std::string realPath = parentPath + "\\" + texture->GetName();
+				m_TextureCache.emplace(realPath, texture);
+				contents.emplace(texture->GetName(), realPath);
+			}
 		}
 	}
 

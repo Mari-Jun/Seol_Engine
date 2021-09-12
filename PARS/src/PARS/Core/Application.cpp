@@ -115,7 +115,7 @@ namespace PARS
 
 		m_LevelManager->Update(m_Timer->GetDeltaTime());
 		m_LayerManager->Update();
-		m_AssetStore->Update();
+		m_AssetStore->Update(m_Timer->GetDeltaTime());
 	}
 
 	void Application::Draw()
