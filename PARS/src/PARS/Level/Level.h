@@ -2,6 +2,7 @@
 
 #include "PARS/Core/Core.h"
 #include "PARS/Input/InputFactory.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
 
 namespace PARS
 {
@@ -27,9 +28,8 @@ namespace PARS
 		void UpdateActorManager(float deltaTime);
 		virtual void UpdateLevel(float deltaTime) {};
 
-		void AddActor(const SPtr<class Actor>& actor);
-		void RemoveActor(const SPtr<class Actor>& actor);
-		void AddLayer(const SPtr<class Layer>& layer);
+		virtual void AddActor(const SPtr<class Actor>& actor);
+		virtual void RemoveActor(const SPtr<class Actor>& actor);
 
 	protected:
 		std::string m_LevelName;
@@ -37,7 +37,6 @@ namespace PARS
 
 	private:
 		UPtr<ActorManager> m_ActorManager;
-		std::vector<WPtr<class Layer>> m_Layers;
 		UPtr<InputFactory> m_InputFactory;
 
 	public:
@@ -45,15 +44,25 @@ namespace PARS
 		LevelState GetLevelState() const { return m_LevelState; }
 		void SetLevelState(LevelState state) { m_LevelState = state; }
 
-		void SetLayerActive();
-		void SetLayerHide();
-		void Destroy() { m_LevelState = LevelState::Dead; }
-
 	protected:
 		void AddOnceAction(std::string&& name, int key, const std::function<void()>& func);
 		void AddLoopAction(std::string&& name, int key, const std::function<void()>& func);
 		void AddAxisAction(std::string&& name, std::vector<KeyAxis>&& keyAndAxis, const std::function<void(float)>& func);
 		void ActiveAction(ActionType type, std::string&& name, bool active);
+
+	public:
+		void AddLayer(const SPtr<class Layer>& layer);
+		void AddLevelSettingFunctionInfo(FunctionInfo&& info);
+		void OnUpdateDetailInfo(std::function<void(const DetailInfo& info)> function);
+
+	private:
+		std::vector<WPtr<class Layer>> m_Layers;
+		UPtr<DetailFunction> m_DetailFunction;
+
+	public:
+		void SetLayerActive();
+		void SetLayerHide();
+		void Destroy() { m_LevelState = LevelState::Dead; }
 	};
 }
 

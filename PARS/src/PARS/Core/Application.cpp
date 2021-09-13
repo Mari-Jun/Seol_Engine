@@ -5,13 +5,14 @@
 #include "PARS/Layer/LayerManager.h"
 #include "PARS/Renderer/Core/Renderer.h"
 #include "PARS/ImGui/ImGuiLayer.h"
+#include "PARS/Util/Content/AssetStore.h"
 #include "PARS/Core/Application.h"
-
 
 namespace PARS
 {
+	AppState Application::s_AppState = AppState::Active;
+
 	Application::Application()
-		: m_Running(true)
 	{
 		
 	}
@@ -32,10 +33,13 @@ namespace PARS
 			PARS_ERROR("Could not initialize Timer");
 			return false;
 		}
+		m_Timer->OnFpsDeltaChanged([this](UINT fps) {m_Window->AddFpsToWindowName(fps); });
 
 		m_LevelManager = CreateUPtr<LevelManager>();
 
 		m_LayerManager = CreateUPtr<LayerManager>();
+
+		m_AssetStore = CreateUPtr<AssetStore>();
 	
 		m_Renderer = CreateUPtr<Renderer>();
 		result = m_Renderer->Initialize();
@@ -55,24 +59,27 @@ namespace PARS
 	{
 		m_LayerManager->Shutdown();
 		m_LevelManager->Shutdown();
+		m_AssetStore->Shutdown();
 		m_Renderer->ShutDown();
 		m_Window->Shutdown();
+
+		PARS_INFO("Good Bye");
 	}
 
 	void Application::Run()
 	{
 		MSG msg;
 
-		while (m_Running)
+		while (GetAppState() != AppState::Dead)
 		{
 			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
 				if (msg.message == WM_QUIT) break;
-				
+
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-			else
+			else if(GetAppState() == AppState::Active)
 			{
 				ProcessInput();
 				Update();
@@ -82,9 +89,9 @@ namespace PARS
 
 	}
 
-	void Application::AddLevel(const SPtr<class Level>& level)
+	void Application::OpenLevel(const SPtr<class Level>& level)
 	{
-		m_LevelManager->AddLevel(level);
+		m_LevelManager->OpenLevel(level);
 	}
 
 	void Application::AddLayer(const SPtr<Layer>& layer)
@@ -96,7 +103,7 @@ namespace PARS
 	{
 		if (Input::IsKeyFirstPressed(PARS_KEY_ESCAPE))
 		{
-			m_Running = false;
+			SetAppState(AppState::Dead);
 		}
 		m_LevelManager->ProcessInput();
 	}
@@ -105,10 +112,10 @@ namespace PARS
 	{
 		m_Timer->Tick();
 		m_Window->Update();
-		m_Window->AddFpsToWindowName(m_Timer->GetFrameRate());		
 
 		m_LevelManager->Update(m_Timer->GetDeltaTime());
 		m_LayerManager->Update();
+		m_AssetStore->Update(m_Timer->GetDeltaTime());
 	}
 
 	void Application::Draw()

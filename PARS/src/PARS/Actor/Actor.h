@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Actor/ActorDetailFunction.h"
 #include "PARS/Component/ComponentManager.h"
 #include "PARS/Input/InputFactory.h"
 #include "PARS/Math/Math.h"
@@ -15,12 +16,13 @@ namespace PARS
 			Active, Paused, Dead
 		};
 
-		Actor();
-		virtual ~Actor() = default;
+		Actor(const std::string& name = "Actor");
+		virtual ~Actor();
 
 		void InitializeActor();
 		void ShutdownActor();
 		virtual void Initialize() {}
+		virtual void InitializeDetailFunction();
 		virtual void Shutdown() {}
 		void ProcessInput();
 		virtual void ActorInput() {}
@@ -40,20 +42,24 @@ namespace PARS
 		void ActiveAction(ActionType type, std::string&& name, bool active);
 
 	protected:
+		std::string m_ActorName;
 		ActorState m_ActorState;
 
 	private:
 		Mat4 m_WorldMatrix = Mat4::Identity;
 		Vec3 m_Position = Vec3::Zero;
 		Quaternion m_Rotation = Quaternion::Identity;
-		float m_Scale = 1.0f;
+		Vec3 m_Scale = Vec3::One;
 		bool m_RechangeWorldMatrix = true;
+		bool m_IsChangedWorldMatrix = false;
 
 		UPtr<ComponentManager> m_ComponentManager;
-
 		UPtr<InputFactory> m_InputFactory;
 
 	public:
+		std::string GetNameOfClass() const;
+		const std::string& GetActorName() const { return m_ActorName; }
+		void SetActorName(const std::string& name) { m_ActorName = name; }
 		ActorState GetActorState() const { return m_ActorState; }
 		void SetActorState(ActorState state) { m_ActorState = state; }
 		void SetStateDead() { m_ActorState = ActorState::Dead; }
@@ -63,12 +69,25 @@ namespace PARS
 		void SetPosition(const Vec3& pos) { m_Position = pos; m_RechangeWorldMatrix = true; }
 		const Quaternion& GetRotation() const { return m_Rotation; }
 		void SetRotation(const Quaternion& rot) { m_Rotation = rot; m_RechangeWorldMatrix = true; }
-		float GetScale() const { return m_Scale; }
-		void SetScale(float scale) { m_Scale = scale; m_RechangeWorldMatrix = true; }
+		const Vec3& GetScale() const { return m_Scale; }
+		void SetScale(const Vec3& scale) { m_Scale = scale; m_RechangeWorldMatrix = true;}
+		void SetScale(float scale) { m_Scale = Vec3::One * scale; m_RechangeWorldMatrix = true; }
 
 		Vec3 GetForward() const { return Vec3::Transform(Vec3::AxisZ, m_Rotation); }
 		Vec3 GetRight() const { return Vec3::Transform(Vec3::AxisX, m_Rotation); }
 		Vec3 GetUp() const { return Vec3::Transform(Vec3::AxisY, m_Rotation); }
+
+		bool IsChangedWorldMatrix() const { return m_IsChangedWorldMatrix; }
+		void ResetChangedWorldMatrix() { m_IsChangedWorldMatrix = false; }
+
+	protected:
+		UPtr<ActorDetailFunction> m_DetailFunction;
+
+	public:
+		void AddDetailFunctionInfo(FunctionInfo&& info);
+		void OnUpdateDetailInfo(std::function<void(const DetailInfo& info)> function);
+		void SetDetailVisibleState(DVS state);
+		void SetFunctionVisibleState(const std::string& treeName, FVS state);
 	};
 }
 

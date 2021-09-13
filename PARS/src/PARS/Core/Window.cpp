@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
+#include "PARS/Core/Application.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
+#include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Layer/LayerManager.h"
 
 #include "imgui.h"
@@ -47,8 +49,8 @@ namespace PARS
         int posY = (GetSystemMetrics(SM_CYSCREEN) - s_WindowInfo->m_Height) / 2;
 
         s_WindowInfo->m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_Title.c_str(), m_Title.c_str(),
-            WS_OVERLAPPEDWINDOW,
-            posX, posY, s_WindowInfo->m_Width, s_WindowInfo->m_Height, NULL, NULL, s_WindowInfo->m_hInstance, NULL);
+            WS_OVERLAPPEDWINDOW | WS_MAXIMIZE,
+            0, 0, s_WindowInfo->m_Width, s_WindowInfo->m_Height, NULL, NULL, s_WindowInfo->m_hInstance, NULL);
 
         m_InputManager = CreateUPtr<InputManager>(s_WindowInfo->m_hwnd);
 
@@ -74,6 +76,13 @@ namespace PARS
         SetWindowTextW(s_WindowInfo->m_hwnd, name.c_str());
     }
 
+    void WindowInfo::ChangeWindowInfo()
+    {
+        const auto& directX = DirectX12::GetDirectX12();
+        if (directX != nullptr)
+            directX->ResizeWindow();
+    }
+
     LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
@@ -81,22 +90,27 @@ namespace PARS
 
         LRESULT result = NULL;
         const auto& manager = Input::GetInputManager();
-        const auto& directX = DirectX12::GetDirectX12();
         const auto& layerManager = LayerManager::GetLayerManager();
+        const auto& factory = RenderFactory::GetRenderFactory();
 
         switch (message)
         {
         case WM_SIZE:
-        {
-            s_WindowInfo->m_Width = LOWORD(lParam);
-            s_WindowInfo->m_Height = HIWORD(lParam);
-            if (directX != nullptr)
-            {                
-                directX->ResizeWindow();
-            }
-            if (layerManager != nullptr)
+        { 
+            if (wParam == SIZE_MINIMIZED)
             {
-                layerManager->ResizeLayer();
+                Application::SetAppState(AppState::Paused);
+            }
+            else if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+            {
+                Application::SetAppState(AppState::Active);
+                s_WindowInfo->m_Width = LOWORD(lParam);
+                s_WindowInfo->m_Height = HIWORD(lParam);
+                s_WindowInfo->ChangeWindowInfo();
+                if (layerManager != nullptr)
+                {
+                    layerManager->ResizeLayer();
+                }
             }
         }
         break;

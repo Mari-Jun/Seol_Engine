@@ -3,12 +3,14 @@
 
 namespace PARS
 {
-	Controller::Controller()
+	Controller::Controller(const std::string& name)
+		: Actor(name)
 	{
 	}
 
-	Controller::Controller(const SPtr<Pawn>& pawn)
-		: m_ControlledPawn(pawn)
+	Controller::Controller(const SPtr<Pawn>& pawn, const std::string& name)
+		: Actor(name)
+		, m_ControlledPawn(pawn)
 	{
 	}
 }

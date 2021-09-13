@@ -8,23 +8,14 @@ namespace PARS
 	class Light : public Actor
 	{
 	public:
-		Light();
+		Light(const std::string& name = "Light") : Actor(name) {}
 		/*Light(const Vec3& color, float falloffStart, float falloffEnd);
 		Light(const Vec3& color, float falloffStart, float falloffEnd, float spotPower);*/
 
+		const SPtr<LightComponent>& GetLightComponent() const { return m_LightComponent; }
+
 	protected:
-		SPtr<class LightComponent> m_LightComponent;
-	};
-
-	class DirectionalLight : public Light
-	{
-	public:
-		DirectionalLight();
-		DirectionalLight(const Vec3& color);
-
-		virtual void Initialize() override;
-		virtual void Shutdown() override;
-		//virtual void Update(float deltaTime) {}
+		SPtr<LightComponent> m_LightComponent;
 	};
 }
 

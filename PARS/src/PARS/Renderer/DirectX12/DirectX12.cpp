@@ -49,7 +49,6 @@ namespace PARS
 			if (rtvBuffer != nullptr) rtvBuffer->Release();
 		}
 		if (m_RtvDescriptorHeap != nullptr) m_RtvDescriptorHeap->Release();
-		if (m_CbvSrvUavDescriptorHeap != nullptr) m_CbvSrvUavDescriptorHeap->Release();
 		if (m_SwapChain != nullptr) m_SwapChain->Release();
 		if (m_CommandList != nullptr) m_CommandList->Release();
 		if (m_CommandAllocator != nullptr) m_CommandAllocator->Release();
@@ -113,7 +112,7 @@ namespace PARS
 
 		WaitForGpuCompelete();
 
-		SetViewAndScissor();
+		//SetViewAndScissor(0.0f, 0.0f, static_cast<float>(m_WindowInfo->m_Width), static_cast<float>(m_WindowInfo->m_Height));
 
 		return true;
 	}
@@ -253,16 +252,6 @@ namespace PARS
 		if (FAILED(result)) return false;
 		m_DsvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
-		D3D12_DESCRIPTOR_HEAP_DESC csuDHDesc;
-		ZeroMemory(&csuDHDesc, sizeof(csuDHDesc));
-		csuDHDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		csuDHDesc.NumDescriptors = 1;
-		csuDHDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		csuDHDesc.NodeMask = 0;
-		result = m_Device->CreateDescriptorHeap(&csuDHDesc, IID_PPV_ARGS(&m_CbvSrvUavDescriptorHeap));
-		if (FAILED(result)) return false;
-		m_CbvSrvUavDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
 		return true;
 	}
 
@@ -327,16 +316,19 @@ namespace PARS
 		return true;
 	}
 
-	void DirectX12::SetViewAndScissor()
+	void DirectX12::SetViewAndScissor(float left, float top, float width, float height, UINT index)
 	{
-		m_Viewport.TopLeftX = 0;
-		m_Viewport.TopLeftY = 0;
-		m_Viewport.Width = static_cast<float>(m_WindowInfo->m_Width - m_WindowInfo->m_LayerWidth);
-		m_Viewport.Height = static_cast<float>(m_WindowInfo->m_Height);
+		m_Viewport.TopLeftX = left;
+		m_Viewport.TopLeftY = top;
+		m_Viewport.Width = width;
+		m_Viewport.Height = height;
 		m_Viewport.MaxDepth = 1.0f;
 		m_Viewport.MinDepth = 0.0f;
 
-		m_ScissorRect = { 0, 0, static_cast<LONG>(m_WindowInfo->m_Width - m_WindowInfo->m_LayerWidth), static_cast<LONG>(m_WindowInfo->m_Height) };
+		m_ScissorRect.left = static_cast<LONG>(left);
+		m_ScissorRect.top = static_cast<LONG>(top);
+		m_ScissorRect.right = static_cast<LONG>(left + width);
+		m_ScissorRect.bottom = static_cast<LONG>(top + height);
 	}
 
 	void DirectX12::WaitForGpuCompelete()
@@ -408,9 +400,6 @@ namespace PARS
 
 		//Connect RTV and DSV to OM
 		m_CommandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
-
-		ID3D12DescriptorHeap* descriptorHeaps[] = { m_CbvSrvUavDescriptorHeap };
-		m_CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 
 	void DirectX12::EndScene()

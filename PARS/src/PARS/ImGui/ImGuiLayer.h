@@ -17,7 +17,13 @@ namespace PARS
 		void Draw();
 
 	private:
+		void StylePARS();
+
+	private:
 		SPtr<class DirectX12> m_DirectX12;
+
+		ID3D12DescriptorHeap* m_SRVDescriptorHeap = nullptr;
+		UINT m_SRVDescriptorSize = 0;
 	};
 }
 

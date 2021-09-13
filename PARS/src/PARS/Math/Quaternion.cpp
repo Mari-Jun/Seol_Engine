@@ -44,6 +44,24 @@ namespace PARS
 		return result;
 	}
 
+	bool operator==(const Quaternion& p, const Quaternion& q)
+	{
+		return Math::NearZero(p.x - p.x)
+			&& Math::NearZero(p.y - q.y)
+			&& Math::NearZero(p.z - q.z)
+			&& Math::NearZero(p.w - q.w);
+	}
+
+	bool operator!=(const Quaternion& p, const Quaternion& q)
+	{
+		return !(p == q);
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
+	{
+		return os << quat.ToString();
+	}
+
 	Quaternion Quaternion::Conjugate() const
 	{
 		return Quaternion(-x, -y, -z, w);
@@ -122,6 +140,41 @@ namespace PARS
 		result.w = pMul * p.w + qMul * q.w;
 		result.Normalize();
 		return result;
+	}
+
+	std::string Quaternion::ToString() const
+	{
+		std::stringstream result;
+		result << "Quaternion : {" << x << ", " << y << ", " << z << "}";
+		return result.str();
+	}
+
+	const Vec3 Quaternion::QuatToEuler(bool toDegree) const
+	{
+		float sqx = x * x;
+		float sqy = y * y;
+		float sqz = z * z;
+		float sqw = w * w;
+
+		float pitch = Math::Asin(Math::Clamp(2.0f * (w * x - y * z), -1.0f, 1.0f));
+		float yaw = Math::Atan2(2.0f * (x * z + w * y), -sqx - sqy + sqz + sqw);
+		float roll = Math::Atan2(2.0f * (x * y + w * z), -sqx + sqy - sqz + sqw);
+
+		if (toDegree)
+		{
+			pitch = Math::ToDegrees(pitch);
+			yaw = Math::ToDegrees(yaw);
+			roll = Math::ToDegrees(roll);
+		}
+
+		if (Math::NearZero(pitch))
+			pitch = 0.0f;
+		if (Math::NearZero(yaw))
+			yaw = 0.0f;
+		if (Math::NearZero(roll))
+			roll = 0.0f;
+
+		return { pitch, yaw, roll };
 	}
 	
 	const Quaternion Quaternion::Identity{ 0.0f, 0.0f, 0.0f, 1.0f };

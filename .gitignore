@@ -403,6 +403,7 @@ bin-int/
 
 # PARS files
 *.log
+Contents/
 
 # Visual Studio files and folder
 .vs/

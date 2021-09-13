@@ -30,7 +30,7 @@ namespace PARS
 		{
 			if (component != nullptr)
 			{
-				component->Shutdown();
+				component->ShutdownComponent();
 			}
 		}
 	}
@@ -38,7 +38,7 @@ namespace PARS
 	void ComponentManager::AddComponent(const SPtr<Component>& component)
 	{
 		m_Components.emplace_back(component);
-		component->Initialize();
+		component->InitializeComponent();
 	}
 
 	void ComponentManager::RemoveComponent(const WPtr<Component>& component)
@@ -50,6 +50,14 @@ namespace PARS
 		{
 			component.lock()->Shutdown();
 			m_Components.erase(iter);
+		}
+	}
+
+	void ComponentManager::OnAllCompToFunction(std::function<void(const SPtr<Component>& comp)> function)
+	{
+		for (const auto& comp : m_Components)
+		{
+			function(comp);
 		}
 	}
 }

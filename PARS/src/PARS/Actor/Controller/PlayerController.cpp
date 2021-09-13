@@ -3,21 +3,23 @@
 
 namespace PARS
 {
-	PlayerController::PlayerController()
-		: Controller()
+	PlayerController::PlayerController(const std::string& name)
+		: Controller(name)
 	{
 	}
 
-	PlayerController::PlayerController(const SPtr<Pawn>& pawn)
-		: Controller(pawn)
+	PlayerController::PlayerController(const SPtr<Pawn>& pawn, const std::string& name)
+		: Controller(pawn, name)
 	{
 
 	}
 
 	void PlayerController::Initialize()
 	{
+		SetFunctionVisibleState("Transform", FVS::Disabled);
 		m_MovementComp = CreateSPtr<MovementComponent>();
 		AddComponent(m_MovementComp);
+		m_MovementComp->SetDetailVisibleState(DVS::Hide);
 	}
 
 	void PlayerController::ActorInput()
@@ -27,9 +29,6 @@ namespace PARS
 
 	void PlayerController::Update(float deltaTime)
 	{
-		SetPosition(m_ControlledPawn->GetPosition());
-		
-
 		//폰의 회전방향을 컨트롤러와 맞춘다.
 		if (b_IsSameRotationWithPawn)
 		{
@@ -39,20 +38,17 @@ namespace PARS
 
 	void PlayerController::MoveForward(float axis)
 	{
-		auto speed = m_ControlledPawn->GetMoveSpeed();
-		m_ControlledPawn->GetMovementComp()->SetForwardSpeed(axis * speed);
+		m_ControlledPawn->GetMovementComp()->SetForwardSpeed(axis);
 	}
 
 	void PlayerController::MoveRightward(float axis)
 	{
-		auto speed = m_ControlledPawn->GetMoveSpeed();
-		m_ControlledPawn->GetMovementComp()->SetRightSpeed(axis * speed);
+		m_ControlledPawn->GetMovementComp()->SetRightSpeed(axis);
 	}
 
 	void PlayerController::MoveUpward(float axis)
 	{
-		auto speed = m_ControlledPawn->GetMoveSpeed();
-		m_ControlledPawn->GetMovementComp()->SetUpSpeed(axis * speed);
+		m_ControlledPawn->GetMovementComp()->SetUpSpeed(axis);
 	}
 
 	void PlayerController::TurnMouse()

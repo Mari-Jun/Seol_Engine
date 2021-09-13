@@ -189,8 +189,8 @@ namespace PARS
 		return Mat4(
 			2.0f / (right - left), 0.0f, 0.0f, 0.0f,
 			0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
-			0.0f, 0.0f, 2.0f / (near - far), 0.0f,
-			(left + right) / (left - right), (bottom + top) / (bottom - top), (far + near) / (far - near), 1.0f
+			0.0f, 0.0f, 1.0f / (far - near), 0.0f,
+			0.0f, 0.0f, near / (near - far), 1.0f
 		);
 	}
 
@@ -224,6 +224,23 @@ namespace PARS
 	{
 		auto result(mat);
 		result.Transpose();
+		return result;
+	}
+
+	void Mat4::InverseTranspose()
+	{
+		XMMATRIX temp = ConvertToXMMATRIX();
+		temp.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		XMVECTOR det = XMMatrixDeterminant(temp);
+		temp = XMMatrixTranspose(XMMatrixInverse(&det, temp));
+		ConvertFromXMMATRIX(temp);
+	}
+
+	Mat4 Mat4::InverseTranspose(const Mat4& mat)
+	{
+		auto result(mat);
+		result.InverseTranspose();
 		return result;
 	}
 

@@ -3,10 +3,15 @@
 #include "PARS/Core/Core.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
-#include "PARS/Component/Render/RenderComponent.h"
 
 namespace PARS
 {
+	enum class ShaderType
+	{
+		Color,
+		Material
+	};
+
 	class Shader
 	{
 	public:
@@ -15,11 +20,8 @@ namespace PARS
 
 		virtual bool Initialize(ID3D12RootSignature* rootSignature);
 		virtual void Shutdown();
-
-		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT numOfObject) {}
-		virtual void DrawRenderComp(ID3D12GraphicsCommandList* commandList, const SPtr<RenderComponent>& renderComp, int index) {}
-		virtual void DrawPassFrame(ID3D12GraphicsCommandList* commandList) {}
-
+		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
+		virtual void Draw(ID3D12GraphicsCommandList* commandList);
 
 	public:
 		virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
@@ -30,9 +32,6 @@ namespace PARS
 		virtual void CreateShader() {}
 		virtual void CreateInputLayout() {}
 		virtual bool CreatePSO(ID3D12RootSignature* rootSignature) { return true; }
-		
-	public:
-		ID3D12PipelineState* GetPipelineState() const { return m_PipelineState; }
 
 	protected:
 		SPtr<DirectX12> m_DirectX12;
@@ -44,9 +43,18 @@ namespace PARS
 
 		ID3D12PipelineState* m_PipelineState = nullptr;
 
+	protected:
+		ShaderType m_Type;
+		std::vector<SPtr<class RenderItem>> m_RenderItems;
+	
+	public:
+		ShaderType GetShaderType() const { return m_Type; }
+		ID3D12PipelineState* GetPipelineState() const { return m_PipelineState; }
+		void AddMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
+		void RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
+
 	private:
 		static std::wstring s_ShaderFilePath;
-
 	};
 }
 

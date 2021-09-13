@@ -53,6 +53,7 @@ namespace PARS
 		std::string ToString() const;
 
 		static const Vec3 Zero;
+		static const Vec3 One;
 		static const Vec3 AxisX;
 		static const Vec3 AxisY;
 		static const Vec3 AxisZ;

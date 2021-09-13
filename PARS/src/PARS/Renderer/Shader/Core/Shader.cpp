@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
+#include "PARS/Renderer/Core/RenderItem.h"
+#include "PARS/Component/Render/Mesh/MeshComponent.h"
 
 namespace PARS
 {
@@ -22,9 +24,34 @@ namespace PARS
 
 	void Shader::Shutdown()
 	{
+		for (auto& renderItem : m_RenderItems)
+			renderItem->Shutdown();
+		m_RenderItems.clear();
+
 		if (m_PipelineState != nullptr) m_PipelineState->Release();
+		m_PipelineState = nullptr;
 		if (m_VSBlob != nullptr) m_VSBlob->Release();
+		m_VSBlob = nullptr;
 		if (m_PSBlob != nullptr) m_PSBlob->Release();
+		m_PSBlob = nullptr;
+	}
+
+	void Shader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+	{
+		for (const auto& renderItem : m_RenderItems)
+		{
+			renderItem->Update(device, commandList);
+		}
+	}
+
+	void Shader::Draw(ID3D12GraphicsCommandList* commandList)
+	{
+		m_DirectX12->GetCommandList()->SetPipelineState(GetPipelineState());
+
+		for (const auto& renderItem : m_RenderItems)
+		{
+			renderItem->Draw(commandList);
+		}
 	}
 
 	D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
@@ -92,7 +119,7 @@ namespace PARS
 	{
 		UINT compileFlags = 0;
 #if defined(_DEBUG)
-		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES;
 #endif
 		std::wstring filePath = s_ShaderFilePath + fileName;
 
@@ -108,5 +135,42 @@ namespace PARS
 		}
 
 		return byteCode;
+	}
+
+	void Shader::AddMeshCompForDraw(const SPtr<MeshComponent>& meshComp)
+	{
+		const auto& mesh = meshComp->GetMesh();
+
+		auto iter = find_if(m_RenderItems.begin(), m_RenderItems.end(), [&mesh](const SPtr<RenderItem>& renderItem)
+			{ return mesh == renderItem->GetMesh(); });
+
+		if (iter != m_RenderItems.end())
+		{
+			iter->get()->AddMeshCompDrwanWithMesh(meshComp);
+		}
+		else
+		{
+			UINT matSize = static_cast<UINT>(meshComp->GetMaterials().size());
+			SPtr<RenderItem> renderItem = CreateSPtr<RenderItem>(mesh, matSize);
+			renderItem->AddMeshCompDrwanWithMesh(meshComp);
+			m_RenderItems.emplace_back(std::move(renderItem));
+		}
+	}
+
+	void Shader::RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp)
+	{
+		const auto & mesh = meshComp->GetMesh();
+
+		auto iter = find_if(m_RenderItems.begin(), m_RenderItems.end(), [&mesh](const SPtr<RenderItem>& renderItem)
+			{ return mesh == renderItem->GetMesh(); });
+
+		if (iter != m_RenderItems.end())
+		{
+			if (iter->get()->RemoveInstanceData(meshComp))
+			{
+				iter->get()->Shutdown();
+				m_RenderItems.erase(iter);
+			}
+		}
 	}
 }

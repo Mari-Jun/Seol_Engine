@@ -1,86 +1,51 @@
 #pragma once
 #include "PARS/Component/Render/Mesh/Mesh.h"
-#include "PARS/Component/Render/RenderComponent.h"
+#include "PARS/Component/Component.h"
 
 namespace PARS
 {
 	class DirectX12;
 
-	class MeshComponent : public RenderComponent
+	enum class MeshType
+	{
+		Static,
+		Handmade,
+	};
+
+	class MeshComponent : public Component
 	{
 	public:
-		MeshComponent();
+		MeshComponent(const std::string& name, MeshType type);
 		virtual ~MeshComponent() = default;
 
 		virtual void Initialize() override;
+		virtual void InitializeDetailFunction() override;
 		virtual void Shutdown() override;
-		virtual void Draw(ID3D12GraphicsCommandList* commandList) override;
+		virtual void Draw(ID3D12GraphicsCommandList* commandList);
 
-		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
-		virtual void ReleaseUploadBuffers() override;
+		virtual void RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
+		virtual void UpdateShaderVariables(std::map<std::string, BYTE*> variables);
+		virtual void UpdateMaterialShaderVariables(BYTE* variable, UINT instance, UINT offset);
+		virtual void ReleaseUploadBuffers();
+
+	protected:
+		void AddToRenderFactory();
+		void RemoveFromRenderFactory();
 
 	public:
-		enum class FileType
-		{
-			Obj
-		};
-
-		template<typename T, typename ... Args>
-		constexpr bool SetMesh(FileType type, std::string&& fileName, Args&& ... args)
-		{
-			//Mesh 교체 여부 확인
-			if (m_Mesh != nullptr)
-			{
-				m_Mesh->Shutdown();
-				m_Mesh = nullptr;
-				ChangeComponentItem();
-			}
-
-			//이미 Load된적이 있는지 Cache데이터에서 찾는다. 
-			const auto& factory = RenderComponentFactory::GetRenderComponentFactory();
-			m_Mesh = factory->GetMesh(fileName);
-		
-			if (m_Mesh == nullptr)
-			{
-				m_Mesh = CreateSPtr<T>();
-				switch (type)
-				{
-				case PARS::MeshComponent::FileType::Obj:
-					if (!std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj(fileName))
-					{
-						std::reinterpret_pointer_cast<T>(m_Mesh)->LoadObj("Default/Box");
-						return false;
-					}
-					break;
-				}
-
-				factory->SaveMesh(fileName, m_Mesh);
-				return true;
-			}		
-
-			return true;
-		}
-
-		template<typename T, typename ... Args>
-		constexpr void SetHandMadeMesh(Args&& ... args)
-		{
-			if (m_Mesh != nullptr)
-			{
-				m_Mesh->Shutdown();
-				ChangeComponentItem();
-			}
-			else
-			{
-				m_Mesh = CreateSPtr<T>();
-			}
-			
-			std::reinterpret_pointer_cast<T>(m_Mesh)->SetVertex(std::forward<Args>(args)...);
-		}
-
+		MeshType GetMeshType() const { return m_MeshType; }
 		const SPtr<Mesh>& GetMesh() const { return m_Mesh; }
+		void SetInstanceIndex(UINT index) { m_InstanceIndex = index;}
+		UINT GetInstanceIndex() const { return m_InstanceIndex; }
+		void SetMaterial(const SPtr<Material>& material, int index) { m_Materials[index] = material; }
+		const std::vector<SPtr<Material>>& GetMaterials() const { return m_Materials; }
+		void AddMaterial(const SPtr<Material>& material) { m_Materials.push_back(material); }
 
-	private:
+	protected:
+		MeshType m_MeshType;
 		SPtr<Mesh> m_Mesh = nullptr;
+		UINT m_InstanceIndex = 0;
+		std::vector<SPtr<Material>> m_Materials;
 	};
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Math/Math.h"
+#include "PARS/Component/Component.h"
 
 namespace PARS
 {
@@ -34,14 +35,18 @@ namespace PARS
 		};
 
 	public:
-		LightComponent(LightType lightType, int updateOrder = 100);
+		LightComponent(LightType lightType, const std::string& name = "LightComponent", int updateOrder = 100);
 		virtual ~LightComponent() = default;
 
 		virtual void Initialize() override;
 		virtual void Shutdown() override;
 
+	public:
 		LightType GetLightType() const { return m_LightType; }
 		virtual LightCB GetLightCB() const = 0;
+
+		const Vec3& GetLightColor() const { return m_LightColor; }
+		void SetLightColor(const Vec3& color) { m_LightColor = color; }
 
 	protected:
 		LightType m_LightType;
@@ -65,7 +70,9 @@ namespace PARS
 	class DirectionalLightComponent : public LightComponent
 	{
 	public:
-		DirectionalLightComponent(const Vec3& color);
+		DirectionalLightComponent(const Vec3 & color);
+
+		virtual void InitializeDetailFunction() override;
 
 		virtual LightCB GetLightCB() const override;
 	};

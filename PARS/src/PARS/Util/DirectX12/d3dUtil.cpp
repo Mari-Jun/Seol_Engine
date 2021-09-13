@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
+#include "PARS/Util/DirectX12/DDSTextureLoader12.h"
 
 namespace PARS
 {
@@ -91,5 +92,56 @@ namespace PARS
 		}
 
 		return buffer;
+	}
+
+	ID3D12Resource* D3DUtil::CreateTextureResourceFromDDSFile(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, const wchar_t* fileName, ID3D12Resource** uploadBuffer, D3D12_RESOURCE_STATES resourceStates)
+	{
+		ID3D12Resource* texture = nullptr;
+		std::unique_ptr<uint8_t[]> ddsData;
+		std::vector<D3D12_SUBRESOURCE_DATA> subResources;
+		DDS_ALPHA_MODE alphaMode = DDS_ALPHA_MODE_UNKNOWN;
+		bool isCubeMap = false;
+
+		HRESULT result = DirectX::LoadDDSTextureFromFileEx(device, fileName, 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT,
+			&texture, ddsData, subResources, &alphaMode, &isCubeMap);
+
+		D3D12_HEAP_PROPERTIES heapPropertiesDesc = {};
+		heapPropertiesDesc.Type = D3D12_HEAP_TYPE_UPLOAD;
+		heapPropertiesDesc.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		heapPropertiesDesc.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapPropertiesDesc.CreationNodeMask = 1;
+		heapPropertiesDesc.VisibleNodeMask = 1;
+
+		UINT subResource = (UINT)subResources.size();
+		UINT bytes = GetRequiredIntermediateSize(texture, 0, subResource);
+
+		D3D12_RESOURCE_DESC resourceDesc = {};
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDesc.Alignment = 0;
+		resourceDesc.Width = bytes;
+		resourceDesc.Height = 1;
+		resourceDesc.DepthOrArraySize = 1;
+		resourceDesc.MipLevels = 1;
+		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		device->CreateCommittedResource(&heapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr, IID_PPV_ARGS(uploadBuffer));
+
+		UpdateSubresources(commandList, texture, *uploadBuffer, 0, 0, subResource, &subResources[0]);
+
+		D3D12_RESOURCE_BARRIER resourceBarrier = {};
+		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		resourceBarrier.Transition.pResource = texture;
+		resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+		resourceBarrier.Transition.StateAfter = resourceStates;
+		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		commandList->ResourceBarrier(1, &resourceBarrier);
+
+		return texture;
 	}
 }

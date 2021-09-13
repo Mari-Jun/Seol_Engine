@@ -13,6 +13,6 @@ namespace PARS
 	void Layer::AddLevel(const SPtr<class Level>& level)
 	{
 		auto levelManger = LevelManager::GetLevelManager();
-		levelManger->AddLevel(level);
+		levelManger->OpenLevel(level);
 	}
 }

@@ -1,6 +1,7 @@
 #include "DirectionalLightLevel.h"
-#include "PARS/Actor/Light/Light.h"
-#include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Actor/Light/DirectionalLight/DirectionalLight.h"
+#include "PARS/Component/Render/Mesh/Static/StaticMeshComp.h"
+#include "PARS/Component/Render/Mesh/Handmade/HandmadeMeshComp.h"
 
 namespace PARS
 {
@@ -13,26 +14,65 @@ namespace PARS
 	{
 		Level3D::InitializeLevel();
 
-		auto actor = CreateSPtr<Actor>();
+		auto actor = CreateSPtr<Actor>("Cube");
 		actor->SetPosition({ 0.0f, 0.0f, 1000.0f });
-		actor->SetScale(400.0f);
-		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetMesh<DiffuseMesh>(MeshComponent::FileType::Obj, "Default/Box");
-		actor->AddComponent(meshComp);
+		actor->SetScale(100.0f);
 		AddActor(actor);
+		auto meshComp = CreateSPtr<StaticMeshComponent>();
+		meshComp->SetMesh(CONTENT_DIR + "Default\\Box");
+		actor->AddComponent(meshComp);
 
-		auto layer = PARS::CreateSPtr<PARS::DirectionalLightLayer>();
-		layer->OnDestroy([this]() {Destroy(); });
-		layer->AddObjectToLayer("Obj");
-		layer->SetMeshComp(meshComp);
-		AddLayer(layer);
+		actor = CreateSPtr<Actor>("Tree");
+		actor->SetPosition({ 200.0f, 0.0f, 1000.0f });
+		actor->SetScale({ 100.0f });
+		AddActor(actor);
+		meshComp = CreateSPtr<StaticMeshComponent>();
+		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+		actor->AddComponent(meshComp);
 
-		auto light = CreateSPtr<DirectionalLight>();
+		actor = CreateSPtr<Actor>("Tree");
+		actor->SetPosition({ -200.0f, 0.0f, 1000.0f });
+		actor->SetScale(100.0f);
+		AddActor(actor);
+		meshComp = CreateSPtr<StaticMeshComponent>();
+		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+		actor->AddComponent(meshComp);
+
+		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
 		AddActor(light);
+
+		auto rectangle = CreateSPtr<Actor>("Rectangle");
+		auto hmeshComp = CreateSPtr<HandmadeMeshComponent>();
+		hmeshComp->SetMesh(
+			std::vector<DiffuseVertex>({ {Vec3(-200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
+				{Vec3(200.0f, 200.0f, 0.0f), Vec4(COLOR::Green)},
+				{Vec3(200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)},
+				{Vec3(-200.0f, -200.0f, 0.0f), Vec4(COLOR::Green)} }),
+			std::vector<UINT>({ 0,1,2,0,2,3 })
+		);
+		rectangle->AddComponent(hmeshComp);
+		AddActor(rectangle);
 	}
 
 	void DirectionalLightLevel::UpdateLevel(float deltaTime)
 	{
-		
+		/*static float time = 0.0f;
+		static float move = 100.0f;
+
+		time += deltaTime;
+
+		if (time > 0.02f && move <= 2200.0f)
+		{
+			auto actor = CreateSPtr<Actor>("Tree");
+			actor->SetPosition({ move, 0.0f, 1000.0f - move });
+			actor->SetScale(100.0f);
+			AddActor(actor);
+			auto meshComp = CreateSPtr<StaticMeshComponent>();
+			meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+			actor->AddComponent(meshComp);
+
+			time -= 0.02f;
+			move += 1.0f;
+		}*/
 	}
 }

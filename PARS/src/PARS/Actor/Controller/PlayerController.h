@@ -6,8 +6,8 @@ namespace PARS
 	class PlayerController : public Controller
 	{
 	public:
-		PlayerController();
-		PlayerController(const SPtr<class Pawn>& pawn);
+		PlayerController(const std::string& name = "PlayerController");
+		PlayerController(const SPtr<class Pawn>& pawn, const std::string& name = "PlayerController");
 		virtual ~PlayerController() = default;
 
 		virtual void Initialize() override;

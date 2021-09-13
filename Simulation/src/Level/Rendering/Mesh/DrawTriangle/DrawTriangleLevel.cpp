@@ -1,5 +1,5 @@
 #include "DrawTriangleLevel.h"
-#include "PARS/Component/Render/Mesh/MeshComponent.h"
+#include "PARS/Component/Render/Mesh/Handmade/HandmadeMeshComp.h"
 
 namespace PARS
 {
@@ -13,24 +13,24 @@ namespace PARS
 	{
 		Level2D::InitializeLevel();
 
-		auto actor = CreateSPtr<Actor>();
-		auto meshComp = CreateSPtr<MeshComponent>();
-		meshComp->SetHandMadeMesh<DiffuseMesh>(std::vector({
-				DiffuseVertex(Vec3(0.0f, 0.5f, 0.0f), Vec4(1.0f, 0.0f, 0.0f, 1.0f)),
-				DiffuseVertex(Vec3(0.5f, -0.5f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 1.0f)),
-				DiffuseVertex(Vec3(-0.5f, -0.5f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 1.0f))
-				}));
-		actor->AddComponent(meshComp);
-		AddActor(actor);
-		
-		auto layer = PARS::CreateSPtr<PARS::DrawTriangleLayer>();
-		layer->OnDestroy([this]() {Destroy(); });
-		layer->AddObjectToLayer("Triangle");
-		layer->SetTriMeshComp(meshComp);
-		AddLayer(layer);
-		
+		std::reinterpret_pointer_cast<Actor>(m_DefaultPawn)->SetDetailVisibleState(DVS::HideAll);
+		std::reinterpret_pointer_cast<Actor>(m_DefaultController)->SetDetailVisibleState(DVS::HideAll);
 
-		SetRenderProjectionOrtho(-1.0f, 1.0f, -1.0f, 1.0f);
+		auto actor = CreateSPtr<Actor>("Triangle");
+		AddActor(actor);
+		actor->SetDetailVisibleState(DVS::Hide);
+		auto meshComp = CreateSPtr<HandmadeMeshComponent>();
+
+		static Vec4 colors[3] = { {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f} };
+		static Vec3 positions[3] = { {0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f} };
+
+		meshComp->SetMesh(std::vector({
+				DiffuseVertex(Vec3(positions[0]), Vec4(colors[0])),
+				DiffuseVertex(Vec3(positions[1]), Vec4(colors[1])),
+				DiffuseVertex(Vec3(positions[2]), Vec4(colors[2]))
+			}));
+		actor->AddComponent(meshComp);
+		
 		SetDefaultControllerKeyEvent(false);
 	}
 

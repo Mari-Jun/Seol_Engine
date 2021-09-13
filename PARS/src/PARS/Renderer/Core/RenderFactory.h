@@ -1,12 +1,13 @@
 #pragma once
-
-#include "PARS/Renderer/Core/RenderComponentFactory.h"
-#include "PARS/Component/Camera/CameraComponent.h"
-#include "PARS/Component/Light/LightComponent.h"
+#include "PARS/Renderer/Core/Viewport.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
+#include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 
 namespace PARS
 {
+	class CameraComponent;
+	class LightComponent;
+
 	class RenderFactory
 	{
 	private:
@@ -18,35 +19,39 @@ namespace PARS
 		
 		bool Initialize();
 		void Shutdown();
-		void RenderReady();
+		void Update();
 		void Draw();
 		void PrepareToNextDraw();
 		
 	private:
-		bool CreateDefaultRootSignatures();
-		void CreateShaders();
-		void CreateShader(std::string&& signatureType, ShaderType type, SPtr<Shader>&& shader);
+		void UpdateViewport();
 
 	public:
-		void AddCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
-		void RemoveCameraComponent(CameraComponent::CameraType type, const SPtr<CameraComponent>& camera);
-
-		void SetProjection(const Mat4& projection) { m_Projection = projection; }
-
-		void AddLightComponent(const SPtr<LightComponent>& light);
-		void RemoveLightComponent(const SPtr<LightComponent>& light);
+		const SPtr<Viewport>& GetViewport(int index) { return m_Viewports[index]; }
 
 		inline static RenderFactory* GetRenderFactory() { return s_Instance; }
 
 	private:
-		SPtr<DirectX12> m_DirectX12;
-		UPtr<RenderComponentFactory> m_RenderCompFactory;
-		std::unordered_map<std::string, ID3D12RootSignature*> m_RootSignatures;
-		std::unordered_map<CameraComponent::CameraType, std::vector<SPtr<CameraComponent>>> m_CameraComps;
-		std::list<SPtr<LightComponent>> m_LightComps;
+		UPtr<ShaderFactory> m_ShaderFactory;
+		std::vector<SPtr<Viewport>> m_Viewports;
 
 	private:
-		Mat4 m_Projection;
+		std::vector<SPtr<CameraComponent>> m_CameraComps;
+		std::list<SPtr<LightComponent>> m_LightComps;
+
+	public:
+		void AddMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
+		void RemoveMeshCompForDraw(const SPtr<class MeshComponent>& meshComp);
+
+		void AddCameraComponent(const SPtr<CameraComponent>& camera);
+		void RemoveCameraComponent(const SPtr<CameraComponent>& camera);
+
+		void AddLightComponent(const SPtr<LightComponent>& light);
+		void RemoveLightComponent(const SPtr<LightComponent>& light);
+
+		const std::vector<SPtr<CameraComponent>>& GetCameraComps() const { return m_CameraComps; }
+		const std::list<SPtr<LightComponent>>& GetLightComps() const { return m_LightComps; }
+
 	};
 }
 

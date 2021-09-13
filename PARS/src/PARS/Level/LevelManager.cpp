@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "PARS/Level/LevelManager.h"
+#include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
+
+//юс╫ц
+#include "PARS/Layer/LayerManager.h"
 
 namespace PARS
 {
@@ -10,94 +14,64 @@ namespace PARS
 
 	void LevelManager::ProcessInput()
 	{
-		if (!m_Levels.empty())
+		if (m_Level != nullptr && m_Level->GetLevelState() == Level::LevelState::Active)
 		{
-			const auto& level = m_Levels.top();
-			if (level->GetLevelState() == Level::LevelState::Active)
-			{
-				level->LevelInput();
-			}
+			m_Level->LevelInput();
 		}
 	}
 
 	void LevelManager::Update(float deltaTime)
 	{
-		if (!m_Levels.empty())
+		if (m_Level != nullptr)
 		{
-			m_IsUpdateLevels = true;
-			const auto& level = m_Levels.top();
-			if (level->GetLevelState() == Level::LevelState::Active)
+			m_IsUpdateLevel = true;
+			if (m_Level->GetLevelState() == Level::LevelState::Active)
 			{
-				level->Update(deltaTime);
+				m_Level->Update(deltaTime);
 			}
-			m_IsUpdateLevels = false;
+			m_IsUpdateLevel = false;
+		}
 
-			if (m_ReadyLevels != nullptr)
+		if (m_ReadyLevel != nullptr)
+		{
+			if (m_Level != nullptr)
 			{
-				level->SetLayerHide();
-				m_Levels.emplace(m_ReadyLevels);
-				m_ReadyLevels = nullptr;
+				m_Level->Shutdown();
+				m_Level = nullptr;
 			}
+			m_Level = std::move(m_ReadyLevel);
+			AddLevelToDetailLayer();
+			m_Level->Initialize();
 
-			std::vector<SPtr<Level>> deadLevels;
-			if (level->GetLevelState() == Level::LevelState::Dead)
-			{
-				deadLevels.emplace_back(level);
-			}
-
-			for (auto level : deadLevels)
-			{
-				RemoveLevel(level);
-			}
+			m_ReadyLevel = nullptr;
 		}
 	}
 
 	void LevelManager::Shutdown()
 	{
-		while (!m_Levels.empty())
+		if (m_ReadyLevel != nullptr)
 		{
-			auto level = m_Levels.top();
-			if (level != nullptr)
-			{
-				level->Shutdown();
-			}
-			m_Levels.pop();
+			m_ReadyLevel->Shutdown();
+			m_ReadyLevel = nullptr;
+		}
+		if (m_Level != nullptr)
+		{
+			m_Level->Shutdown();
+			m_Level = nullptr;
 		}
 	}
 
-	void LevelManager::AddLevel(const SPtr<Level>& level)
+	void LevelManager::OpenLevel(const SPtr<Level>& level)
 	{
-		if (m_IsUpdateLevels)
-		{
-			m_ReadyLevels = level;
-		}
-		else
-		{
-			if (!m_Levels.empty())
-			{
-				const auto& level = m_Levels.top();
-				level->SetLayerHide();
-			}
-			m_Levels.emplace(level);
-		}
-		level->Initialize();
+		m_ReadyLevel = level;
 	}
 
-	void LevelManager::RemoveLevel(const WPtr<Level>& level)
+	void LevelManager::AddLevelToDetailLayer()
 	{
-		if (m_ReadyLevels != nullptr && level.lock() == m_ReadyLevels)
+		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
+		if (detailLayer != nullptr)
 		{
-			m_ReadyLevels->Shutdown();
-		}
-
-		if (!m_Levels.empty() && level.lock() == m_Levels.top())
-		{
-			m_Levels.top()->Shutdown();
-			m_Levels.pop();
-			if (!m_Levels.empty())
-			{
-				m_Levels.top()->SetLayerActive();
-			}
+			detailLayer->SetLevelToLayer(m_Level);
 		}
 	}
 

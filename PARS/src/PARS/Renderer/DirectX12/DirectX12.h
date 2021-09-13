@@ -6,6 +6,7 @@
 namespace PARS
 {
 	struct WindowInfo;
+	struct ViewportInfo;
 
 	class DirectX12 : public std::enable_shared_from_this<DirectX12>
 	{
@@ -30,9 +31,8 @@ namespace PARS
 		bool CreateRenderTargetViews();
 		bool CreateDepthStecilView();
 		
-		void SetViewAndScissor();
-
 	public:
+		void SetViewAndScissor(float left, float top, float width, float height, UINT index = 0);
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
 	
@@ -43,7 +43,6 @@ namespace PARS
 		ID3D12CommandQueue* GetCommandQueue() { return m_CommandQueue; }
 		ID3D12CommandAllocator* GetCommandAllocator() { return m_CommandAllocator; }
 		ID3D12GraphicsCommandList* GetCommandList() { return m_CommandList; }
-		ID3D12DescriptorHeap* GetCbvSrvUavHeap() { return m_CbvSrvUavDescriptorHeap; }
 
 		ID3D12Resource* GetCurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
@@ -58,6 +57,7 @@ namespace PARS
 
 	private:
 		WindowInfo* m_WindowInfo = nullptr;
+		ViewportInfo* m_ViewportInfo = nullptr;
 
 		IDXGIFactory4* m_Factory = nullptr;
 		IDXGISwapChain3* m_SwapChain = nullptr;
@@ -84,9 +84,6 @@ namespace PARS
 		ID3D12Resource* m_DepthStencilBuffer = nullptr;
 		ID3D12DescriptorHeap* m_DsvDescriptorHeap = nullptr;
 		UINT m_DsvDescriptorSize = 0;
-
-		ID3D12DescriptorHeap* m_CbvSrvUavDescriptorHeap = nullptr;
-		UINT m_CbvSrvUavDescriptorSize = 0;
 
 		D3D12_VIEWPORT m_Viewport;
 		D3D12_RECT m_ScissorRect;
