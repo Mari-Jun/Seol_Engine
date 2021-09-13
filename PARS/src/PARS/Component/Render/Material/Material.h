@@ -4,6 +4,8 @@
 
 namespace PARS
 {
+	class Texture;
+	
 	class Material
 	{
 	public:
@@ -22,6 +24,9 @@ namespace PARS
 		Vec3 m_FresnelR0 = { 0.01f, 0.01f, 0.0f };
 		float m_Roughness = 1.0f;
 
+		//Texture에 대한 기능들은 많이 남아있는데 아직 잘 몰라서 Diffuse만 설정
+		SPtr<Texture> m_DiffuseTexture;
+
 	public:
 		const std::string& GetName() const { return m_Name; }
 		void SetName(const std::string& name) { m_Name = name; }
@@ -36,6 +41,9 @@ namespace PARS
 		void SetFresnelR0(const Vec3& fresnel) { m_FresnelR0 = fresnel; }
 		float GetRoughness() const { return m_Roughness; }
 		void SetRoughness(float roughness) { m_Roughness = roughness; }
+
+		void SetDiffuseTexture(const SPtr<Texture> texture) { m_DiffuseTexture = texture; }
+		const SPtr<Texture>& GetDiffuseTexture() const { return m_DiffuseTexture; }
 	};
 
 	namespace MTL
@@ -45,9 +53,14 @@ namespace PARS
 
 	struct CBMaterial
 	{
-		Vec4 DiffuseAlbedo;
-		Vec3 FresnelR0;
-		float Shininess;
+		Vec4 diffuseAlbedo;
+		Vec3 fresnelR0;
+		float roughness;
+
+		int diffuseMapIndex;
+		UINT padding0;
+		UINT padding1;
+		UINT padding2;
 	};
 }
 

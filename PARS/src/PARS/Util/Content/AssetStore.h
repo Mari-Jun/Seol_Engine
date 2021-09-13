@@ -63,6 +63,9 @@ namespace PARS
 		std::string GetExtentionFromPath(std::string path);
 		std::string GetStemFromPath(std::string path);
 		std::string GetParentPathFromPath(std::string path);
+		std::string GetNotExtentionFromPath(std::string path);
+
+		std::string GetRelativePathFromAbsolute(std::string path);
 	}
 }
 

@@ -171,5 +171,19 @@ namespace PARS
 			path = path.substr(0, path.rfind('\\'));
 			return path;			
 		}
+
+		std::string GetNotExtentionFromPath(std::string path)
+		{
+			std::string extention = GetExtentionFromPath(path);
+			return path.substr(0, path.size() - extention.size());
+		}
+
+		std::string GetRelativePathFromAbsolute(std::string path)
+		{
+			std::string curPath =  std::filesystem::current_path().string();
+			path = std::string(std::mismatch(path.begin(), path.end(), curPath.begin(), curPath.end()).first, path.end());
+			std::replace(path.begin(), path.begin() + path.find_last_of('\\'), '\\', '/');
+			return "../" + path;
+		}
 	}
 }

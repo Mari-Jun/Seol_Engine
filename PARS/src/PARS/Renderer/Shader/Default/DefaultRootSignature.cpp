@@ -42,7 +42,7 @@ namespace PARS
 	{
 		D3D12_DESCRIPTOR_RANGE descriptorRanges[1];
 		descriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		descriptorRanges[0].NumDescriptors = 1;
+		descriptorRanges[0].NumDescriptors = -1;
 		descriptorRanges[0].BaseShaderRegister = 3; 
 		descriptorRanges[0].RegisterSpace = 0;
 		descriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;		
@@ -171,9 +171,11 @@ namespace PARS
 			srvDesc.Texture2D.MostDetailedMip = 0;
 			srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
+			int index = 0;
 			for (const auto& [path, texture] : textures)
 			{
 				texture->LoadTextureFromDDSFile(device, commandList, 0x01);
+				texture->SetTextureSRVIndex(index++);
 				srvDesc.Format = texture->GetResource()->GetDesc().Format;
 				srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
 				device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desHandle);
@@ -195,10 +197,11 @@ namespace PARS
 			material->SetMatCBIndex(matIndex);
 
 			CBMaterial cbMat;
-			cbMat.DiffuseAlbedo = material->GetDiffuseAlbedo();
-			cbMat.FresnelR0 = material->GetFresnelR0();
-			cbMat.Shininess = 1.0f - material->GetRoughness();
-
+			cbMat.diffuseAlbedo = material->GetDiffuseAlbedo();
+			cbMat.fresnelR0 = material->GetFresnelR0();
+			cbMat.roughness = material->GetRoughness();
+			const auto& texture = material->GetDiffuseTexture();
+			cbMat.diffuseMapIndex = texture != nullptr ? material->GetDiffuseTexture()->GetTextureSRVIndex() : -1;
 			memcpy(&m_MaterialMappedData[matIndex * sizeof(CBMaterial)], &cbMat, sizeof(CBMaterial));
 			++matIndex;
 		}

@@ -20,12 +20,16 @@ struct MaterialData
     float4 diffuseAlbedo;
     float3 fresnelR0;
     float roughness;
-    uint diffuseMapIndex;
+    
+    int diffuseMapIndex;
+    uint padding0;
+    uint padding1;
+    uint padding2;
 };
 
 StructuredBuffer<InstanceData> gInstanceDatas : register(t0, space0);
 StructuredBuffer<MaterialInstanceData> gMaterialInstanceDatas : register(t1, space0);
-StructuredBuffer<Material> gMaterials : register(t2, space0);
+StructuredBuffer<MaterialData> gMaterials : register(t2, space0);
 
 Texture2D gDiffuseMap[] : register(t3);
 
@@ -143,12 +147,15 @@ float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
     //return float4(input.texcoord, 0.0f, 0.0f);
     //return gMaterials[input.matIndex].DiffuseAlbedo;
     
-    Material matData = gMaterials[input.matIndex];
-    float4 diffuseAlbedo = matData.DiffuseAlbedo;
-    float3 fresnelR0 = matData.FresnelR0;
-    float shininess = matData.Shininess;
+    MaterialData matData = gMaterials[input.matIndex];
+    float4 diffuseAlbedo = matData.diffuseAlbedo;
+    float3 fresnelR0 = matData.fresnelR0;
+    float shininess = matData.roughness;
     
-    //diffuseAlbedo *= gDiffuseMap[0].Sample(gSamplerState, input.texcoord);
+    if(matData.diffuseMapIndex >= 0)
+    {
+        diffuseAlbedo *= gDiffuseMap[matData.diffuseMapIndex].Sample(gSamplerState, input.texcoord);
+    }
     
     input.normal = normalize(input.normal);
     

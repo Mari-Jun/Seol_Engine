@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Component/Render/Material/Material.h"
+#include "PARS/Component/Render/Texture/Texture.h"
+#include "PARS/Util/Content/AssetStore.h"
 
 namespace PARS
 {
@@ -50,6 +52,17 @@ namespace PARS
 						ss >> tempVec4.x >> tempVec4.y >> tempVec4.z;
 						tempVec4.w = 1.0f;
 						material->SetDiffuseAlbedo(tempVec4);
+					}
+					else if (prefix == "map_Kd")
+					{
+						ss >> name;
+						std::string tPath = FILEHELP::GetRelativePathFromAbsolute(name);
+						tPath = FILEHELP::GetParentPathFromPath(tPath) + "\\" + FILEHELP::GetStemFromPath(tPath);
+						const auto& texture = GraphicsAssetStore::GetAssetStore()->GetTexture(tPath);
+						if (texture != nullptr)
+						{
+							material->SetDiffuseTexture(texture);
+						}
 					}
 				}
 
