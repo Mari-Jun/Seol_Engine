@@ -53,5 +53,6 @@ using Microsoft::WRL::ComPtr;
 
 #include "PARS/Core/Log.h"
 
+static std::string ENGINE_CONTENT_DIR = "../EngineContents/";
 static std::string CONTENT_DIR = "../Contents/";
 

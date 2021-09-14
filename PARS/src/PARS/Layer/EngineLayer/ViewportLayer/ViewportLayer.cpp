@@ -1,7 +1,9 @@
 #include "stdafx.h"
+#include "PARS/Layer/EngineLayer/LayerHelper.h"
 #include "PARS/Layer/EngineLayer/ViewportLayer/ViewportLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
+
 
 namespace PARS
 {
@@ -19,22 +21,17 @@ namespace PARS
 		ImGui::SetNextWindowBgAlpha(0.0f);
 		if (ImGui::Begin("Viewport Layer", nullptr, m_WindowFlags))
 		{
-			ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-			ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-
-			vMin.x += ImGui::GetWindowPos().x - ImGui::GetStyle().WindowPadding.x;
-			vMin.y += ImGui::GetWindowPos().y - ImGui::GetStyle().WindowPadding.y;
-			vMax.x += ImGui::GetWindowPos().x + ImGui::GetStyle().WindowPadding.x;
-			vMax.y += ImGui::GetWindowPos().y + ImGui::GetStyle().WindowPadding.y;
+			ImVec4 rect = IMGUIHELP::GetImGuiWindowSize();
 
 			auto mainViewport = RenderFactory::GetRenderFactory()->GetViewport(0);
-			mainViewport->SetLeft(static_cast<float>(vMin.x));
-			mainViewport->SetTop(static_cast<float>(vMin.y));
-			mainViewport->SetWidth(static_cast<float>(vMax.x - vMin.x));
-			mainViewport->SetHeight(static_cast<float>(vMax.y - vMin.y));
+			mainViewport->SetLeft(static_cast<float>(rect.x));
+			mainViewport->SetTop(static_cast<float>(rect.y));
+			mainViewport->SetWidth(static_cast<float>(rect.z));
+			mainViewport->SetHeight(static_cast<float>(rect.w));
 
 			if(ImGui::IsWindowHovered())
-				ImGui::GetForegroundDrawList()->AddRect(vMin, vMax, IM_COL32(255, 255, 50, 255));
+				ImGui::GetForegroundDrawList()->AddRect(
+					{ rect.x, rect.y }, { rect.x + rect.z, rect.y + rect.w }, IM_COL32(255, 255, 50, 255));
 		}
 		// ImGui::IsWindowHovered() 이거 클릭에 사용하면 좋을듯?
 		ImGui::End();

@@ -14,6 +14,7 @@ namespace PARS
 		m_GraphicsAssetStore = CreateUPtr<GraphicsAssetStore>();
 		m_GraphicsAssetStore->Initialize();
 
+		GetContents(ENGINE_CONTENT_DIR);
 		ReloadContents();
 	}
 

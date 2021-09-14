@@ -7,7 +7,6 @@ namespace PARS
 {
 	class DirectX12;
 	class RenderFactory;
-	class ImGuiLayer;
 
 	class Renderer
 	{
@@ -18,9 +17,9 @@ namespace PARS
 		bool Initialize();
 		void ShutDown();
 		void Draw();
-
+		
 	public:
-		const SPtr<ImGuiLayer>& CreateImGui();
+		const SPtr<class ImGuiLayer>& CreateImGui();
 
 		static void SetClearColor(const Vec4& color) { s_ClearColor = color; }
 
@@ -28,7 +27,6 @@ namespace PARS
 		static Vec4 s_ClearColor;
 		SPtr<DirectX12> m_DirectX12;
 		UPtr<RenderFactory> m_RenderFactory;
-		SPtr<ImGuiLayer> m_ImGuiLayer;
 	};
 }
 

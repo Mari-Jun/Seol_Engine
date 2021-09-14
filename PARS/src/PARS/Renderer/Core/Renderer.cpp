@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
-#include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
+#include "PARS/Renderer/Core/ResourceManager.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Renderer/Core/Renderer.h"
 
@@ -51,15 +51,13 @@ namespace PARS
 
 		//render code
 		m_RenderFactory->Draw();
-		m_ImGuiLayer->Draw();
 
 		m_DirectX12->EndScene();
 		m_RenderFactory->PrepareToNextDraw();
 	}
 
-	const SPtr<ImGuiLayer>& Renderer::CreateImGui()
+	const SPtr<class ImGuiLayer>& Renderer::CreateImGui()
 	{
-		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_DirectX12);
-		return m_ImGuiLayer;
+		return m_RenderFactory->CreateImGui();
 	}
 }

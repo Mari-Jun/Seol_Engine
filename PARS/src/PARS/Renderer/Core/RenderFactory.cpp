@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "PARS/ImGui/ImGuiLayer.h"
+#include "PARS/Renderer/Core/ResourceManager.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
 #include "PARS/Component/Camera/CameraComponent.h"
@@ -9,12 +11,20 @@ namespace PARS
 {
 	RenderFactory::RenderFactory(const SPtr<DirectX12>& directX)
 	{
-		m_ShaderFactory = CreateUPtr<ShaderFactory>(directX);
+		m_ResourceManager = CreateSPtr<ResourceManager>(directX);
+		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(directX);
+		m_ShaderFactory = CreateUPtr<ShaderFactory>(m_ResourceManager);
 	}
 
 	bool RenderFactory::Initialize()
 	{
 		s_Instance = this;
+		m_ResourceManager->Initialize();
+
+		m_ResourceManager->CreateSRVHeap([this](ID3D12DescriptorHeap* heap)
+			{
+				m_ImGuiLayer->InitFromNewSRVHeap(heap);
+			});
 
 		m_Viewports.emplace_back(CreateSPtr<Viewport>());
 
@@ -25,10 +35,13 @@ namespace PARS
 	void RenderFactory::Shutdown()
 	{
 		m_ShaderFactory->Shutdown();
+		m_ResourceManager->Shutdown();
 	}
 
 	void RenderFactory::Update()
 	{
+		m_ResourceManager->Update();
+
 		UpdateViewport();
 
 		m_ShaderFactory->Update();		
@@ -63,9 +76,18 @@ namespace PARS
 		}
 	}
 
+	const SPtr<class ImGuiLayer>& RenderFactory::CreateImGui()
+	{
+		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_ResourceManager->GetDirectX12());
+		return m_ImGuiLayer;
+	}
+
 	void RenderFactory::Draw()
 	{
+		m_ResourceManager->Draw();
 		m_ShaderFactory->Draw();
+
+		m_ImGuiLayer->Draw();
 	}
 
 	void RenderFactory::PrepareToNextDraw()

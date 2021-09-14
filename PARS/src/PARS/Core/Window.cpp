@@ -132,8 +132,10 @@ namespace PARS
         case WM_RBUTTONUP:
         case WM_MBUTTONDOWN:
         case WM_MBUTTONUP:
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONUP:
         case WM_MOUSEMOVE:
-            MouseButtonCallback(manager, message, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            MouseButtonCallback(manager, message, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
         case WM_DESTROY:
             PostQuitMessage(0);

@@ -18,7 +18,7 @@ namespace PARS
 	class DefaultRootSignature : public RootSignature
 	{
 	public:
-		DefaultRootSignature(const SPtr<DirectX12>& directX);
+		DefaultRootSignature(const SPtr<ResourceManager>& resourceManager);
 		virtual ~DefaultRootSignature() = default;
 
 		virtual void Shutdown() override;
@@ -33,9 +33,6 @@ namespace PARS
 	private:
 		ID3D12Resource* m_DefaultPassCB = nullptr;
 		CBDefaultPass* m_DefaultPassMappedData = nullptr;
-
-		ID3D12Resource* m_MaterialCB = nullptr;
-		BYTE* m_MaterialMappedData = nullptr;
 
 		ID3D12DescriptorHeap* m_SrvDescriptorHeap = nullptr;
 	};

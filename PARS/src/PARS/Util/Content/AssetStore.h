@@ -44,7 +44,7 @@ namespace PARS
 		void GetContents(const std::string& rootPath);
 
 	private:
-		std::map<AssetType, std::multimap<std::string, std::string>> m_ContentsInfos;
+		std::map<AssetType, std::multimap<std::string, std::string>> m_ContentsInfos; // [name, path]
 		std::map<AssetType, std::set<std::string>> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
 
 		SPtr<GraphicsAssetStore> m_GraphicsAssetStore;

@@ -106,6 +106,7 @@ namespace PARS
 			SetAppState(AppState::Dead);
 		}
 		m_LevelManager->ProcessInput();
+		m_LayerManager->ProcessInput();
 	}
 
 	void Application::Update()

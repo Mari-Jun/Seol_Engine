@@ -22,6 +22,8 @@ namespace PARS
 		ID3D12Resource* m_TextureResource = nullptr;
 		ID3D12Resource* m_TextureUploadBuffer = nullptr;
 
+		D3D12_GPU_DESCRIPTOR_HANDLE m_GPUHandle;
+
 		UINT m_TextureType = 0;
 
 	public:
@@ -33,6 +35,8 @@ namespace PARS
 		UINT GetTextureType() const { return m_TextureType; }
 
 		ID3D12Resource* GetResource() { return m_TextureResource; }
+		void SetGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) { m_GPUHandle = handle; }
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return m_GPUHandle; }
 	};
 
 	namespace TEXTURE

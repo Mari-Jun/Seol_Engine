@@ -5,6 +5,8 @@
 
 namespace PARS
 {
+	class ResourceManager;
+	class ImGuiLayer;
 	class CameraComponent;
 	class LightComponent;
 
@@ -27,11 +29,14 @@ namespace PARS
 		void UpdateViewport();
 
 	public:
+		const SPtr<class ImGuiLayer>& CreateImGui();
 		const SPtr<Viewport>& GetViewport(int index) { return m_Viewports[index]; }
 
 		inline static RenderFactory* GetRenderFactory() { return s_Instance; }
 
 	private:
+		SPtr<ResourceManager> m_ResourceManager;
+		SPtr<ImGuiLayer> m_ImGuiLayer;
 		UPtr<ShaderFactory> m_ShaderFactory;
 		std::vector<SPtr<Viewport>> m_Viewports;
 

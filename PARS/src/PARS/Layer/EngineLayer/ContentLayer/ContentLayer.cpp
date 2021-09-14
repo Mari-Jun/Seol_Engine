@@ -1,6 +1,10 @@
 #include "stdafx.h"
+#include "PARS/Layer/EngineLayer/LayerHelper.h"
 #include "PARS/Layer/EngineLayer/ContentLayer/ContentLayer.h"
+#include "PARS/Input/Input.h"
 #include "PARS/Util/Content/AssetStore.h"
+#include "PARS/Util/Content/GraphicsAssetStore.h"
+#include "PARS/Component/Render/Texture/Texture.h"
 
 namespace PARS
 {
@@ -15,6 +19,12 @@ namespace PARS
 
 	void ContentLayer::Shutdown()
 	{
+	}
+
+	void ContentLayer::LayerInput()
+	{
+		m_ClickXButton1 = Input::IsKeyFirstPressed(PARS_MOUSE_XBUTTON1);
+		m_ClickXButton2 = Input::IsKeyFirstPressed(PARS_MOUSE_XBUTTON2);
 	}
 
 	void ContentLayer::Update()
@@ -40,50 +50,73 @@ namespace PARS
 			size = ImGui::GetColumnWidth(1);
 			if (ImGui::BeginChild("Content View", ImVec2(size - 20.0f, 0), true))
 			{
-				UpdateContentView(size);
+				ImVec4 rect = IMGUIHELP::GetImGuiWindowSize();
+				UpdateContentView(rect.z);
 			}
 			ImGui::EndChild();		
+
+			ChangeFolderFromStack();
 		}
 		m_WindowSize = ImGui::GetItemRectSize();
-		ImGui::End();
 
-		m_IsUpdateContentView = false;
+		ImGui::End();
 	}
 
 	void ContentLayer::UpdateFolderList()
 	{		
-		if (ImGui::CollapsingHeader("Content"))
+		ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow |
+			ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_FramePadding |
+			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
+
+		if (CONTENT_DIR.cend() == std::mismatch(CONTENT_DIR.cbegin(), CONTENT_DIR.cend(),
+			m_SelectFolder.cbegin(), m_SelectFolder.cend()).first)
+			treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+
+		if (ImGui::TreeNodeEx("Content", treeFlags))
 		{
-			std::string select = RecursiveFolderList(CONTENT_DIR);
-			if (!select.empty())
-			{
-				m_SelectFolder = select;
-				m_IsUpdateContentView = true;
-			}
+			if (ImGui::IsItemClicked())
+				ChangeSelectFolder(CONTENT_DIR);
+			IMGUIHELP::CheckCurrentSelect(CONTENT_DIR == m_SelectFolder);
+
+			RecursiveFolderList(CONTENT_DIR);
+			ImGui::TreePop();
 		}
 	}
 
-	std::string ContentLayer::RecursiveFolderList(const std::filesystem::path& path)
+	void ContentLayer::RecursiveFolderList(const std::filesystem::path& path)
 	{
-		std::string select;
+		 ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow |
+			ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_FramePadding |
+			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
+
 		for (const auto& file : std::filesystem::directory_iterator(path))
 		{
 			if (file.is_directory())
 			{
 				std::string name = file.path().filename().u8string();
 				std::string dirPath = file.path().relative_path().u8string();
-				if (ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick))
+				
+				if (dirPath.cend() == std::mismatch(dirPath.cbegin(), dirPath.cend(),
+					m_SelectFolder.cbegin(), m_SelectFolder.cend()).first)
+					treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+
+				if (ImGui::TreeNodeEx(name.c_str(), treeFlags))
 				{
-					select = RecursiveFolderList(dirPath);
+					if (ImGui::IsItemClicked())
+						ChangeSelectFolder(dirPath);
+					IMGUIHELP::CheckCurrentSelect(dirPath == m_SelectFolder);
+
+					RecursiveFolderList(dirPath);
 					ImGui::TreePop();
 				}
-				if (ImGui::IsItemClicked() && select.empty())
+				else
 				{
-					select = dirPath;
+					if (ImGui::IsItemClicked())
+						ChangeSelectFolder(dirPath);
+					IMGUIHELP::CheckCurrentSelect(dirPath == m_SelectFolder);
 				}
 			}
 		}
-		return select;
 	}
 
 	void ContentLayer::UpdateContentView(float width)
@@ -92,26 +125,121 @@ namespace PARS
 
 		if (m_IsUpdateContentView)
 		{
-			files = AssetStore::GetAssetStore()->GetContentsInDirectory(m_SelectFolder, {}, { ".mtl" });
+			files = AssetStore::GetAssetStore()->GetContentsInDirectory(m_SelectFolder, {}, {});
+			m_IsUpdateContentView = false;
 		}
+
+		const auto& folderTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\folder");
+		const auto& meshTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\mesh");
+		const auto& materialTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\material");
+		const auto& textureTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\texture");
+		
+		width -= ImGui::GetStyle().WindowPadding.x * 2 + ImGui::GetStyle().FramePadding.x * 2;
+
+		float cWidth = 120.0f;
+		int line = ((int)(width / cWidth));
+		cWidth = (width - ((line- 1) * ImGui::GetStyle().ItemSpacing.x * 2)) / line;
 
 		int cnt = 0;
 
 		for (const auto& file : files)
 		{
 			std::string stemName = file.path().stem().u8string();
-			std::string fileName = file.path().filename().u8string();
-			ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
-			if (ImGui::Selectable(stemName.c_str(), m_SelectContent == fileName, ImGuiSelectableFlags_None, ImVec2(width / 8, m_WindowSize.y / 3)))
+			std::string path = file.path().relative_path().string();
+
+			ImGui::BeginGroup();
+			if (file.is_directory())
 			{
-				m_SelectContent = fileName;
+				if (folderTex != nullptr && folderTex->GetResource() != nullptr)
+				{
+					ImGui::ImageButton((ImTextureID)folderTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+					if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						ChangeSelectFolder(path);
+					}
+				}
 			}
-			ImGui::PopStyleVar();
+
+			switch (HashCode(FILEHELP::GetExtentionFromFile(file).c_str()))
+			{
+			case HashCode(".obj"):
+				if (meshTex != nullptr && meshTex->GetResource() != nullptr)
+				{
+					ImGui::ImageButton((ImTextureID)meshTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						//ChangeSelectFolder(path);
+					}
+				} break;
+			case HashCode(".mtl"):
+				if (materialTex != nullptr && materialTex->GetResource() != nullptr)
+				{
+					ImGui::ImageButton((ImTextureID)materialTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						//ChangeSelectFolder(path);
+					}
+				} break;
+			case HashCode(".dds"):
+				if (textureTex != nullptr && textureTex->GetResource() != nullptr)
+				{
+					ImGui::ImageButton((ImTextureID)textureTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						//ChangeSelectFolder(path);
+					}
+				} break;
+			default:
+				break;
+			}
+
+
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
+			ImGui::Text(stemName.c_str());
+			ImGui::PopTextWrapPos();
+		
+			ImGui::EndGroup();
 			
-			if (++cnt % 7 != 0)
+			if (++cnt % line != 0)
 			{
 				ImGui::SameLine();
 			}
+		}
+	}
+
+	void ContentLayer::ChangeSelectFolder(const std::string& path)
+	{
+		if (m_SelectFolder != path)
+		{
+			while (!m_NextSelectFolders.empty())
+				m_NextSelectFolders.pop();
+			m_PriorSelectFolders.push(m_SelectFolder);
+			m_SelectFolder = path;
+			m_IsUpdateContentView = true;
+		}
+	}
+
+	void ContentLayer::ChangeFolderFromStack()
+	{
+		ImVec4 rect = IMGUIHELP::GetImGuiWindowSize();
+		bool isHovered = ImGui::IsMouseHoveringRect({ rect.x, rect.y }, { rect.x + rect.z, rect.y + rect.w });
+		if (isHovered)
+		{
+			if (m_ClickXButton1 && !m_PriorSelectFolders.empty())
+			{
+				m_NextSelectFolders.push(m_SelectFolder);
+				m_SelectFolder = m_PriorSelectFolders.top();
+				m_PriorSelectFolders.pop();
+				m_IsUpdateContentView = true;
+			}
+			else if (m_ClickXButton2 && !m_NextSelectFolders.empty())
+			{
+				m_PriorSelectFolders.push(m_SelectFolder);
+				m_SelectFolder = m_NextSelectFolders.top();
+				m_NextSelectFolders.pop();
+				m_IsUpdateContentView = true;
+			}
+			IMGUIHELP::DrawRectBox(rect);
 		}
 	}
 }

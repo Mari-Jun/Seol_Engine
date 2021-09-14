@@ -17,6 +17,7 @@ namespace PARS
 
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
+		virtual void LayerInput() {}
 		virtual void Update() {}
 		virtual void ResizeLayer() {}
 
