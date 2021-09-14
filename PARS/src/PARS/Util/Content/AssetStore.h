@@ -37,8 +37,6 @@ namespace PARS
 
 		Contents GetContentsInDirectory(const std::string& directory,
 			const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter);
-	
-		void ShowItemInfo(std::initializer_list<std::string>&& texts);
 
 	private:
 		void GetContents(const std::string& rootPath);

@@ -66,11 +66,7 @@ namespace PARS
 	{		
 		ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow |
 			ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_FramePadding |
-			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
-
-		if (CONTENT_DIR.cend() == std::mismatch(CONTENT_DIR.cbegin(), CONTENT_DIR.cend(),
-			m_SelectFolder.cbegin(), m_SelectFolder.cend()).first)
-			treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+			ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_DefaultOpen;
 
 		if (ImGui::TreeNodeEx("Content", treeFlags))
 		{
@@ -96,9 +92,8 @@ namespace PARS
 				std::string name = file.path().filename().u8string();
 				std::string dirPath = file.path().relative_path().u8string();
 				
-				if (dirPath.cend() == std::mismatch(dirPath.cbegin(), dirPath.cend(),
-					m_SelectFolder.cbegin(), m_SelectFolder.cend()).first)
-					treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+				if (dirPath == m_SelectFolder.substr(0, dirPath.size()) && dirPath != m_SelectFolder)
+					ImGui::SetNextItemOpen(true);
 
 				if (ImGui::TreeNodeEx(name.c_str(), treeFlags))
 				{
@@ -153,9 +148,11 @@ namespace PARS
 				if (folderTex != nullptr && folderTex->GetResource() != nullptr)
 				{
 					ImGui::ImageButton((ImTextureID)folderTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
-					if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					if (ImGui::IsItemHovered())
 					{
-						ChangeSelectFolder(path);
+						IMGUIHELP::ShowItemInfo(stemName, { path });
+						if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+							ChangeSelectFolder(path);
 					}
 				}
 			}

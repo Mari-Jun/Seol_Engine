@@ -25,9 +25,12 @@ namespace PARS
 
 		const std::string& GetObjectName() const { return m_ObjectName; }
 		void SetObjectName(const std::string& name) { m_ObjectName = name; }
+		const std::string& GetFilePath() const { return m_FilePath; }
+		void SetFilePath(const std::string& path) { m_FilePath = path; }
 
 	protected:
 		std::string m_ObjectName;
+		std::string m_FilePath;
 
 	protected:
 		ID3D12Resource* m_VertexBuffer = nullptr;

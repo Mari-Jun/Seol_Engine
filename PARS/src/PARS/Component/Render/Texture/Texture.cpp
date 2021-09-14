@@ -31,6 +31,7 @@ namespace PARS
 	{
 		m_TextureType = textureType;
 		std::wstring path(m_FilePath.begin(), m_FilePath.end());
+		path += L".dds";
 		m_TextureResource = D3DUtil::CreateTextureResourceFromDDSFile(device, commandList, path.c_str(),
 			&m_TextureUploadBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 	}
@@ -40,7 +41,6 @@ namespace PARS
 		SPtr<Texture> LoadDDS(const std::string& path, const std::string& stem)
 		{
 			SPtr<Texture> texture = CreateSPtr<Texture>();
-			texture->SetFilePath(path);
 			texture->SetName(stem);
 			return texture;
 		}

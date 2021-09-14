@@ -14,6 +14,7 @@ namespace PARS
 		
 	private:
 		std::string m_Name;
+		std::string m_FilePath;
 
 		int m_MatCBIndex = -1;
 		int m_DiffuseMapIndex = -1;
@@ -30,6 +31,8 @@ namespace PARS
 	public:
 		const std::string& GetName() const { return m_Name; }
 		void SetName(const std::string& name) { m_Name = name; }
+		const std::string& GetFilePath() const { return m_FilePath; }
+		void SetFilePath(const std::string& path) { m_FilePath = path; }
 		int GetMatCBIndex() const { return m_MatCBIndex; }
 		int& GetMatCBIndex() { return m_MatCBIndex; }
 		void SetMatCBIndex(int index) { m_MatCBIndex = index; }

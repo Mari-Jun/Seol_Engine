@@ -37,10 +37,13 @@ namespace PARS
 					{
 						selectFile = path;
 					}
-					assetStore->ShowItemInfo({ path });
 				}
 			}
 			ImGui::EndCombo();
+		}
+		else
+		{
+			IMGUIHELP::ShowAssetPath(meshComp->GetMesh()->GetFilePath().c_str());
 		}
 
 		if (!selectFile.empty())
@@ -59,6 +62,7 @@ namespace PARS
 		int index = 0;
 		for (auto& material : materials)
 		{
+			std::string selectPath;
 			SPtr<Material> selectMaterial = nullptr;
 
 			if (ImGui::BeginCombo(("Element " + std::to_string(index)).c_str(), material->GetName().c_str(),
@@ -72,14 +76,16 @@ namespace PARS
 					{
 						if (ImGui::Selectable((material->GetName() + "##" + std::to_string(cnt++)).c_str()))
 						{
+							selectPath = path;
 							selectMaterial = material;
 						}
-
-						assetStore->ShowItemInfo({ path });
 					}
 				}
-			
 				ImGui::EndCombo();
+			}
+			else
+			{
+				IMGUIHELP::ShowAssetPath(material->GetFilePath().c_str());
 			}
 
 			if (selectMaterial != nullptr)

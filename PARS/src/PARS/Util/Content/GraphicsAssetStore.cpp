@@ -52,6 +52,7 @@ namespace PARS
 			for (SPtr<MaterialMesh>& mesh : OBJ::LoadObj(path, parentPath))
 			{
 				std::string realPath = parentPath + "\\" + mesh->GetObjectName();
+				mesh->SetFilePath(realPath);
 				m_MeshCache.emplace(realPath, mesh);
 				contents.emplace(mesh->GetObjectName(), realPath);
 			}
@@ -79,6 +80,7 @@ namespace PARS
 			for (SPtr<Material>& material : MTL::LoadMtl(path))
 			{
 				std::string realPath = parentPath + "\\" + material->GetName();
+				material->SetFilePath(realPath);
 				m_MaterialCache.emplace(realPath, material);
 				contents.emplace(material->GetName(), realPath);
 			}
@@ -109,6 +111,7 @@ namespace PARS
 			if (texture != nullptr)
 			{
 				std::string realPath = parentPath + "\\" + texture->GetName();
+				texture->SetFilePath(realPath);
 				m_TextureCache.emplace(realPath, texture);
 				contents.emplace(texture->GetName(), realPath);
 			}

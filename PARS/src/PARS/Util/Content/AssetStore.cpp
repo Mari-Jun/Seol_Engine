@@ -67,19 +67,6 @@ namespace PARS
 		return files;
 	}
 
-	void AssetStore::ShowItemInfo(std::initializer_list<std::string>&& texts)
-	{
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-			for (const auto& text : texts)
-				ImGui::TextUnformatted(text.c_str());
-			ImGui::PopTextWrapPos();
-			ImGui::EndTooltip();
-		}
-	}
-
 	void AssetStore::GetContents(const std::string& rootPath)
 	{
 		for (const auto& file : std::filesystem::directory_iterator(rootPath))
