@@ -15,6 +15,7 @@ namespace PARS
 
 	public:
 		bool SetMesh(std::string&& path);
+		virtual void SetMesh(const SPtr<Mesh>& mesh) override;
 	};
 }
 

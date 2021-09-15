@@ -34,6 +34,7 @@ namespace PARS
 
 	public:
 		MeshType GetMeshType() const { return m_MeshType; }
+		virtual void SetMesh(const SPtr<Mesh>& mesh) { m_Mesh = mesh; }
 		const SPtr<Mesh>& GetMesh() const { return m_Mesh; }
 		void SetInstanceIndex(UINT index) { m_InstanceIndex = index;}
 		UINT GetInstanceIndex() const { return m_InstanceIndex; }

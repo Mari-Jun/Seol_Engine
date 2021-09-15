@@ -58,7 +58,7 @@ namespace PARS
 						ss >> name;
 						std::string tPath = FILEHELP::GetRelativePathFromAbsolute(name);
 						tPath = FILEHELP::GetParentPathFromPath(tPath) + "\\" + FILEHELP::GetStemFromPath(tPath);
-						const auto& texture = GraphicsAssetStore::GetAssetStore()->GetTexture(tPath);
+						const auto& texture = AssetStore::GetAssetStore()->GetTexture(tPath);
 						if (texture != nullptr)
 						{
 							material->SetDiffuseTexture(texture);
@@ -71,5 +71,21 @@ namespace PARS
 
 			return materials;
 		}
+	}
+
+	void Material::ProcessInputDetailWindow()
+	{
+	}
+
+	void Material::UpdateDetailWindow()
+	{
+	}
+
+	void Material::OpenDetailWindow()
+	{
+	}
+
+	void Material::CloseDetailWindow()
+	{
 	}
 }

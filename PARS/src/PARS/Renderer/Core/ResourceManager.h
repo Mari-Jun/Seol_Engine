@@ -14,6 +14,7 @@ namespace PARS
 		void Shutdown();
 		void Update();
 		void Draw();
+		void PrepareToNextDraw();
 
 	public:
 		void CreateSRVHeap(const std::function<void(ID3D12DescriptorHeap* heap)>& function);

@@ -143,6 +143,6 @@ namespace PARS
 
 	const std::string& RenderItem::GetMeshName() const
 	{
-		return m_Mesh->GetObjectName();
+		return m_Mesh->GetName();
 	}
 }

@@ -92,6 +92,7 @@ namespace PARS
 
 	void RenderFactory::PrepareToNextDraw()
 	{
+		m_ResourceManager->PrepareToNextDraw();
 		m_ShaderFactory->PrepareToNextDraw();
 	}
 

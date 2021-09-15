@@ -4,7 +4,6 @@
 #include "PARS/Renderer/Shader/ColorShader.h"
 #include "PARS/Renderer/Shader/MaterialShader.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
-#include "PARS/Util/Content/GraphicsAssetStore.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
@@ -128,41 +127,6 @@ namespace PARS
 				PARS_ERROR("ColorPass Mapping Error");
 			}
 		}
-
-		//if (m_SrvDescriptorHeap == nullptr)
-		//{
-		//	const auto& textures = GraphicsAssetStore::GetAssetStore()->GetTextures();
-
-		//	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-		//	srvHeapDesc.NumDescriptors = textures.size();
-		//	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		//	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		//	srvHeapDesc.NodeMask = 0;
-		//	if (FAILED(device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_SrvDescriptorHeap))))
-		//	{
-		//		PARS_ERROR("Colud not create descriptor heap");
-		//	}
-
-		//	D3D12_CPU_DESCRIPTOR_HANDLE desHandle(m_SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-		//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		//	srvDesc.Texture2D.MostDetailedMip = 0;
-		//	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-		//	int index = 0;
-		//	for (const auto& [path, texture] : textures)
-		//	{
-		//		texture->LoadTextureFromDDSFile(device, commandList, 0x01);
-		//		texture->SetTextureSRVIndex(index++);
-		//		texture->SetGpuAddress(desHandle.ptr);
-		//		srvDesc.Format = texture->GetResource()->GetDesc().Format;
-		//		srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
-		//		device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desHandle);
-		//		desHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		//	}
-		//}
 	}
 
 	void DefaultRootSignature::UpdateShaderVariables()
@@ -207,8 +171,6 @@ namespace PARS
 
 	void DefaultRootSignature::DrawPassFrame(ID3D12GraphicsCommandList* commandList)
 	{
-		/*ID3D12DescriptorHeap* descriptorHeaps[] = { m_ResourceManager->GetTextureDescriptorHeap() };
-		commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);*/
 		commandList->SetGraphicsRootShaderResourceView(2, m_ResourceManager->GetMaterialResource()->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootDescriptorTable(3, m_ResourceManager->GetTextureDescriptorHeap()->GetGPUDescriptorHandleForHeapStart());
 		commandList->SetGraphicsRootConstantBufferView(4, m_DefaultPassCB->GetGPUVirtualAddress());

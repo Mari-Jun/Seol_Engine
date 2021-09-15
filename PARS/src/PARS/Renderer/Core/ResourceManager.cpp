@@ -3,7 +3,7 @@
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
 #include "PARS/Util/DirectX12/DDSTextureLoader12.h"
-#include "PARS/Util/Content/GraphicsAssetStore.h"
+#include "PARS/Util/Content/AssetStore.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
 
@@ -48,12 +48,19 @@ namespace PARS
 		m_DirectX12->GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 
+	void ResourceManager::PrepareToNextDraw()
+	{
+		AssetStore::GetAssetStore()->OnAllTextureAssetExecuteFunction(
+			[this](const SPtr<Texture>& texture)
+			{
+				texture->ReleaseUploadBuffers();
+			});
+	}
+
 	void ResourceManager::CreateSRVHeap(const std::function<void(ID3D12DescriptorHeap* heap)>& function)
 	{
-		const auto& textures = GraphicsAssetStore::GetAssetStore()->GetTextures();
-
 		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-		srvHeapDesc.NumDescriptors = 1 + textures.size(); //1은 imgui를 위한 것
+		srvHeapDesc.NumDescriptors = 1 + AssetStore::GetAssetStore()->GetTextureAssetCount(); //1은 imgui를 위한 것
 		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		srvHeapDesc.NodeMask = 0;
@@ -69,7 +76,7 @@ namespace PARS
 	{
 		if (m_MaterialResource == nullptr)
 		{
-			const auto& matSize = GraphicsAssetStore::GetAssetStore()->GetMaterials().size() * sizeof(CBMaterial);
+			const auto& matSize = AssetStore::GetAssetStore()->GetMaterialAssetCount() * sizeof(CBMaterial);
 
 			m_MaterialResource = D3DUtil::CreateBufferResource(device, commandList, nullptr, matSize,
 				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
@@ -83,8 +90,6 @@ namespace PARS
 
 	void ResourceManager::CreateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		const auto& textures = GraphicsAssetStore::GetAssetStore()->GetTextures();
-
 		D3D12_CPU_DESCRIPTOR_HANDLE desCPUHandle(m_TextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 		D3D12_GPU_DESCRIPTOR_HANDLE desGPUHandle(m_TextureDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 		desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -98,20 +103,21 @@ namespace PARS
 
 		int index = 0;
 
-		for (const auto& [path, texture] : textures)
-		{
-			if (texture->GetResource() == nullptr)
+		AssetStore::GetAssetStore()->OnAllTextureAssetExecuteFunction(
+			[this, &device, &commandList, &index, &srvDesc, &desCPUHandle, &desGPUHandle](const SPtr<Texture>& texture)
 			{
-				texture->LoadTextureFromDDSFile(device, commandList, 0x01);
-				texture->SetTextureSRVIndex(index++);
-				srvDesc.Format = texture->GetResource()->GetDesc().Format;
-				srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
-				device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desCPUHandle);
-				desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				texture->SetGpuHandle(desGPUHandle);
-				desGPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			}
-		}
+				if (texture->GetResource() == nullptr)
+				{
+					texture->LoadTextureFromDDSFile(device, commandList, 0x01);
+					texture->SetTextureSRVIndex(index++);
+					srvDesc.Format = texture->GetResource()->GetDesc().Format;
+					srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
+					device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desCPUHandle);
+					desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					texture->SetGpuHandle(desGPUHandle);
+					desGPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				}
+			});
 	}
 
 	void ResourceManager::UpdateMaterialResource()
@@ -119,22 +125,20 @@ namespace PARS
 		//마찬가지로 이 부분도 계속 업데이트 할 필요가 없다.
 		//새로운 Material이 생성되면 그 때 업데이트 하면 된다.
 		//일단은 그 부분은 생각해야 할 부분이 있기 때문에 지금은 임시로 매 프레임마다 업데이트 되게 한다.
-		const auto& assetStore = GraphicsAssetStore::GetAssetStore();
-
 		int matIndex = 0;
-		for (const auto& [path, material] : assetStore->GetMaterials())
-		{
-			material->SetMatCBIndex(matIndex);
+		AssetStore::GetAssetStore()->OnAllMaterialAssetExecuteFunction([this, &matIndex](const SPtr<Material>& material)
+			{
+				material->SetMatCBIndex(matIndex);
 
-			CBMaterial cbMat;
-			cbMat.diffuseAlbedo = material->GetDiffuseAlbedo();
-			cbMat.fresnelR0 = material->GetFresnelR0();
-			cbMat.roughness = material->GetRoughness();
-			const auto& texture = material->GetDiffuseTexture();
-			cbMat.diffuseMapIndex = texture != nullptr ? material->GetDiffuseTexture()->GetTextureSRVIndex() : -1;
-			memcpy(&m_MaterialMappedData[matIndex * sizeof(CBMaterial)], &cbMat, sizeof(CBMaterial));
-			++matIndex;
-		}
+				CBMaterial cbMat;
+				cbMat.diffuseAlbedo = material->GetDiffuseAlbedo();
+				cbMat.fresnelR0 = material->GetFresnelR0();
+				cbMat.roughness = material->GetRoughness();
+				const auto& texture = material->GetDiffuseTexture();
+				cbMat.diffuseMapIndex = texture != nullptr ? material->GetDiffuseTexture()->GetTextureSRVIndex() : -1;
+				memcpy(&m_MaterialMappedData[matIndex * sizeof(CBMaterial)], &cbMat, sizeof(CBMaterial));
+				++matIndex;
+			});
 	}
 
 	void ResourceManager::UpdateTextureResource()

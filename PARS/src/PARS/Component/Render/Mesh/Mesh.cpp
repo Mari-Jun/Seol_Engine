@@ -272,7 +272,7 @@ namespace PARS
 							AddMesh();
 							mesh = CreateSPtr<MaterialMesh>();
 							ss >> objectName;
-							mesh->SetObjectName(stem + "_" + objectName);
+							mesh->SetName(stem + "_" + objectName);
 						}
 					}
 					else if (prefix == "v")
@@ -295,12 +295,12 @@ namespace PARS
 					else if (prefix == "usemtl")
 					{
 						ss >> mtlName;
-						const auto& material = GraphicsAssetStore::GetAssetStore()->GetMaterial(parentPath + "\\" + mtlName);
+						const auto& material = AssetStore::GetAssetStore()->GetMaterial(parentPath + "\\" + mtlName);
 						if (material == nullptr)
 						{
 							//obj, mtl관계에서는 mtl이 먼저 Load되는 것이 일반적이라서 발생할 가능성이 없다.
 							//발생할 경우를 대비해서 Engine Content에서 기본 Material을 가져오는 것으로 할 것인데 아직은 작업 X
-							PARS_CRITICAL("material load error!!!" + mesh->GetObjectName());
+							PARS_CRITICAL("material load error!!!" + mesh->GetName());
 						}
 						mesh->AddMaterial(material);
 						locations.push_back(static_cast<UINT>(posIndices.size()));
@@ -342,7 +342,7 @@ namespace PARS
 
 			if (meshes.size() == 1)
 			{
-				meshes[0]->SetObjectName(stem);
+				meshes[0]->SetName(stem);
 			}
 
 			return meshes;

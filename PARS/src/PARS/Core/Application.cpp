@@ -107,6 +107,7 @@ namespace PARS
 		}
 		m_LevelManager->ProcessInput();
 		m_LayerManager->ProcessInput();
+		//m_AssetStore->ProcessInput();
 	}
 
 	void Application::Update()

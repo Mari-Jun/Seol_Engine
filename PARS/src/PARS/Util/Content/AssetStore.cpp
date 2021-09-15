@@ -2,6 +2,9 @@
 #include "PARS/Util/Content/AssetStore.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "PARS/Component/Render/Mesh/Mesh.h"
+#include "PARS/Component/Render/Material/Material.h"
+#include "PARS/Component/Render/Texture/Texture.h"
 
 namespace PARS
 {
@@ -11,16 +14,21 @@ namespace PARS
 	{
 		s_Instance = this;
 
-		m_GraphicsAssetStore = CreateUPtr<GraphicsAssetStore>();
-		m_GraphicsAssetStore->Initialize();
-
 		GetContents(ENGINE_CONTENT_DIR);
 		ReloadContents();
 	}
 
 	void AssetStore::Shutdown()
 	{
-		m_GraphicsAssetStore->Shutdown();
+		m_SortedAssets.clear();
+		m_LoadedContents.clear();
+		for (const auto& [type, assetCache] : m_AssetCaches)
+		{
+			for (const auto& [path, asset] : assetCache)
+			{
+				asset->Shutdown();
+			}
+		}
 	}
 
 	void AssetStore::Update(float deltaTime)
@@ -61,19 +69,16 @@ namespace PARS
 				switch (HashCode(extension.c_str()))
 				{
 				case HashCode(".obj"):
-					if(m_LoadedContents[AssetType::StaticMesh].find(filePath) == m_LoadedContents[AssetType::StaticMesh].cend())
-						m_GraphicsAssetStore->LoadMesh(m_ContentsInfos[AssetType::StaticMesh],
-							m_LoadedContents[AssetType::StaticMesh], filePath);
+					if (m_LoadedContents[AssetType::StaticMesh].find(filePath) == m_LoadedContents[AssetType::StaticMesh].cend())
+						LoadMesh(filePath);
 					break;
 				case HashCode(".mtl"):
 					if (m_LoadedContents[AssetType::Material].find(filePath) == m_LoadedContents[AssetType::Material].cend())
-						m_GraphicsAssetStore->LoadMaterial(m_ContentsInfos[AssetType::Material], 
-							m_LoadedContents[AssetType::Material], filePath);
+						LoadMaterial(filePath);
 					break;
 				case HashCode(".dds"):
 					if (m_LoadedContents[AssetType::Texture].find(filePath) == m_LoadedContents[AssetType::Texture].cend())
-						m_GraphicsAssetStore->LoadTexture(m_ContentsInfos[AssetType::Texture], 
-							m_LoadedContents[AssetType::Texture], filePath);
+						LoadTexture(filePath);
 					break;
 				default:
 					//PARS_WARN("don't support files with this extesion yet [" + filePath + "]");
@@ -83,9 +88,9 @@ namespace PARS
 		}
 	}
 
-	const std::set<ContentInfo>& AssetStore::GetContentInfos(AssetType type) const
+	const std::set<SPtr<Asset>, AssetCompare>& AssetStore::GetAssets(AssetType type) const
 	{
-		return m_ContentsInfos.at(type);
+		return m_SortedAssets.at(type);
 	}
 
 	Contents AssetStore::GetFolderInDirectory(const std::string& directory)
@@ -101,9 +106,9 @@ namespace PARS
 		return files;
 	}
 
-	std::set<ContentInfo> AssetStore::GetContentsOfDirectory(const std::string& path) const
+	std::set<SPtr<Asset>, AssetCompare> AssetStore::GetAssetsOfDirectory(const std::string& path) const
 	{
-		std::set<ContentInfo> result;
+		std::set<SPtr<Asset>, AssetCompare> result;
 
 		for (const auto& [type, loadContent]: m_LoadedContents)
 		{
@@ -117,6 +122,111 @@ namespace PARS
 		}
 
 		return result;
+	}
+
+	SPtr<Asset> AssetStore::GetAsset(AssetType type, const std::string& path) const
+	{
+		const auto& assetCache = m_AssetCaches.at(type);
+		auto iter = assetCache.find(path);
+		if (iter != assetCache.end())
+		{
+			return iter->second;
+		}
+		return nullptr;
+	}
+
+	void AssetStore::SaveAsset(AssetType type, const std::string& path, const std::string& realPath,
+		const std::string& extension, const SPtr<Asset>& asset)
+	{
+		asset->SetFilePath(realPath);
+		asset->SetExtension(extension);
+		m_AssetCaches[type].emplace(realPath, asset);
+		m_SortedAssets[type].emplace(asset);
+		m_LoadedContents[type][path].emplace(asset);
+	}
+
+	SPtr<Mesh> AssetStore::GetMesh(const std::string& path) const
+	{
+		return std::reinterpret_pointer_cast<Mesh>(GetAsset(AssetType::StaticMesh, path));
+	}
+
+	void AssetStore::LoadMesh(const std::string& path)
+	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
+		if (extension == ".obj")
+		{
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			const auto& meshes = OBJ::LoadObj(path, parentPath);
+
+			for (const SPtr<MaterialMesh>& mesh : meshes)
+			{
+				std::string realPath = parentPath + "\\" + mesh->GetName();
+				SaveAsset(AssetType::StaticMesh, path, realPath, extension, mesh);
+			}
+		}
+	}
+
+	SPtr<Material> AssetStore::GetMaterial(const std::string& path) const
+	{
+		return std::reinterpret_pointer_cast<Material>(GetAsset(AssetType::Material, path));
+	}
+
+	void AssetStore::LoadMaterial(const std::string& path)
+	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
+		if (extension == ".mtl")
+		{
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			const auto& materials = MTL::LoadMtl(path);
+
+			for (const SPtr<Material>& material : materials)
+			{
+				std::string realPath = parentPath + "\\" + material->GetName();
+				SaveAsset(AssetType::Material, path, realPath, extension, material);
+			}
+		}
+	}
+
+	void AssetStore::OnAllMaterialAssetExecuteFunction(std::function<void(const SPtr<Material>& material)> function)
+	{
+		for (const auto& [path, material] : m_AssetCaches[AssetType::Material])
+		{
+			//임시로 casting
+			function(std::reinterpret_pointer_cast<Material>(material));
+		}
+	}
+
+	SPtr<Texture> AssetStore::GetTexture(const std::string& path) const
+	{
+		return std::reinterpret_pointer_cast<Texture>(GetAsset(AssetType::Texture, path));
+	}
+
+	void AssetStore::LoadTexture(const std::string& path)
+	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
+		if (extension == ".dds")
+		{
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			std::string stem = FILEHELP::GetStemFromPath(path);
+
+			SPtr<Texture> texture = TEXTURE::LoadDDS(path, stem);
+
+			if (texture != nullptr)
+			{
+				std::string realPath = parentPath + "\\" + texture->GetName();
+				texture->SetFilePath(realPath);
+				SaveAsset(AssetType::Texture, path, realPath, extension, texture);
+			}
+		}
+	}
+
+	void AssetStore::OnAllTextureAssetExecuteFunction(std::function<void(const SPtr<Texture>& texture)> function)
+	{
+		for (const auto& [path, texture] : m_AssetCaches[AssetType::Texture])
+		{
+			//임시로 casting
+			function(std::reinterpret_pointer_cast<Texture>(texture));
+		}
 	}
 
 	namespace FILEHELP

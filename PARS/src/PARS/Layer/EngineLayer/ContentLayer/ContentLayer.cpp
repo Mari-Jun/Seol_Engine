@@ -3,7 +3,6 @@
 #include "PARS/Layer/EngineLayer/ContentLayer/ContentLayer.h"
 #include "PARS/Input/Input.h"
 #include "PARS/Util/Content/AssetStore.h"
-#include "PARS/Util/Content/GraphicsAssetStore.h"
 #include "PARS/Component/Render/Texture/Texture.h"
 
 namespace PARS
@@ -32,6 +31,8 @@ namespace PARS
 		ImGui::SetNextWindowSize(ImVec2(1000, 300), ImGuiCond_FirstUseEver);
 		if (ImGui::Begin("Content Layer", nullptr, m_WindowFlags))
 		{
+			ChangeFolderFromStack();
+
 			ImGui::Columns(2, "Content");
 			if (m_IsFirstOpen)
 			{
@@ -55,7 +56,7 @@ namespace PARS
 			}
 			ImGui::EndChild();		
 
-			ChangeFolderFromStack();
+		
 		}
 		m_WindowSize = ImGui::GetItemRectSize();
 
@@ -118,20 +119,20 @@ namespace PARS
 	{
 		static std::vector<std::filesystem::directory_entry> folders;
 
-		static std::set<ContentInfo> contents;
+		static std::set<SPtr<Asset>, AssetCompare> assets;
 
 		if (m_IsUpdateContentView)
 		{
 			m_IsUpdateContentView = false;
 
 			folders = AssetStore::GetAssetStore()->GetFolderInDirectory(m_SelectFolder);
-			contents = AssetStore::GetAssetStore()->GetContentsOfDirectory(m_SelectFolder);
+			assets = AssetStore::GetAssetStore()->GetAssetsOfDirectory(m_SelectFolder);
 		}
 
-		const auto& folderTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\folder");
-		const auto& meshTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\mesh");
-		const auto& materialTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\material");
-		const auto& textureTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\texture");
+		const auto& folderTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\folder");
+		const auto& meshTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\mesh");
+		const auto& materialTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\material");
+		const auto& textureTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\texture");
 		
 		width -= ImGui::GetStyle().WindowPadding.x * 2 + ImGui::GetStyle().FramePadding.x * 2;
 
@@ -169,11 +170,11 @@ namespace PARS
 			}
 		}
 
-		for (const auto& [name, path, extension] : contents)
+		for (const auto& asset : assets)
 		{
 			ImGui::BeginGroup();
 
-			switch (HashCode(extension.c_str()))
+			switch (HashCode(asset->GetExtension().c_str()))
 			{
 			case HashCode(".obj"):
 				if (meshTex != nullptr && meshTex->GetResource() != nullptr)
@@ -207,7 +208,7 @@ namespace PARS
 			}
 
 			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
-			ImGui::Text(name.c_str());
+			ImGui::Text(asset->GetName().c_str());
 			ImGui::PopTextWrapPos();
 
 			ImGui::EndGroup();
@@ -234,8 +235,8 @@ namespace PARS
 	void ContentLayer::ChangeFolderFromStack()
 	{
 		ImVec4 rect = IMGUIHELP::GetImGuiWindowSize();
-		bool isHovered = ImGui::IsMouseHoveringRect({ rect.x, rect.y }, { rect.x + rect.z, rect.y + rect.w });
-		if (isHovered)
+		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows |
+			ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 		{
 			if (m_ClickXButton1 && !m_PriorSelectFolders.empty())
 			{

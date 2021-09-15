@@ -4,10 +4,6 @@
 
 namespace PARS
 {
-	Texture::Texture()
-	{
-	}
-
 	void Texture::Shutdown()
 	{
 		if (m_TextureResource != nullptr)
@@ -30,7 +26,7 @@ namespace PARS
 	void Texture::LoadTextureFromDDSFile(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, UINT textureType)
 	{
 		m_TextureType = textureType;
-		std::wstring path(m_FilePath.begin(), m_FilePath.end());
+		std::wstring path(m_AssetInfo.path.begin(), m_AssetInfo.path.end());
 		path += L".dds";
 		m_TextureResource = D3DUtil::CreateTextureResourceFromDDSFile(device, commandList, path.c_str(),
 			&m_TextureUploadBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);

@@ -19,24 +19,19 @@ namespace PARS
 
 	void StaticMeshCompDetailFunction::SetMeshDetail(const SPtr<StaticMeshComponent>& meshComp)
 	{
-		std::string selectFile;
+		SPtr<Mesh> selectMesh = nullptr;
 
 		const auto& assetStore = AssetStore::GetAssetStore();
-		const auto& gAssetStore = GraphicsAssetStore::GetAssetStore();
 
-		if (ImGui::BeginCombo("Static Mesh", meshComp->GetMesh()->GetObjectName().c_str(),
+		if (ImGui::BeginCombo("Static Mesh", meshComp->GetMesh()->GetName().c_str(),
 			ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
 		{
 			int cnt = 0;
-			for (const auto& [name, path, extension] : assetStore->GetContentInfos(AssetType::StaticMesh))
+			for (const auto& asset : assetStore->GetAssets(AssetType::StaticMesh))
 			{
-				const auto& mesh = gAssetStore->GetMesh(path);
-				if (mesh != nullptr)
+				if(ImGui::Selectable((asset->GetName() + "##" + std::to_string(cnt++)).c_str()))
 				{
-					if (ImGui::Selectable((mesh->GetObjectName() + "##" + std::to_string(cnt++)).c_str()))
-					{
-						selectFile = path;
-					}
+					selectMesh = std::reinterpret_pointer_cast<Mesh>(asset);
 				}
 			}
 			ImGui::EndCombo();
@@ -46,16 +41,15 @@ namespace PARS
 			IMGUIHELP::ShowAssetPath(meshComp->GetMesh()->GetFilePath().c_str());
 		}
 
-		if (!selectFile.empty())
+		if (selectMesh != nullptr)
 		{
-			meshComp->SetMesh(std::move(selectFile));
+			meshComp->SetMesh(selectMesh);
 		}
 	}
 
 	void StaticMeshCompDetailFunction::SetMaterialDetail(const SPtr<StaticMeshComponent>& meshComp)
 	{
 		const auto& assetStore = AssetStore::GetAssetStore();
-		const auto& gAssetStore = GraphicsAssetStore::GetAssetStore();
 
 		const auto& materials = meshComp->GetMaterials();
 
@@ -69,16 +63,12 @@ namespace PARS
 				ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
 			{
 				int cnt = 0;
-				for (const auto& [name, path, extension] : assetStore->GetContentInfos(AssetType::Material))
+				for (const auto& asset : assetStore->GetAssets(AssetType::Material))
 				{
-					const auto& material = gAssetStore->GetMaterial(path);
-					if (material != nullptr)
+					if (ImGui::Selectable((asset->GetName() + "##" + std::to_string(cnt++)).c_str()))
 					{
-						if (ImGui::Selectable((material->GetName() + "##" + std::to_string(cnt++)).c_str()))
-						{
-							selectPath = path;
-							selectMaterial = material;
-						}
+						selectPath = asset->GetFilePath();
+						selectMaterial = std::reinterpret_pointer_cast<Material>(asset);
 					}
 				}
 				ImGui::EndCombo();
