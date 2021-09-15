@@ -116,12 +116,16 @@ namespace PARS
 
 	void ContentLayer::UpdateContentView(float width)
 	{
-		static std::vector<std::filesystem::directory_entry> files;
+		static std::vector<std::filesystem::directory_entry> folders;
+
+		static std::set<ContentInfo> contents;
 
 		if (m_IsUpdateContentView)
 		{
-			files = AssetStore::GetAssetStore()->GetContentsInDirectory(m_SelectFolder, {}, {});
 			m_IsUpdateContentView = false;
+
+			folders = AssetStore::GetAssetStore()->GetFolderInDirectory(m_SelectFolder);
+			contents = AssetStore::GetAssetStore()->GetContentsOfDirectory(m_SelectFolder);
 		}
 
 		const auto& folderTex = GraphicsAssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\folder");
@@ -137,27 +141,39 @@ namespace PARS
 
 		int cnt = 0;
 
-		for (const auto& file : files)
+		for (const auto& folder : folders)
 		{
-			std::string stemName = file.path().stem().u8string();
-			std::string path = file.path().relative_path().string();
+			std::string stemName = folder.path().stem().u8string();
+			std::string path = folder.path().relative_path().string();
 
 			ImGui::BeginGroup();
-			if (file.is_directory())
+			if (folderTex != nullptr && folderTex->GetResource() != nullptr)
 			{
-				if (folderTex != nullptr && folderTex->GetResource() != nullptr)
+				ImGui::ImageButton((ImTextureID)folderTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+				if (ImGui::IsItemHovered())
 				{
-					ImGui::ImageButton((ImTextureID)folderTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
-					if (ImGui::IsItemHovered())
-					{
-						IMGUIHELP::ShowItemInfo(stemName, { path });
-						if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-							ChangeSelectFolder(path);
-					}
+					IMGUIHELP::ShowItemInfo(stemName, { path });
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						ChangeSelectFolder(path);
 				}
 			}
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
+			ImGui::Text(stemName.c_str());
+			ImGui::PopTextWrapPos();
 
-			switch (HashCode(FILEHELP::GetExtentionFromFile(file).c_str()))
+			ImGui::EndGroup();
+
+			if (++cnt % line != 0)
+			{
+				ImGui::SameLine();
+			}
+		}
+
+		for (const auto& [name, path, extension] : contents)
+		{
+			ImGui::BeginGroup();
+
+			switch (HashCode(extension.c_str()))
 			{
 			case HashCode(".obj"):
 				if (meshTex != nullptr && meshTex->GetResource() != nullptr)
@@ -190,13 +206,12 @@ namespace PARS
 				break;
 			}
 
-
 			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
-			ImGui::Text(stemName.c_str());
+			ImGui::Text(name.c_str());
 			ImGui::PopTextWrapPos();
-		
+
 			ImGui::EndGroup();
-			
+
 			if (++cnt % line != 0)
 			{
 				ImGui::SameLine();

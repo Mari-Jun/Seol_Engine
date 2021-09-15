@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PARS/Core/Core.h"
+#include "PARS/Util/Content/ContentHelper.h"
 
 namespace PARS
 {
@@ -30,11 +31,11 @@ namespace PARS
 		const std::unordered_map<std::string, SPtr<Texture>>& GetTextures() const { return m_TextureCache; }
 
 		const SPtr<Mesh>& GetMesh(const std::string& path) const;
-		void LoadMesh(std::multimap<std::string, std::string>& contents, const std::string& path);
+		void LoadMesh(std::set<ContentInfo>& contents, LoadContent& loadContents, const std::string& path);
 		const SPtr<Material>& GetMaterial(const std::string& path) const;
-		void LoadMaterial(std::multimap<std::string, std::string>& contents, const std::string& path);
+		void LoadMaterial(std::set<ContentInfo>& contents, LoadContent& loadContents, const std::string& path);
 		const SPtr<Texture>& GetTexture(const std::string& path) const;
-		void LoadTexture(std::multimap<std::string, std::string>& contents, const std::string& path);
+		void LoadTexture(std::set<ContentInfo>& contents, LoadContent& loadContents, const std::string& path);
 
 	private:
 		std::unordered_map<std::string, SPtr<Mesh>> m_MeshCache;

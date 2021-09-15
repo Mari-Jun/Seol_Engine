@@ -35,19 +35,18 @@ namespace PARS
 
 		void ReloadContents();
 
-		Contents GetContentsInDirectory(const std::string& directory,
-			const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter);
-
 	private:
 		void GetContents(const std::string& rootPath);
 
 	private:
-		std::map<AssetType, std::multimap<std::string, std::string>> m_ContentsInfos; // [name, path]
-		std::map<AssetType, std::set<std::string>> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
+		std::map<AssetType, std::set<ContentInfo>> m_ContentsInfos; // [name, path]
+		std::map<AssetType, LoadContent> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
 
 		SPtr<GraphicsAssetStore> m_GraphicsAssetStore;
 	public:
-		const std::multimap<std::string, std::string>& GetContentInfos(AssetType type) const;
+		const std::set<ContentInfo>& GetContentInfos(AssetType type) const;
+		Contents GetFolderInDirectory(const std::string& directory);
+		std::set<ContentInfo> GetContentsOfDirectory(const std::string& path) const;
 	};
 
 	namespace FILEHELP

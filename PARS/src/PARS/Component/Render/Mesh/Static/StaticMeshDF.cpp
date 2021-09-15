@@ -28,7 +28,7 @@ namespace PARS
 			ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
 		{
 			int cnt = 0;
-			for (const auto& [name, path] : assetStore->GetContentInfos(AssetType::StaticMesh))
+			for (const auto& [name, path, extension] : assetStore->GetContentInfos(AssetType::StaticMesh))
 			{
 				const auto& mesh = gAssetStore->GetMesh(path);
 				if (mesh != nullptr)
@@ -69,7 +69,7 @@ namespace PARS
 				ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_HeightRegular))
 			{
 				int cnt = 0;
-				for (const auto& [name, path] : assetStore->GetContentInfos(AssetType::Material))
+				for (const auto& [name, path, extension] : assetStore->GetContentInfos(AssetType::Material))
 				{
 					const auto& material = gAssetStore->GetMaterial(path);
 					if (material != nullptr)

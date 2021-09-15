@@ -42,19 +42,21 @@ namespace PARS
 		return nullptr;
 	}
 
-	void GraphicsAssetStore::LoadMesh(std::multimap<std::string, std::string>& contents, const std::string& path)
+	void GraphicsAssetStore::LoadMesh(std::set<ContentInfo>& contents, LoadContent& loadContents, const std::string& path)
 	{
 		std::string extension = FILEHELP::GetExtentionFromPath(path);
 		if (extension == ".obj")
 		{
 			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			const auto& meshes = OBJ::LoadObj(path, parentPath);
 
-			for (SPtr<MaterialMesh>& mesh : OBJ::LoadObj(path, parentPath))
+			for (const SPtr<MaterialMesh>& mesh : meshes)
 			{
 				std::string realPath = parentPath + "\\" + mesh->GetObjectName();
 				mesh->SetFilePath(realPath);
 				m_MeshCache.emplace(realPath, mesh);
-				contents.emplace(mesh->GetObjectName(), realPath);
+				contents.insert({ mesh->GetObjectName(), realPath, extension });
+				loadContents[path].insert({ mesh->GetObjectName(), realPath, extension });
 			}
 		}
 	}
@@ -70,19 +72,21 @@ namespace PARS
 		return nullptr;
 	}
 
-	void GraphicsAssetStore::LoadMaterial(std::multimap<std::string, std::string>& contents, const std::string& path)
+	void GraphicsAssetStore::LoadMaterial(std::set<ContentInfo>& contents, LoadContent& loadContents, const std::string& path)
 	{
 		std::string extension = FILEHELP::GetExtentionFromPath(path);
 		if (extension == ".mtl")
 		{
 			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			const auto& materials = MTL::LoadMtl(path);
 
-			for (SPtr<Material>& material : MTL::LoadMtl(path))
+			for (const SPtr<Material>& material : materials)
 			{
 				std::string realPath = parentPath + "\\" + material->GetName();
 				material->SetFilePath(realPath);
 				m_MaterialCache.emplace(realPath, material);
-				contents.emplace(material->GetName(), realPath);
+				contents.insert({ material->GetName(), realPath, extension });
+				loadContents[path].insert({ material->GetName(), realPath, extension });
 			}
 		}
 	}
@@ -98,7 +102,7 @@ namespace PARS
 		return nullptr;
 	}
 
-	void GraphicsAssetStore::LoadTexture(std::multimap<std::string, std::string>& contents, const std::string& path)
+	void GraphicsAssetStore::LoadTexture(std::set<ContentInfo>& contents, LoadContent& loadContents, const std::string& path)
 	{
 		std::string extension = FILEHELP::GetExtentionFromPath(path);
 		if (extension == ".dds")
@@ -113,7 +117,8 @@ namespace PARS
 				std::string realPath = parentPath + "\\" + texture->GetName();
 				texture->SetFilePath(realPath);
 				m_TextureCache.emplace(realPath, texture);
-				contents.emplace(texture->GetName(), realPath);
+				contents.insert({ texture->GetName(), realPath, extension });
+				loadContents[path].insert({ texture->GetName(), realPath, extension });
 			}
 		}
 	}

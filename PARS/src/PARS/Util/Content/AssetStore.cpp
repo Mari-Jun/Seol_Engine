@@ -44,29 +44,6 @@ namespace PARS
 		GetContents(CONTENT_DIR);
 	}
 
-	Contents AssetStore::GetContentsInDirectory(const std::string& directory, const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter)
-	{
-		std::vector<std::filesystem::directory_entry> files;
-
-		for (const auto& file : std::filesystem::directory_iterator(directory))
-		{
-			if (!file.is_directory() && !file.is_regular_file())
-				continue;
-
-			std::string extension = file.path().extension().u8string();
-			if (filter.size() != 0 && filter.end() == std::find(filter.begin(), filter.end(), extension))
-				continue;
-			if (antiFilter.size() != 0 && antiFilter.end() != std::find(antiFilter.begin(), antiFilter.end(), extension))
-				continue;
-
-			files.push_back(file);
-		}
-
-		sort(files.begin(), files.end());
-
-		return files;
-	}
-
 	void AssetStore::GetContents(const std::string& rootPath)
 	{
 		for (const auto& file : std::filesystem::directory_iterator(rootPath))
@@ -85,18 +62,18 @@ namespace PARS
 				{
 				case HashCode(".obj"):
 					if(m_LoadedContents[AssetType::StaticMesh].find(filePath) == m_LoadedContents[AssetType::StaticMesh].cend())
-						m_GraphicsAssetStore->LoadMesh(m_ContentsInfos[AssetType::StaticMesh], filePath);
-					m_LoadedContents[AssetType::StaticMesh].emplace(filePath);
+						m_GraphicsAssetStore->LoadMesh(m_ContentsInfos[AssetType::StaticMesh],
+							m_LoadedContents[AssetType::StaticMesh], filePath);
 					break;
 				case HashCode(".mtl"):
 					if (m_LoadedContents[AssetType::Material].find(filePath) == m_LoadedContents[AssetType::Material].cend())
-						m_GraphicsAssetStore->LoadMaterial(m_ContentsInfos[AssetType::Material], filePath);
-					m_LoadedContents[AssetType::Material].emplace(filePath);
+						m_GraphicsAssetStore->LoadMaterial(m_ContentsInfos[AssetType::Material], 
+							m_LoadedContents[AssetType::Material], filePath);
 					break;
 				case HashCode(".dds"):
 					if (m_LoadedContents[AssetType::Texture].find(filePath) == m_LoadedContents[AssetType::Texture].cend())
-						m_GraphicsAssetStore->LoadTexture(m_ContentsInfos[AssetType::Texture], filePath);
-					m_LoadedContents[AssetType::Texture].emplace(filePath);
+						m_GraphicsAssetStore->LoadTexture(m_ContentsInfos[AssetType::Texture], 
+							m_LoadedContents[AssetType::Texture], filePath);
 					break;
 				default:
 					//PARS_WARN("don't support files with this extesion yet [" + filePath + "]");
@@ -106,9 +83,40 @@ namespace PARS
 		}
 	}
 
-	const std::multimap<std::string, std::string>& AssetStore::GetContentInfos(AssetType type) const
+	const std::set<ContentInfo>& AssetStore::GetContentInfos(AssetType type) const
 	{
 		return m_ContentsInfos.at(type);
+	}
+
+	Contents AssetStore::GetFolderInDirectory(const std::string& directory)
+	{
+		std::vector<std::filesystem::directory_entry> files;
+
+		for (const auto& file : std::filesystem::directory_iterator(directory))
+		{
+			if (file.is_directory())
+				files.push_back(file);
+		}
+
+		return files;
+	}
+
+	std::set<ContentInfo> AssetStore::GetContentsOfDirectory(const std::string& path) const
+	{
+		std::set<ContentInfo> result;
+
+		for (const auto& [type, loadContent]: m_LoadedContents)
+		{
+			for (const auto& [originalPath, assetInfos] : loadContent)
+			{
+				if (path == FILEHELP::GetParentPathFromPath(originalPath))
+				{
+					result.insert(assetInfos.cbegin(), assetInfos.cend());
+				}
+			}
+		}
+
+		return result;
 	}
 
 	namespace FILEHELP
