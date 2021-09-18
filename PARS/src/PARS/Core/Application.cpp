@@ -107,21 +107,20 @@ namespace PARS
 		}
 		m_LevelManager->ProcessInput();
 		m_LayerManager->ProcessInput();
-		//m_AssetStore->ProcessInput();
 	}
 
 	void Application::Update()
 	{
 		m_Timer->Tick();
 		m_Window->Update();
-
+		
 		m_LevelManager->Update(m_Timer->GetDeltaTime());
 		m_LayerManager->Update();
 		m_AssetStore->Update(m_Timer->GetDeltaTime());
 	}
 
 	void Application::Draw()
-	{	
+	{
 		m_Renderer->Draw();
 	}
 }

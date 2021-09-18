@@ -142,80 +142,83 @@ namespace PARS
 
 		int cnt = 0;
 
-		for (const auto& folder : folders)
+		if (line > 0)
 		{
-			std::string stemName = folder.path().stem().u8string();
-			std::string path = folder.path().relative_path().string();
-
-			ImGui::BeginGroup();
-			if (folderTex != nullptr && folderTex->GetResource() != nullptr)
+			for (const auto& folder : folders)
 			{
-				ImGui::ImageButton((ImTextureID)folderTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
-				if (ImGui::IsItemHovered())
+				std::string stemName = folder.path().stem().u8string();
+				std::string path = folder.path().relative_path().string();
+
+				ImGui::BeginGroup();
+				if (folderTex != nullptr && folderTex->GetResource() != nullptr)
 				{
-					IMGUIHELP::ShowItemInfo(stemName, { path });
-					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-						ChangeSelectFolder(path);
+					ImGui::ImageButton((ImTextureID)folderTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+					if (ImGui::IsItemHovered())
+					{
+						IMGUIHELP::ShowItemInfo(stemName, { path });
+						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+							ChangeSelectFolder(path);
+					}
+				}
+				ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
+				ImGui::Text(stemName.c_str());
+				ImGui::PopTextWrapPos();
+
+				ImGui::EndGroup();
+
+				if (++cnt % line != 0)
+				{
+					ImGui::SameLine();
 				}
 			}
-			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
-			ImGui::Text(stemName.c_str());
-			ImGui::PopTextWrapPos();
 
-			ImGui::EndGroup();
-
-			if (++cnt % line != 0)
+			for (const auto& asset : assets)
 			{
-				ImGui::SameLine();
-			}
-		}
+				ImGui::BeginGroup();
 
-		for (const auto& asset : assets)
-		{
-			ImGui::BeginGroup();
-
-			switch (HashCode(asset->GetExtension().c_str()))
-			{
-			case HashCode(".obj"):
-				if (meshTex != nullptr && meshTex->GetResource() != nullptr)
+				switch (HashCode(asset->GetExtension().c_str()))
 				{
-					ImGui::ImageButton((ImTextureID)meshTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
-					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				case HashCode(".obj"):
+					if (meshTex != nullptr && meshTex->GetResource() != nullptr)
 					{
-						//ChangeSelectFolder(path);
-					}
-				} break;
-			case HashCode(".mtl"):
-				if (materialTex != nullptr && materialTex->GetResource() != nullptr)
+						ImGui::ImageButton((ImTextureID)meshTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						{
+							//ChangeSelectFolder(path);
+						}
+					} break;
+				case HashCode(".mtl"):
+					if (materialTex != nullptr && materialTex->GetResource() != nullptr)
+					{
+						ImGui::ImageButton((ImTextureID)materialTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						{
+							asset->OpenEditLayer();
+						}
+					} break;
+				case HashCode(".dds"):
+					if (textureTex != nullptr && textureTex->GetResource() != nullptr)
+					{
+						ImGui::ImageButton((ImTextureID)textureTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						{
+							//ChangeSelectFolder(path);
+						}
+					} break;
+				default:
+					break;
+				}
+
+				ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
+				ImGui::Text(asset->GetName().c_str());
+				ImGui::PopTextWrapPos();
+
+				ImGui::EndGroup();
+
+				if (++cnt % line != 0)
 				{
-					ImGui::ImageButton((ImTextureID)materialTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
-					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-					{
-						//ChangeSelectFolder(path);
-					}
-				} break;
-			case HashCode(".dds"):
-				if (textureTex != nullptr && textureTex->GetResource() != nullptr)
-				{
-					ImGui::ImageButton((ImTextureID)textureTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
-					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-					{
-						//ChangeSelectFolder(path);
-					}
-				} break;
-			default:
-				break;
-			}
-
-			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + cWidth);
-			ImGui::Text(asset->GetName().c_str());
-			ImGui::PopTextWrapPos();
-
-			ImGui::EndGroup();
-
-			if (++cnt % line != 0)
-			{
-				ImGui::SameLine();
+					ImGui::SameLine();
+				}
 			}
 		}
 	}

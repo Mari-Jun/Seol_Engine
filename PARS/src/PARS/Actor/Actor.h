@@ -79,6 +79,7 @@ namespace PARS
 
 		bool IsChangedWorldMatrix() const { return m_IsChangedWorldMatrix; }
 		void ResetChangedWorldMatrix() { m_IsChangedWorldMatrix = false; }
+		void SetIsChangedWorldMatrix(bool value) { m_IsChangedWorldMatrix = value; }
 
 	protected:
 		UPtr<ActorDetailFunction> m_DetailFunction;

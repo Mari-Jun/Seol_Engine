@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PARS/Layer/Layer.h"
+#include "PARS/Layer/LayerManager.h"
 #include "PARS/Level/LevelManager.h"
 
 namespace PARS
@@ -14,5 +15,11 @@ namespace PARS
 	{
 		auto levelManger = LevelManager::GetLevelManager();
 		levelManger->OpenLevel(level);
+	}
+
+	void Layer::AddLayer(const SPtr<Layer>& layer)
+	{
+		auto layerManger = LayerManager::GetLayerManager();
+		layerManger->AddLayer(layer);
 	}
 }

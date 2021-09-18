@@ -61,7 +61,7 @@ namespace PARS
 
 		time += deltaTime;
 
-		if (time > 0.02f && move <= 2200.0f)
+		if (time > 0.02f && move <= 5200.0f)
 		{
 			auto actor = CreateSPtr<Actor>("Tree");
 			actor->SetPosition({ move, 0.0f, 1000.0f - move });

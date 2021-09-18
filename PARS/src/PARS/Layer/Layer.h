@@ -22,6 +22,7 @@ namespace PARS
 		virtual void ResizeLayer() {}
 
 		void AddLevel(const SPtr<class Level>& level);
+		virtual void AddLayer(const SPtr<Layer>& layer);
 
 	protected:
 		std::string m_LayerName;

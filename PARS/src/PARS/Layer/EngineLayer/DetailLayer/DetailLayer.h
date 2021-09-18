@@ -5,41 +5,82 @@
 namespace PARS
 {
 	class Actor;
+	class Asset;
 	class Level;
 	struct DetailInfo;
 
 	class DetailLayer : public Layer
 	{
 	public:
-		DetailLayer(const std::string& name = "Detail Layer");
+		DetailLayer(const std::string& layerName, const std::string& windowName);
 		virtual ~DetailLayer() = default;
 
-		virtual void Initialize() override {}
-		virtual void Shutdown() override;
 		virtual void Update() override final;
 
 	private:
-		void UpdateObjects();
-		void UpdateDetail();
-		void UpdateLevelSetting();
+		virtual void UpdateDetail() {}
+
+	protected:
 		void UpdateDetailInfo(const DetailInfo& info);
 
-	public:
-		void AddActorToLayer(const SPtr<Actor>& actor);
-		void RemoveActorToLayer(const std::string& name);
-		void SetLevelToLayer(const WPtr<Level>& level);
-
-	private:
+	protected:
 		ImGuiWindowFlags m_WindowFlags = 0;
-		ImVec2 m_WindowSize;
-		ImVec2 m_WindowPos;
+		std::string m_WindowName;
+
+	public:
+		const std::string& GetWindowName() const { return m_WindowName; }
+	};
+
+	class ActorDetailLayer : public DetailLayer
+	{
+	public:
+		ActorDetailLayer(const std::string& name = "Actor Detail Layer");
+		ActorDetailLayer(const WPtr<Actor>& actor);
+		virtual ~ActorDetailLayer() = default;
 
 	private:
-		std::string m_SelectActorName;
-		SPtr<Actor> m_SelectActor;
-		std::multimap<std::string, const SPtr<Actor>> m_DetailActors;
+		virtual void UpdateDetail() override;
+
+	public:
+		void AddSelectActor(const WPtr<Actor>& actor);
+
+	private:
+		WPtr<Actor> m_SelectActor;
+	};
+
+	class AssetDetailLayer : public DetailLayer
+	{
+	public:
+		AssetDetailLayer(const WPtr<Asset>& asset);
+		virtual ~AssetDetailLayer() = default;
+
+	private:
+		virtual void UpdateDetail() override;
+
+	public:
+		void AddSelectAsset(const WPtr<Asset>& asset);
+
+	private:
+		WPtr<Asset> m_Asset;
+	};
+
+	class LevelDetailLayer : public DetailLayer
+	{
+	public:
+		LevelDetailLayer(const std::string& name = "Level Detail Layer");
+		virtual ~LevelDetailLayer() = default;
+
+	private:
+		virtual void UpdateDetail() override;
+
+	public:
+		void AddSelectLevel(const WPtr<Level>& level);
+
+	private:
 		WPtr<Level> m_Level;
 	};
+
+
 }
 
 

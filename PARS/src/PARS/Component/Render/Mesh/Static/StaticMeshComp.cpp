@@ -15,11 +15,6 @@ namespace PARS
 		m_CompDetailFunction = CreateUPtr<StaticMeshCompDetailFunction>();
 	}
 
-	void StaticMeshComponent::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
-	{
-		MeshComponent::UpdateShaderVariables(variables);
-	}
-
 	bool StaticMeshComponent::SetMesh(std::string&& path)
 	{
 		//Mesh 교체 여부 확인
@@ -34,7 +29,11 @@ namespace PARS
 		if (mesh != nullptr)
 		{
 			m_Mesh = mesh;
-			m_Materials = mesh->GetMaterials();
+			ResetMaterials();
+			for (const auto& material : mesh->GetMaterials())
+			{
+				AddMaterial(material);
+			}
 			AddToRenderFactory();
 		}
 
@@ -52,7 +51,11 @@ namespace PARS
 		if (mesh != nullptr)
 		{
 			m_Mesh = mesh;
-			m_Materials = std::reinterpret_pointer_cast<MaterialMesh>(m_Mesh)->GetMaterials();
+			ResetMaterials();
+			for (const auto& material : std::reinterpret_pointer_cast<MaterialMesh>(m_Mesh)->GetMaterials())
+			{
+				AddMaterial(material);
+			}
 			AddToRenderFactory();
 		}
 	}

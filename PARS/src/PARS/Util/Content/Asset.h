@@ -1,6 +1,5 @@
 #pragma once
 #include "PARS/Core/Core.h"
-#include "PARS/Layer/EngineLayer/DetailWindow/Core/DetailWindow.h"
 
 namespace PARS
 {
@@ -27,7 +26,7 @@ namespace PARS
 		}
 	};
 
-	class Asset
+	class Asset : public std::enable_shared_from_this<Asset>
 	{
 	public:
 		Asset() = default;
@@ -36,15 +35,14 @@ namespace PARS
 		virtual void Shutdown() {}
 
 		//Please Call these functions in AssetStore/ContentLayer/DetailFunctions..
-		virtual void ProcessInputDetailWindow() {}
-		virtual void UpdateDetailWindow() {}
-		virtual void OpenDetailWindow() {}
-		virtual void CloseDetailWindow() {}
+		virtual void OpenEditLayer() {}
+		virtual void OpenEditLayer(WPtr<class EditLayer>&& layer);
 
 	protected:
 		AssetInfo m_AssetInfo;
 
-		UPtr<DetailWindow> m_DetailWindow;
+		WPtr<class EditLayer> m_EditLayer;
+		bool m_IsOpenWindow = true;
 
 	public:
 		void SetAssetInfo(const AssetInfo& info) { m_AssetInfo = info; }

@@ -2,6 +2,7 @@
 #include "PARS/Actor/ActorManager.h"
 #include "PARS/Layer/LayerManager.h"
 #include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
+#include "PARS/Layer/EngineLayer/ObjectLayer/ObjectLayer.h"
 
 namespace PARS
 {
@@ -84,10 +85,10 @@ namespace PARS
 		actorName += " " + std::to_string(m_ActorCounts[actorName]);
 		actor->SetActorName(actorName);
 
-		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
-		if (detailLayer != nullptr)
+		const auto& objectLayer = std::reinterpret_pointer_cast<ObjectLayer>(LayerManager::GetLayerManager()->GetLayerByName("Object Layer"));
+		if (objectLayer != nullptr)
 		{
-			detailLayer->AddActorToLayer(actor);
+			objectLayer->AddActorToLayer(actor);
 		}
 	}
 
@@ -116,10 +117,10 @@ namespace PARS
 
 	void ActorManager::RemoveActorToDetailLayer(const SPtr<Actor>& actor)
 	{
-		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
-		if (detailLayer != nullptr)
+		const auto& objectLayer = std::reinterpret_pointer_cast<ObjectLayer>(LayerManager::GetLayerManager()->GetLayerByName("Object Layer"));
+		if (objectLayer != nullptr)
 		{
-			detailLayer->RemoveActorToLayer(actor->GetActorName());
+			objectLayer->RemoveActorToLayer(actor->GetActorName());
 		}
 	}
 }

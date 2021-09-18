@@ -54,7 +54,7 @@ namespace PARS
 		const auto& materials = meshComp->GetMaterials();
 
 		int index = 0;
-		for (auto& material : materials)
+		for (auto& [material, change] : materials)
 		{
 			std::string selectPath;
 			SPtr<Material> selectMaterial = nullptr;

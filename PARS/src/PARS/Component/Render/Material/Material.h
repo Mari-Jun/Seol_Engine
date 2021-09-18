@@ -4,7 +4,6 @@
 
 namespace PARS
 {
-	class MaterialDW;
 	class Texture;
 	
 	class Material : public Asset
@@ -15,10 +14,7 @@ namespace PARS
 
 	public:
 		//Please Call these functions in AssetStore/ContentLayer/DetailFunctions..
-		virtual void ProcessInputDetailWindow() override;
-		virtual void UpdateDetailWindow() override;
-		virtual void OpenDetailWindow() override;
-		virtual void CloseDetailWindow() override;
+		virtual void OpenEditLayer() override;
 
 	private:
 		int m_MatCBIndex = -1;

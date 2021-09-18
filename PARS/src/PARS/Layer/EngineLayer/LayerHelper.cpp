@@ -20,6 +20,16 @@ namespace PARS
 			return result;
 		}
 
+		ImVec4 GetImGuiWindowBoxSize()
+		{
+			ImVec4 result = GetImGuiWindowSize();
+			result.x += ImGui::GetStyle().WindowPadding.x + ImGui::GetStyle().FramePadding.x;
+			result.y += ImGui::GetStyle().WindowPadding.y + ImGui::GetStyle().FramePadding.y;
+			result.z -= ImGui::GetStyle().WindowPadding.x * 2;
+			result.w -= ImGui::GetStyle().WindowPadding.y * 2;
+			return result;
+		}
+
 		ImVec4 GetImGuiItemSize()
 		{
 			ImVec2 vMin = ImGui::GetItemRectMin();

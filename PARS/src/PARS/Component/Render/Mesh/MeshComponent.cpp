@@ -60,38 +60,6 @@ namespace PARS
 		}
 	}
 
-	void MeshComponent::UpdateShaderVariables(std::map<std::string, BYTE*> variables)
-	{
-		//일단은 이렇게 해놓았음.
-		if (variables.find("InstanceData") != variables.cend())
-		{
-			const auto& owner = m_Owner.lock();
-
-			Mat4 worldMatrix = owner->GetWorldMatrix();
-			Mat4 worldInverseTranspose = Mat4::InverseTranspose(worldMatrix);
-			worldMatrix.Transpose();
-			worldInverseTranspose.Transpose();
-
-			RenderInstanceData data;
-			data.worldMatrix = worldMatrix;
-			data.worldInverseTranspose = worldInverseTranspose;
-
-			memcpy(variables["InstanceData"], &data, sizeof(RenderInstanceData));
-		}
-	}
-
-	void MeshComponent::UpdateMaterialShaderVariables(BYTE* variable, UINT instance, UINT offset)
-	{
-		int index = 0;
-		for (const auto& material : m_Materials)
-		{
-			MaterialInstanceData data;
-			data.matIndex = material->GetMatCBIndex();
-			memcpy(&variable[index * offset + instance * sizeof(MaterialInstanceData)], &data, sizeof(MaterialInstanceData));
-			++index;
-		}
-	}
-
 	void MeshComponent::ReleaseUploadBuffers()
 	{
 		if (m_Mesh != nullptr)

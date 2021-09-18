@@ -68,10 +68,10 @@ namespace PARS
 
 	void LevelManager::AddLevelToDetailLayer()
 	{
-		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
+		const auto& detailLayer = std::reinterpret_pointer_cast<LevelDetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Level Detail Layer"));
 		if (detailLayer != nullptr)
 		{
-			detailLayer->SetLevelToLayer(m_Level);
+			detailLayer->AddSelectLevel(m_Level);
 		}
 	}
 

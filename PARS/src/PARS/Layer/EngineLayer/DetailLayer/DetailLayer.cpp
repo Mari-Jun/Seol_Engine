@@ -4,112 +4,39 @@
 #include "PARS/Core/Window.h"
 #include "PARS/Renderer/Core/Renderer.h"
 #include "PARS/Actor/Actor.h"
+#include "PARS/Util/Content/Asset.h"
 
 //юс╫ц
 #include "PARS/Level/LevelManager.h"
 
 namespace PARS
 {
-	DetailLayer::DetailLayer(const std::string& name)
-		: Layer(name)
+	DetailLayer::DetailLayer(const std::string& layerName, const std::string& windowName)
+		: Layer(layerName)
+		, m_WindowName(windowName)
 	{
 	}
 
 	void DetailLayer::Update()
 	{
-		ImGui::Begin(m_LayerName.c_str(), nullptr, m_WindowFlags);
+		ImGui::Begin(m_WindowName.c_str(), nullptr, m_WindowFlags);
 		{
 			{
-				static ImGuiWindowFlags objectsFlags = ImGuiWindowFlags_NoScrollbar;
-				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("ObjectsChild", ImVec2(m_WindowSize.x, m_WindowSize.y * 0.25f), true, objectsFlags);
-				if (ImGui::BeginTabBar("Objects Tab"))
-				{
-					if (ImGui::BeginTabItem("Objects"))
-					{
-						UpdateObjects();
-						ImGui::EndTabItem();
-					}
+				ImVec4 rect = IMGUIHELP::GetImGuiWindowBoxSize();
 
-					ImGui::EndTabBar();
-				}
-				ImGui::EndChild();
-				ImGui::PopStyleVar();
-			}
-
-			{
 				static ImGuiWindowFlags detailFlags = ImGuiWindowFlags_NoScrollbar;
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-				ImGui::BeginChild("DetailChild", ImVec2(m_WindowSize.x, m_WindowSize.y * 0.745f), true, detailFlags);
-				if (ImGui::BeginTabBar("Detail Tab"))
-				{
-					if (ImGui::BeginTabItem("Detail"))
-					{
-						UpdateDetail();
-						ImGui::EndTabItem();
-					}
-					if (ImGui::BeginTabItem(m_Level.expired() ? "Level Setting" : (m_Level.lock()->GetLevelName() + " Setting").c_str()))
-					{
-						UpdateLevelSetting();
-						ImGui::EndTabItem();
-					}
+				ImGui::BeginChild(("Child " + m_WindowName).c_str(), ImVec2(rect.z, rect.w), true, detailFlags);
 
-					ImGui::EndTabBar();
-				}
+				UpdateDetail();
+
 				ImGui::EndChild();
 				ImGui::PopStyleVar();
 			}
 		}
-	
-		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-		ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-
-		vMin.x += ImGui::GetWindowPos().x;
-		vMin.y += ImGui::GetWindowPos().y;
-		vMax.x += ImGui::GetWindowPos().x;
-		vMax.y += ImGui::GetWindowPos().y;
-
-		m_WindowSize = ImVec2{ vMax.x - vMin.x, vMax.y - vMin.y };
 
 		ImGui::End();
 	}
-
-	void DetailLayer::Shutdown()
-	{
-	}
-
-	void DetailLayer::UpdateObjects()
-	{
-		for (const auto& actor : m_DetailActors)
-		{
-			if (ImGui::Selectable(actor.second->GetActorName().c_str(), m_SelectActorName == actor.second->GetActorName()))
-			{
-				m_SelectActorName = actor.second->GetActorName();
-				m_SelectActor = actor.second;
-			}
-		}
-	}
-
-	void DetailLayer::UpdateDetail()
-	{
-		if (m_SelectActor != nullptr)
-		{
-			m_SelectActor->OnUpdateDetailInfo([this](const DetailInfo& info) {
-				UpdateDetailInfo(info);
-				});
-		}
-	}
-
-	void DetailLayer::UpdateLevelSetting()
-	{
-		if (!m_Level.expired())
-		{
-			m_Level.lock()->OnUpdateDetailInfo([this](const DetailInfo& info) {
-				UpdateDetailInfo(info);
-				});
-		}
-	}
-
 	void DetailLayer::UpdateDetailInfo(const DetailInfo& info)
 	{
 		if (info.state != DVS::Hide && info.state != DVS::HideAll &&
@@ -139,22 +66,62 @@ namespace PARS
 		}
 	}
 
-	void DetailLayer::AddActorToLayer(const SPtr<Actor>& actor)
+	ActorDetailLayer::ActorDetailLayer(const std::string& name)
+		: DetailLayer(name, "Detail##WorldActor")
 	{
-		m_DetailActors.insert({ actor->GetActorName(), actor });
 	}
 
-	void DetailLayer::RemoveActorToLayer(const std::string& name)
+	ActorDetailLayer::ActorDetailLayer(const WPtr<Actor>& actor)
+		: DetailLayer("Actor Detail Layer##" + actor.lock()->GetActorName(),
+			"Detail##" + actor.lock()->GetActorName())
 	{
-		m_DetailActors.erase(name);
-		if (name == m_SelectActorName)
+	}
+
+	void ActorDetailLayer::UpdateDetail()
+	{
+		if (!m_SelectActor.expired())
 		{
-			m_SelectActorName = "";
-			m_SelectActor = nullptr;
+			m_SelectActor.lock()->OnUpdateDetailInfo([this](const DetailInfo& info) {
+				UpdateDetailInfo(info);
+				});
 		}
 	}
 
-	void DetailLayer::SetLevelToLayer(const WPtr<Level>& level)
+	void ActorDetailLayer::AddSelectActor(const WPtr<Actor>& actor)
+	{
+		m_SelectActor = actor;
+	}
+
+	AssetDetailLayer::AssetDetailLayer(const WPtr<Asset>& asset)
+		: DetailLayer("Asset Detail Layer##" + asset.lock()->GetFilePath(),
+			"Detail##" + asset.lock()->GetFilePath())
+	{
+	}
+
+	void AssetDetailLayer::UpdateDetail()
+	{
+	}
+
+	void AssetDetailLayer::AddSelectAsset(const WPtr<Asset>& asset)
+	{
+	}
+
+	LevelDetailLayer::LevelDetailLayer(const std::string& name)
+		: DetailLayer(name, "World Setting")
+	{
+	}
+
+	void LevelDetailLayer::UpdateDetail()
+	{
+		if (!m_Level.expired())
+		{
+			m_Level.lock()->OnUpdateDetailInfo([this](const DetailInfo& info) {
+				UpdateDetailInfo(info);
+				});
+		}
+	}
+
+	void LevelDetailLayer::AddSelectLevel(const WPtr<Level>& level)
 	{
 		m_Level = level;
 	}
