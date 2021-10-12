@@ -5,6 +5,7 @@
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
+#include "AssetStore.h"
 
 namespace PARS
 {
@@ -44,6 +45,14 @@ namespace PARS
 			//std::clock_t end = std::clock();
 
 			//std::cout << difftime(end, start) << "ms" << std::endl;
+		}
+	}
+
+	void AssetStore::PrepareToNextDraw()
+	{
+		for (auto& [type, value] : m_IsAddedNewItems)
+		{
+			value = false;
 		}
 	}
 
@@ -124,6 +133,11 @@ namespace PARS
 		return result;
 	}
 
+	bool AssetStore::IsAddedNewItemForType(AssetType type)
+	{
+		return m_IsAddedNewItems[type];
+	}
+
 	SPtr<Asset> AssetStore::GetAsset(AssetType type, const std::string& path) const
 	{
 		const auto& assetCache = m_AssetCaches.at(type);
@@ -143,6 +157,7 @@ namespace PARS
 		m_AssetCaches[type].emplace(realPath, asset);
 		m_SortedAssets[type].emplace(asset);
 		m_LoadedContents[type][path].emplace(asset);
+		m_IsAddedNewItems[type] = true;
 	}
 
 	SPtr<Mesh> AssetStore::GetMesh(const std::string& path) const

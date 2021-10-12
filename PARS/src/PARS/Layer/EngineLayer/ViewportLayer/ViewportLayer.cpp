@@ -3,6 +3,7 @@
 #include "PARS/Layer/EngineLayer/ViewportLayer/ViewportLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
+#include "PARS/Component/Camera/CameraComponent.h"
 
 
 namespace PARS
@@ -23,11 +24,13 @@ namespace PARS
 		{
 			ImVec4 rect = IMGUIHELP::GetImGuiWindowSize();
 
-			auto mainViewport = RenderFactory::GetRenderFactory()->GetViewport(0);
-			mainViewport->SetLeft(static_cast<float>(rect.x));
-			mainViewport->SetTop(static_cast<float>(rect.y));
-			mainViewport->SetWidth(static_cast<float>(rect.z));
-			mainViewport->SetHeight(static_cast<float>(rect.w));
+			//수정바람 임시로 이름으로 불러왔음.
+			auto camera = RenderFactory::GetRenderFactory()->GetCameraComp("DefaultPawn 1");
+			if (camera != nullptr)
+			{
+				camera->UpdateViewportSize(static_cast<float>(rect.x), static_cast<float>(rect.y),
+					static_cast<float>(rect.z), static_cast<float>(rect.w));
+			}
 
 			if(ImGui::IsWindowHovered())
 				ImGui::GetForegroundDrawList()->AddRect(

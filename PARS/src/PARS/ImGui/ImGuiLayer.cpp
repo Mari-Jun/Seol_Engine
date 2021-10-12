@@ -37,6 +37,7 @@ namespace PARS
 	void ImGuiLayer::Draw()
 	{
 		ID3D12GraphicsCommandList* commandList = m_DirectX12->GetCommandList();
+
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);		
 
@@ -57,7 +58,7 @@ namespace PARS
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		StylePARS();
 

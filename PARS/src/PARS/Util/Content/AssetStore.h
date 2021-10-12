@@ -28,6 +28,7 @@ namespace PARS
 
 		void Shutdown();
 		void Update(float deltaTime);
+		void PrepareToNextDraw();
 
 		void ReloadContents();
 
@@ -38,11 +39,13 @@ namespace PARS
 		std::unordered_map<AssetType, AssetCache> m_AssetCaches;
 		std::map<AssetType, std::set<SPtr<Asset>, AssetCompare>> m_SortedAssets;
 		std::map<AssetType, LoadContent> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
+		std::map<AssetType, bool> m_IsAddedNewItems;
 
 	public:
 		const std::set<SPtr<Asset>, AssetCompare>& GetAssets(AssetType type) const;
 		Contents GetFolderInDirectory(const std::string& directory);
 		std::set<SPtr<Asset>, AssetCompare> GetAssetsOfDirectory(const std::string& path) const;
+		bool IsAddedNewItemForType(AssetType type);
 
 	private:
 		UINT GetAssetCount(AssetType type) const { return static_cast<UINT>(m_AssetCaches.at(type).size()); }

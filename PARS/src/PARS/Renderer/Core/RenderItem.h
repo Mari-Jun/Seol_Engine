@@ -21,6 +21,7 @@ namespace PARS
 	{
 		WPtr<class MeshComponent> meshComp;
 		RenderInstanceData instanceData;
+		bool m_IsChangeIndex = true;
 	};
 
 	class RenderItem
@@ -53,7 +54,9 @@ namespace PARS
 		UINT m_MatInstanceDataSize = 0;
 
 		bool m_IsNeedMeshBufferUpdate = true;
-		UINT m_AddInstanceCount = 0;
+
+		UINT m_CurInstanceVectorSize = 0;
+		UINT m_NewInstanceVectorSize = 1;
 	
 	public:
 		const std::string& GetMeshName() const;

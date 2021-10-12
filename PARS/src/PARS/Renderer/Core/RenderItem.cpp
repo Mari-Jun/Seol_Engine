@@ -43,10 +43,10 @@ namespace PARS
 			m_IsNeedMeshBufferUpdate = false;
 		}
 
-		if (m_AddInstanceCount > 0)
+		if (m_CurInstanceVectorSize != m_NewInstanceVectorSize)
 		{
 			RenderReady(device, commandList);
-			m_AddInstanceCount = 0;
+			m_CurInstanceVectorSize = m_NewInstanceVectorSize;
 		}
 		
 		UpdateShaderVariables();
@@ -54,8 +54,8 @@ namespace PARS
 
 	void RenderItem::RenderReady(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		const auto& instanceSize = m_Instances.size() * sizeof(RenderInstanceData);
-		auto beforeSize = (m_Instances.size() - m_AddInstanceCount) * sizeof(RenderInstanceData);
+		const auto& instanceSize = m_NewInstanceVectorSize * sizeof(RenderInstanceData);
+		auto beforeSize = m_CurInstanceVectorSize * sizeof(RenderInstanceData);
 
 		BYTE* instanceData = nullptr;
 		
@@ -88,8 +88,8 @@ namespace PARS
 			instanceData = nullptr;
 		}
 
-		m_MatInstanceDataSize = m_Instances.size() * sizeof(MaterialInstanceData);
-		beforeSize = (m_Instances.size() - m_AddInstanceCount) * sizeof(MaterialInstanceData);
+		m_MatInstanceDataSize = m_NewInstanceVectorSize * sizeof(MaterialInstanceData);
+		beforeSize = m_CurInstanceVectorSize * sizeof(MaterialInstanceData);
 
 		BYTE* matInstanceData = nullptr;
 
@@ -128,12 +128,12 @@ namespace PARS
 	void RenderItem::UpdateShaderVariables()
 	{
 		int index = 0;
-		for (const auto& instance : m_Instances)
+		for (auto& instance : m_Instances)
 		{
 			const auto& meshComp = instance.meshComp.lock();
 			const auto& owner = meshComp->GetOwner().lock();
 
-			if (owner->IsChangedWorldMatrix())
+			if (owner->IsChangedWorldMatrix() || instance.m_IsChangeIndex)
 			{
 				Mat4 worldMatrix = owner->GetWorldMatrix();
 				Mat4 worldInverseTranspose = Mat4::InverseTranspose(worldMatrix);
@@ -154,17 +154,19 @@ namespace PARS
 			int matIndex = 0;
 			for (const auto& [material, needUpdate] : materials)
 			{
-				if (needUpdate)
+				if (needUpdate || instance.m_IsChangeIndex)
 				{
 					MaterialInstanceData data;
 					data.matIndex = material->GetMatCBIndex();
 					memcpy(&m_MatInstanceMappedData[matIndex * m_MatInstanceDataSize + index * sizeof(MaterialInstanceData)],
 						&data, sizeof(MaterialInstanceData));
 					meshComp->SetMaterialNeedUpdateShader(matIndex, false);
-					++matIndex;
 				}
+				++matIndex;
 			}
 			++index;
+
+			instance.m_IsChangeIndex = false;
 		}
 	}
 
@@ -194,8 +196,11 @@ namespace PARS
 
 		meshComp->SetInstanceIndex(m_Instances.size());
 		m_Instances.emplace_back(std::move(renderInstance));
-			
-		++m_AddInstanceCount;
+		
+		if (m_NewInstanceVectorSize < m_Instances.size())
+		{
+			m_NewInstanceVectorSize = static_cast<UINT>(roundf(static_cast<float>(m_NewInstanceVectorSize) * 1.5f));
+		}
 	}
 
 	bool RenderItem::RemoveInstanceData(const SPtr<class MeshComponent>& meshComp)
@@ -204,9 +209,15 @@ namespace PARS
 
 		std::swap(*(m_Instances.begin() + index), *(m_Instances.end() - 1));
 		m_Instances[index].meshComp.lock()->SetInstanceIndex(index);
-		m_Instances[index].meshComp.lock()->GetOwner().lock()->SetIsChangedWorldMatrix(true);
+		m_Instances[index].m_IsChangeIndex = true;
 
 		m_Instances.pop_back();
+
+		UINT size = static_cast<UINT>(roundf(static_cast<float>(m_NewInstanceVectorSize) / 1.5f));
+		if (size >= m_Instances.size())
+		{
+			m_NewInstanceVectorSize = size;
+		}
 
 		return m_Instances.empty();
 	}

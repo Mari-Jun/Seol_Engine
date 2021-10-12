@@ -36,7 +36,6 @@ namespace PARS
 		ID3D12Resource* GetMaterialResource() const { return m_MaterialResource; }
 		ID3D12DescriptorHeap* GetTextureDescriptorHeap() { return m_TextureDescriptorHeap; }
 	};
-
 }
 
 

@@ -16,6 +16,7 @@ namespace PARS
 	
 		bool Initialize();
 		void ShutDown();
+		void Update();
 		void Draw();
 		
 	public:

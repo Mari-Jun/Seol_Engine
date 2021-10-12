@@ -1,9 +1,12 @@
 #pragma once
 #include "PARS/Component/Component.h"
+#include "PARS/Renderer/Core/Viewport.h"
 #include "PARS/Math/Math.h"
 
 namespace PARS
 {
+	class Viewport;
+
 	class CameraComponent : public Component
 	{
 	public:
@@ -22,15 +25,19 @@ namespace PARS
 		virtual void Update(float deltaTime) override;
 		virtual void UpdateWorldMatrix() override;
 
+		virtual void UpdateViewport();
+		virtual void UpdateViewportSize(float left, float top, float width, float height);
 		virtual void UpdateProjection(float width, float height) = 0;
 
 	protected:
+		UPtr<Viewport> m_Viewport = nullptr;
 		CameraState m_CameraState;
 		Mat4 m_ViewMatrix;
 		Mat4 m_Projection;
 		bool m_IsUpdateProjection;
 
 	public:
+
 		const Mat4& GetViewMatrix() const { return m_ViewMatrix; }
 		const Mat4& GetProjection() const { return m_Projection; }
 		void ChangeProjectionInfo() { m_IsUpdateProjection = true; }

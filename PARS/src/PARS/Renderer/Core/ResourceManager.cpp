@@ -59,17 +59,33 @@ namespace PARS
 
 	void ResourceManager::CreateSRVHeap(const std::function<void(ID3D12DescriptorHeap* heap)>& function)
 	{
-		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-		srvHeapDesc.NumDescriptors = 1 + AssetStore::GetAssetStore()->GetTextureAssetCount(); //1은 imgui를 위한 것
-		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		srvHeapDesc.NodeMask = 0;
-		if (FAILED(m_DirectX12->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_TextureDescriptorHeap))))
+		const auto& assetStore = AssetStore::GetAssetStore();
+
+		if (assetStore->IsAddedNewItemForType(AssetType::Texture))
 		{
-			PARS_ERROR("Colud not create descriptor heap");
+			if (m_TextureDescriptorHeap != nullptr)
+			{
+				m_TextureDescriptorHeap->Release();
+			}
+
+			D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+			srvHeapDesc.NumDescriptors = /*assetStore->GetTextureAssetCount()*/65536;
+			srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			srvHeapDesc.NodeMask = 0;
+			if (FAILED(m_DirectX12->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_TextureDescriptorHeap))))
+			{
+				PARS_ERROR("Colud not create descriptor heap");
+			}
+
+			m_TextureDescriptorHeap->SetName(L"Texture Descriptor");
+
+			function(m_TextureDescriptorHeap);
+
+			
 		}
 
-		function(m_TextureDescriptorHeap);
+		
 	}
 
 	void ResourceManager::CreateMaterialResource(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
@@ -90,34 +106,41 @@ namespace PARS
 
 	void ResourceManager::CreateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 	{
-		D3D12_CPU_DESCRIPTOR_HANDLE desCPUHandle(m_TextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		D3D12_GPU_DESCRIPTOR_HANDLE desGPUHandle(m_TextureDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		desGPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		const auto& assetStore = AssetStore::GetAssetStore();
 
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		if (assetStore->IsAddedNewItemForType(AssetType::Texture))
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE desCPUHandle(m_TextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+			D3D12_GPU_DESCRIPTOR_HANDLE desGPUHandle(m_TextureDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
-		int index = 0;
+			//imgui를 위해 1칸씩 띄운다.
+			desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			desGPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		AssetStore::GetAssetStore()->OnAllTextureAssetExecuteFunction(
-			[this, &device, &commandList, &index, &srvDesc, &desCPUHandle, &desGPUHandle](const SPtr<Texture>& texture)
-			{
-				if (texture->GetResource() == nullptr)
+			int index = 0;
+
+			AssetStore::GetAssetStore()->OnAllTextureAssetExecuteFunction(
+				[this, &device, &commandList, &index, &desCPUHandle, &desGPUHandle](const SPtr<Texture>& texture)
 				{
-					texture->LoadTextureFromDDSFile(device, commandList, 0x01);
-					texture->SetTextureSRVIndex(index++);
-					srvDesc.Format = texture->GetResource()->GetDesc().Format;
-					srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
-					device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desCPUHandle);
+					if (texture->GetResource() == nullptr)
+					{
+						switch (HashCode(texture->GetExtension().c_str()))
+						{
+						case HashCode(".dds"):
+							texture->LoadTextureFromDDSFile(device, commandList);
+							break;
+						default:
+							break;
+						}
+					}
+
+					device->CreateShaderResourceView(texture->GetResource(), &texture->GetShaderResourceViewDesc(), desCPUHandle);
 					desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					texture->SetTextureSRVIndex(index++);
 					texture->SetGpuHandle(desGPUHandle);
 					desGPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				}
-			});
+				});
+		}
 	}
 
 	void ResourceManager::UpdateMaterialResource()

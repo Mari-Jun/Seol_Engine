@@ -5,6 +5,7 @@
 #include "PARS/Component/Render/Mesh/MeshComponent.h"
 #include "PARS/Component/Camera/CameraComponent.h"
 #include "PARS/Component/Light/LightComponent.h"
+#include "PARS/Actor/Actor.h"
 #include "PARS/Core/Window.h"
 
 namespace PARS
@@ -12,7 +13,7 @@ namespace PARS
 	RenderFactory::RenderFactory(const SPtr<DirectX12>& directX)
 	{
 		m_ResourceManager = CreateSPtr<ResourceManager>(directX);
-		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(directX);
+		//m_ImGuiLayer = CreateSPtr<ImGuiLayer>(directX);
 		m_ShaderFactory = CreateUPtr<ShaderFactory>(m_ResourceManager);
 	}
 
@@ -21,12 +22,12 @@ namespace PARS
 		s_Instance = this;
 		m_ResourceManager->Initialize();
 
-		m_ResourceManager->CreateSRVHeap([this](ID3D12DescriptorHeap* heap)
+	/*	m_ResourceManager->CreateSRVHeap([this](ID3D12DescriptorHeap* heap)
 			{
 				m_ImGuiLayer->InitFromNewSRVHeap(heap);
-			});
+			});*/
 
-		m_Viewports.emplace_back(CreateSPtr<Viewport>());
+		//m_Viewports.emplace_back(CreateSPtr<Viewport>());
 
 		m_ShaderFactory->Initialize();
 		return true;
@@ -40,50 +41,74 @@ namespace PARS
 
 	void RenderFactory::Update()
 	{
-		m_ResourceManager->Update();
+
+	/*	m_ResourceManager->CreateSRVHeap([this](ID3D12DescriptorHeap* heap)
+			{
+				m_ImGuiLayer->InitFromNewSRVHeap(heap);
+			});*/
+
+		//m_ImGuiLayer->InitFromNewSRVHeap(m_ResourceManager->GetTextureDescriptorHeap());
+
 
 		UpdateViewport();
-
-		m_ShaderFactory->Update();		
 	}
 
 	void RenderFactory::UpdateViewport()
 	{
-		for (const auto& viewport : m_Viewports)
+		for (const auto& camera : m_CameraComps)
 		{
-			const auto& camera = viewport->GetCameraOwner().lock();
-
-			if (viewport->IsChangeViewport())
+			if (camera->IsActive())
 			{
-				const auto& directX = DirectX12::GetDirectX12();
-				if (directX != nullptr)
-				{
-					directX->SetViewAndScissor(viewport->GetLeft(), viewport->GetTop(),
-						viewport->GetWidth(), viewport->GetHeight());
-				}
-
-				if (camera != nullptr)
-				{
-					camera->ChangeProjectionInfo();
-				}
-				viewport->ChangedViewport();
-			}
-
-			if (camera != nullptr && camera->IsUpdateProjection())
-			{
-				camera->UpdateProjection(viewport->GetWidth(), viewport->GetHeight());
+				camera->UpdateViewport();
 			}
 		}
+
+		//for (const auto& viewport : m_Viewports)
+		//{
+		//	const auto& camera = viewport->GetCameraOwner().lock();
+
+		//	if (viewport->IsChangeViewport())
+		//	{
+		//		const auto& directX = DirectX12::GetDirectX12();
+		//		if (directX != nullptr)
+		//		{
+		//			directX->SetViewAndScissor(viewport->GetLeft(), viewport->GetTop(),
+		//				viewport->GetWidth(), viewport->GetHeight());
+		//		}
+
+		//		viewport->UpdateViewportTexture(directX->GetDevice());
+
+		//		if (camera != nullptr)
+		//		{
+		//			camera->ChangeProjectionInfo();
+		//		}
+		//		viewport->ChangedViewport();
+		//	}
+
+		//	if (camera != nullptr && camera->IsUpdateProjection())
+		//	{
+		//		camera->UpdateProjection(viewport->GetWidth(), viewport->GetHeight());
+		//	}
+		//}
 	}
 
 	const SPtr<class ImGuiLayer>& RenderFactory::CreateImGui()
 	{
 		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_ResourceManager->GetDirectX12());
+
+		m_ResourceManager->CreateSRVHeap([this](ID3D12DescriptorHeap* heap)
+			{
+				m_ImGuiLayer->InitFromNewSRVHeap(heap);
+			});
+
 		return m_ImGuiLayer;
 	}
 
 	void RenderFactory::Draw()
 	{
+		m_ResourceManager->Update();
+		m_ShaderFactory->Update();
+
 		m_ResourceManager->Draw();
 		m_ShaderFactory->Draw();
 
@@ -115,7 +140,7 @@ namespace PARS
 		m_CameraComps.push_back(camera);
 
 		//아직 viewport는 1개이다. 따라서 main viewport에 플레이어 컨트롤러가 제어하는 camera가 담겨진다. <임시>
-		m_Viewports[0]->SetCamera(camera);
+		//m_Viewports[0]->SetCamera(camera);
 	}
 
 	void RenderFactory::RemoveCameraComponent(const SPtr<CameraComponent>& camera)
@@ -143,6 +168,17 @@ namespace PARS
 		{
 			m_LightComps.erase(iter);
 		}
+	}
+
+	SPtr<CameraComponent> RenderFactory::GetCameraComp(const std::string& ownerName)
+	{
+		auto iter = std::find_if(m_CameraComps.begin(), m_CameraComps.end(), [ownerName](const auto& camera)
+			{
+				return camera->GetOwner().lock()->GetActorName() == ownerName;
+			});
+
+		if (iter != m_CameraComps.end()) return *iter;
+		else return nullptr;
 	}
 
 	RenderFactory* RenderFactory::s_Instance = nullptr;

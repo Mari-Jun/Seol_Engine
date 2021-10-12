@@ -4,6 +4,7 @@
 #include "PARS/Renderer/Shader/ColorShader.h"
 #include "PARS/Renderer/Shader/MaterialShader.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
+#include "PARS/Component/Camera/CameraComponent.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
