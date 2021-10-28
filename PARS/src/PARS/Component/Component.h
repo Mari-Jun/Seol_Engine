@@ -17,7 +17,10 @@ namespace PARS
 		virtual void InitializeDetailFunction();
 		void ShutdownComponent();
 		virtual void Shutdown() {}
+
 		virtual void Update(float deltaTime) {}
+		virtual void UpdateOnlyEditor(float deltaTime) {}
+		virtual void UpdateOnlyInGame(float deltaTime) {}
 		virtual void UpdateWorldMatrix() {}
 
 	public:

@@ -37,20 +37,36 @@ namespace PARS
 	{
 		m_DetailFunction = CreateUPtr<ActorDetailFunction>();
 	}
-
+	
 	void Actor::ProcessInput()
 	{
 		ActorInput();
 		m_InputFactory->ProcessInput();
 	}
 
-	void Actor::UpdateActor(float deltaTime)
+	void Actor::UpdateActorEditor(float deltaTime)
 	{
 		UpdateWorldMatrix();
 
 		m_ComponentManager->Update(deltaTime);
 		Update(deltaTime);
+
+		m_ComponentManager->UpdateEditor(deltaTime);
+		UpdateOnlyEditor(deltaTime);
 		
+		UpdateWorldMatrix();
+	}
+
+	void Actor::UpdateActorInGame(float deltaTime)
+	{
+		UpdateWorldMatrix();
+
+		m_ComponentManager->Update(deltaTime);
+		Update(deltaTime);
+
+		m_ComponentManager->UpdateInGame(deltaTime);
+		UpdateOnlyInGame(deltaTime);
+
 		UpdateWorldMatrix();
 	}
 

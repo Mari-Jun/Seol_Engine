@@ -11,6 +11,8 @@ namespace PARS
 		~ComponentManager() = default;
 
 		void Update(float deltaTime);
+		void UpdateEditor(float deltaTime);
+		void UpdateInGame(float deltaTime);
 		void UpdateWorldMatrix();
 		void Shutdown();
 

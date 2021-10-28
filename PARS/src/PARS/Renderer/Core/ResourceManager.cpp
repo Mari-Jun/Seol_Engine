@@ -136,7 +136,7 @@ namespace PARS
 
 					device->CreateShaderResourceView(texture->GetResource(), &texture->GetShaderResourceViewDesc(), desCPUHandle);
 					desCPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					texture->SetTextureSRVIndex(index++);
+					texture->SetTextureSRVIndex(++index);
 					texture->SetGpuHandle(desGPUHandle);
 					desGPUHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				});

@@ -12,7 +12,8 @@ namespace PARS
 
 		virtual void Initialize() override;
 		virtual void Shutdown() override;
-		virtual void Update(float deltaTime) {}
+
+		//virtual void PossessPlayer(int playerIndex = 0);
 
 	protected:
 		SPtr<MovementComponent> m_MovementComp;

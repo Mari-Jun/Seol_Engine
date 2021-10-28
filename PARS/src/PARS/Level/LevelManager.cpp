@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Level/LevelManager.h"
 #include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
+#include "PARS/Input/Input.h"
 
 //юс╫ц
 #include "PARS/Layer/LayerManager.h"
@@ -14,9 +15,11 @@ namespace PARS
 
 	void LevelManager::ProcessInput()
 	{
-		if (m_Level != nullptr && m_Level->GetLevelState() == Level::LevelState::Active)
+		if (m_Level != nullptr && 
+			(m_Level->GetLevelState() == LevelState::InGame || 
+			m_Level->GetLevelState() == LevelState::Editor))
 		{
-			m_Level->LevelInput();
+			m_Level->ProcessInput();
 		}
 	}
 
@@ -25,7 +28,8 @@ namespace PARS
 		if (m_Level != nullptr)
 		{
 			m_IsUpdateLevel = true;
-			if (m_Level->GetLevelState() == Level::LevelState::Active)
+			if ((m_Level->GetLevelState() == LevelState::InGame ||
+				m_Level->GetLevelState() == LevelState::Editor))
 			{
 				m_Level->Update(deltaTime);
 			}
@@ -39,6 +43,7 @@ namespace PARS
 				m_Level->Shutdown();
 				m_Level = nullptr;
 			}
+
 			m_Level = std::move(m_ReadyLevel);
 			AddLevelToDetailLayer();
 			m_Level->Initialize();
@@ -64,6 +69,35 @@ namespace PARS
 	void LevelManager::OpenLevel(const SPtr<Level>& level)
 	{
 		m_ReadyLevel = level;
+	}
+
+	void LevelManager::ReadyOpenedLevel()
+	{
+		
+	}
+
+	void LevelManager::StartOpenedLevel()
+	{
+		if (m_Level != nullptr)
+		{
+			if (m_Level->GetLevelState() == LevelState::Editor)
+			{
+				m_Level->SetLevelState(LevelState::InGame);
+				Input::SetCursorHide(true);
+			}
+		}
+	}
+
+	void LevelManager::StopOpenedLevel()
+	{
+		if (m_Level != nullptr)
+		{
+			if (m_Level->GetLevelState() == LevelState::InGame)
+			{
+				m_Level->SetLevelState(LevelState::Editor);
+				Input::SetCursorHide(false);
+			}
+		}
 	}
 
 	void LevelManager::AddLevelToDetailLayer()

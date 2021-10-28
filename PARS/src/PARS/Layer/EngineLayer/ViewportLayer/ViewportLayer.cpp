@@ -25,7 +25,7 @@ namespace PARS
 			ImVec4 rect = IMGUIHELP::GetImGuiWindowSize();
 
 			//수정바람 임시로 이름으로 불러왔음.
-			auto camera = RenderFactory::GetRenderFactory()->GetCameraComp("DefaultPawn 1");
+			auto camera = RenderFactory::GetRenderFactory()->GetCameraComp("Default Pawn 1");
 			if (camera != nullptr)
 			{
 				camera->UpdateViewportSize(static_cast<float>(rect.x), static_cast<float>(rect.y),

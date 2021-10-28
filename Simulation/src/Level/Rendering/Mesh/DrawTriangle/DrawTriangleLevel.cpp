@@ -13,8 +13,8 @@ namespace PARS
 	{
 		Level2D::InitializeLevel();
 
-		std::reinterpret_pointer_cast<Actor>(m_DefaultPawn)->SetDetailVisibleState(DVS::HideAll);
-		std::reinterpret_pointer_cast<Actor>(m_DefaultController)->SetDetailVisibleState(DVS::HideAll);
+		//std::reinterpret_pointer_cast<Actor>(m_DefaultPawn)->SetDetailVisibleState(DVS::HideAll);
+		//std::reinterpret_pointer_cast<Actor>(m_DefaultController)->SetDetailVisibleState(DVS::HideAll);
 
 		auto actor = CreateSPtr<Actor>("Triangle");
 		AddActor(actor);
@@ -31,7 +31,7 @@ namespace PARS
 			}));
 		actor->AddComponent(meshComp);
 		
-		SetDefaultControllerKeyEvent(false);
+		//SetDefaultControllerKeyEvent(false);
 	}
 
 	void DrawTriangleLevel::UpdateLevel(float deltaTime)

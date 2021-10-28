@@ -4,6 +4,8 @@
 
 namespace PARS
 {
+	class Level;
+
 	class ActorManager final
 	{
 	public:
@@ -11,7 +13,11 @@ namespace PARS
 		~ActorManager() = default;
 
 		void ProcessInput();
+
+		void UpdateEditor(float deltaTime);
+		void UpdateInGame(float deltaTime);
 		void Update(float deltaTime);
+
 		void Shutdown();
 
 		void AddActor(const SPtr<Actor>& actor);

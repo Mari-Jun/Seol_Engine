@@ -290,6 +290,7 @@ namespace PARS
 					else if (prefix == "vt")
 					{
 						ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
+						tempVec3.y = 1.0f - tempVec3.y;
 						texCoords.emplace_back(Vec2{ tempVec3.x, tempVec3.y });
 					}
 					else if (prefix == "usemtl")

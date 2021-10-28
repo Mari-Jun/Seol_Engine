@@ -135,8 +135,20 @@ namespace PARS
             down = false;
             break;
         case WM_MOUSEMOVE:
-            manager->m_MousePosition = { static_cast<float>(x), static_cast<float>(y) };
+        {
+            auto& position = manager->m_MousePosition;
+            if (position.x != x)
+            {
+                position.x = static_cast<float>(x);
+                manager->m_KeyState[PARS_MOUSE_XMOVE] = true;
+            }
+            if (position.y != y)
+            {
+                position.y = static_cast<float>(y);
+                manager->m_KeyState[PARS_MOUSE_YMOVE] = true;
+            }
             break;
+        }
         }
 
         manager->m_KeyState[button] = down;
