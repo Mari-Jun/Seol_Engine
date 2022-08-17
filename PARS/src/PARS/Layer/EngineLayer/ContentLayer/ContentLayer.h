@@ -12,6 +12,7 @@ namespace PARS
 
 		virtual void Initialize() override;
 		virtual void Shutdown() override;
+		virtual void LayerInput() override;
 		virtual void Update() override final;
 
 	private:
@@ -22,9 +23,11 @@ namespace PARS
 
 	private:
 		void UpdateFolderList();
-		std::string RecursiveFolderList(const std::filesystem::path& path);
+		void RecursiveFolderList(const std::filesystem::path& path);
 		void UpdateContentView(float width);
 
+		void ChangeSelectFolder(std::string path);
+		void ChangeFolderFromStack();
 
 	private:
 		bool m_IsFirstOpen = true;
@@ -32,6 +35,11 @@ namespace PARS
 		ImVec2 m_WindowSize;
 		std::string m_SelectFolder = CONTENT_DIR;
 		std::string m_SelectContent;
+
+		bool m_ClickXButton1 = false;
+		bool m_ClickXButton2 = false;
+		std::stack<std::string> m_PriorSelectFolders;
+		std::stack<std::string> m_NextSelectFolders;
 	};
 
 }

@@ -1,10 +1,11 @@
 #pragma once
-#include "PARS/Renderer/Core/Viewport.h"
 #include "PARS/Renderer/Shader/Core/Shader.h"
 #include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 
 namespace PARS
 {
+	class ResourceManager;
+	class ImGuiLayer;
 	class CameraComponent;
 	class LightComponent;
 
@@ -27,13 +28,14 @@ namespace PARS
 		void UpdateViewport();
 
 	public:
-		const SPtr<Viewport>& GetViewport(int index) { return m_Viewports[index]; }
+		const SPtr<class ImGuiLayer>& CreateImGui();
 
 		inline static RenderFactory* GetRenderFactory() { return s_Instance; }
 
 	private:
+		SPtr<ResourceManager> m_ResourceManager;
+		SPtr<ImGuiLayer> m_ImGuiLayer;
 		UPtr<ShaderFactory> m_ShaderFactory;
-		std::vector<SPtr<Viewport>> m_Viewports;
 
 	private:
 		std::vector<SPtr<CameraComponent>> m_CameraComps;
@@ -51,6 +53,7 @@ namespace PARS
 
 		const std::vector<SPtr<CameraComponent>>& GetCameraComps() const { return m_CameraComps; }
 		const std::list<SPtr<LightComponent>>& GetLightComps() const { return m_LightComps; }
+		SPtr<CameraComponent> GetCameraComp(const std::string& ownerName);
 
 	};
 }

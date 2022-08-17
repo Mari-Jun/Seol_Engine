@@ -20,7 +20,7 @@ namespace PARS
 		inline static const Vec2& GetMousePosition() { return s_InputManager->GetMousePosition(); }
 		inline static const Vec2 GetRelativeMousePosition() { return s_InputManager->GetRelativeMousePosition(); }
 
-		inline static void SetCursorHide(bool hide) { s_InputManager->SetCursorHide(hide); }
+		inline static void SetCursorHide(bool hide) { if (hide != IsCursorHide()) { s_InputManager->SetCursorHide(hide); } }
 		inline static bool IsCursorHide() { return s_InputManager->IsCursorHide(); }
 
 		inline static InputManager* GetInputManager() { return s_InputManager; }
@@ -31,6 +31,10 @@ namespace PARS
 #define PARS_MOUSE_LBUTTON		0x01
 #define PARS_MOUSE_RBUTTON		0x02
 #define PARS_MOUSE_MBUTTON		0x04
+#define PARS_MOUSE_XBUTTON1		0x05
+#define PARS_MOUSE_XBUTTON2		0x06
+#define PARS_MOUSE_XMOVE		0xEA
+#define PARS_MOUSE_YMOVE		0xEB
 
 #define PARS_KEY_BACKSPACE		0x08
 #define PARS_KEY_TAB			0x09
@@ -125,3 +129,5 @@ namespace PARS
 #define PARS_KEY_F10			0x79
 #define PARS_KEY_F11			0x7A
 #define PARS_KEY_F12			0x7B
+
+#define PARS_KEY_BACKTICK		0xC0

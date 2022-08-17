@@ -10,6 +10,7 @@ namespace PARS
 		LayerManager();
 		~LayerManager() = default;
 
+		void ProcessInput();
 		void Update();
 		void Shutdown();
 		void ResizeLayer();

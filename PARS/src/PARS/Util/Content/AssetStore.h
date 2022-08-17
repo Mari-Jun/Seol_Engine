@@ -1,5 +1,5 @@
 #pragma once
-#include "PARS/Util/Content/GraphicsAssetStore.h"
+#include "PARS/Util/Content/Asset.h"
 
 namespace PARS
 {
@@ -8,15 +8,14 @@ namespace PARS
 		return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * HashCode(str + 1) : 8603;
 	}
 
-	enum class AssetType
-	{
-		StaticMesh,
-		Material,
-		Texture,
-
-	};
-
 	using Contents = std::vector<std::filesystem::directory_entry>;
+	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
+	using LoadContent = std::unordered_map<std::string, std::set<SPtr<Asset>>>;	// originalPath, AssetInfo들
+
+	class Mesh;
+	class Material;
+	class Texture;
+	class Level;
 
 	class AssetStore
 	{
@@ -32,24 +31,48 @@ namespace PARS
 
 		void Shutdown();
 		void Update(float deltaTime);
+		void PrepareToNextDraw();
 
 		void ReloadContents();
-
-		Contents GetContentsInDirectory(const std::string& directory,
-			const std::initializer_list<std::string>& filter, const std::initializer_list<std::string>& antiFilter);
-	
-		void ShowItemInfo(std::initializer_list<std::string>&& texts);
 
 	private:
 		void GetContents(const std::string& rootPath);
 
 	private:
-		std::map<AssetType, std::multimap<std::string, std::string>> m_ContentsInfos;
-		std::map<AssetType, std::set<std::string>> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
+		std::unordered_map<AssetType, AssetCache> m_AssetCaches;
+		std::map<AssetType, std::set<SPtr<Asset>, AssetCompare>> m_SortedAssets;
+		std::map<AssetType, LoadContent> m_LoadedContents; //.PARS로 따로 관리하기 전에는 이렇게 관리해 줘야 할 것 같다. 따라서 현재 느린것은 감당해야할듯?
+		std::map<AssetType, bool> m_IsAddedNewItems;
 
-		SPtr<GraphicsAssetStore> m_GraphicsAssetStore;
 	public:
-		const std::multimap<std::string, std::string>& GetContentInfos(AssetType type) const;
+		const std::set<SPtr<Asset>, AssetCompare>& GetAssets(AssetType type) const;
+		Contents GetFolderInDirectory(const std::string& directory);
+		std::set<SPtr<Asset>, AssetCompare> GetAssetsOfDirectory(const std::string& path) const;
+		bool IsAddedNewItemForType(AssetType type);
+
+	private:
+		UINT GetAssetCount(AssetType type) const { return static_cast<UINT>(m_AssetCaches.at(type).size()); }
+		SPtr<Asset> GetAsset(AssetType type, const std::string& path) const;
+		void SaveAsset(AssetType type, const std::string& path, const std::string& realPath,
+			const std::string& extension, const SPtr<Asset>& asset);
+
+	public:
+		UINT GetMeshAssetCount() const { return GetAssetCount(AssetType::StaticMesh); }
+		SPtr<Mesh> GetMesh(const std::string& path) const; 
+		void LoadMesh(const std::string& path);
+
+		UINT GetMaterialAssetCount() const { return GetAssetCount(AssetType::Material); }
+		SPtr<Material> GetMaterial(const std::string& path) const;
+		void LoadMaterial(const std::string& path);
+		void OnAllMaterialAssetExecuteFunction(std::function<void(const SPtr<Material>& material)> function);
+
+		UINT GetTextureAssetCount() const { return GetAssetCount(AssetType::Texture); }
+		SPtr<Texture> GetTexture(const std::string& path) const;
+		void LoadTexture(const std::string& path);
+		void OnAllTextureAssetExecuteFunction(std::function<void(const SPtr<Texture>& texture)> function);
+
+		SPtr<Level> GetLevel(const std::string& path) const;
+		void LoadLevel(const std::string& path);
 	};
 
 	namespace FILEHELP

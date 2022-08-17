@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "PARS/Actor/ActorManager.h"
 #include "PARS/Layer/LayerManager.h"
+#include "PARS/Level/Level.h"
 #include "PARS/Layer/EngineLayer/DetailLayer/DetailLayer.h"
+#include "PARS/Layer/EngineLayer/ObjectLayer/ObjectLayer.h"
 
 namespace PARS
 {
@@ -9,25 +11,39 @@ namespace PARS
 	{
 		for (const auto& actor : m_Actors)
 		{
-			if (actor->GetActorState() == Actor::ActorState::Active)
-			{
+			if (actor->GetActorState() == ActorState::Active)
 				actor->ProcessInput();
-			}
 		}
 	}
 
-	void ActorManager::Update(float deltaTime)
+	void ActorManager::UpdateEditor(float deltaTime)
 	{
 		m_IsUpdateActors = true;
 		for (const auto& actor : m_Actors)
 		{
-			if (actor->GetActorState() == Actor::ActorState::Active)
-			{
-				actor->UpdateActor(deltaTime);
-			}
+			if (actor->GetActorState() == ActorState::Active)
+				actor->UpdateActorEditor(deltaTime);
 		}
 		m_IsUpdateActors = false;
 
+		Update(deltaTime);
+	}
+
+	void ActorManager::UpdateInGame(float deltaTime)
+	{
+		m_IsUpdateActors = true;
+		for (const auto& actor : m_Actors)
+		{
+			if (actor->GetActorState() == ActorState::Active)
+				actor->UpdateActorInGame(deltaTime);
+		}
+		m_IsUpdateActors = false;
+
+		Update(deltaTime);
+	}
+
+	void ActorManager::Update(float deltaTime)
+	{
 		for (auto actor : m_ReadyActors)
 		{
 			actor->UpdateWorldMatrix();
@@ -38,7 +54,7 @@ namespace PARS
 		std::vector<SPtr<Actor>> deadActors;
 		for (auto actor : m_Actors)
 		{
-			if (actor->GetActorState() == Actor::ActorState::Dead)
+			if (actor->GetActorState() == ActorState::Dead)
 			{
 				deadActors.emplace_back(actor);
 			}
@@ -84,10 +100,10 @@ namespace PARS
 		actorName += " " + std::to_string(m_ActorCounts[actorName]);
 		actor->SetActorName(actorName);
 
-		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
-		if (detailLayer != nullptr)
+		const auto& objectLayer = std::reinterpret_pointer_cast<ObjectLayer>(LayerManager::GetLayerManager()->GetLayerByName("Object Layer"));
+		if (objectLayer != nullptr)
 		{
-			detailLayer->AddActorToLayer(actor);
+			objectLayer->AddActorToLayer(actor);
 		}
 	}
 
@@ -116,10 +132,10 @@ namespace PARS
 
 	void ActorManager::RemoveActorToDetailLayer(const SPtr<Actor>& actor)
 	{
-		const auto& detailLayer = std::reinterpret_pointer_cast<DetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Detail Layer"));
-		if (detailLayer != nullptr)
+		const auto& objectLayer = std::reinterpret_pointer_cast<ObjectLayer>(LayerManager::GetLayerManager()->GetLayerByName("Object Layer"));
+		if (objectLayer != nullptr)
 		{
-			detailLayer->RemoveActorToLayer(actor->GetActorName());
+			objectLayer->RemoveActorToLayer(actor->GetActorName());
 		}
 	}
 }

@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "PARS/Core/Window.h"
-#include "PARS/ImGui/ImGuiLayer.h"
 #include "PARS/Renderer/DirectX12/DirectX12.h"
+#include "PARS/Renderer/Core/ResourceManager.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
 #include "PARS/Renderer/Core/Renderer.h"
 
 namespace PARS
 {
-	Vec4 Renderer::s_ClearColor = COLOR::Gray;
+	Vec4 Renderer::s_ClearColor = COLOR::Black;
 
 	Renderer::Renderer()
 	{
@@ -44,22 +44,24 @@ namespace PARS
 		m_DirectX12->ShutDown();
 	}
 
+	void Renderer::Update()
+	{
+		m_RenderFactory->Update();
+	}
+
 	void Renderer::Draw()
 	{
 		m_DirectX12->BeginScene(s_ClearColor);
-		m_RenderFactory->Update();
 
 		//render code
 		m_RenderFactory->Draw();
-		m_ImGuiLayer->Draw();
 
 		m_DirectX12->EndScene();
 		m_RenderFactory->PrepareToNextDraw();
 	}
 
-	const SPtr<ImGuiLayer>& Renderer::CreateImGui()
+	const SPtr<class ImGuiLayer>& Renderer::CreateImGui()
 	{
-		m_ImGuiLayer = CreateSPtr<ImGuiLayer>(m_DirectX12);
-		return m_ImGuiLayer;
+		return m_RenderFactory->CreateImGui();
 	}
 }

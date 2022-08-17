@@ -1,5 +1,6 @@
 #pragma once
 #include "PARS/Level/Level.h"
+#include "PARS/GameState/GameState.h"
 
 #undef near
 #undef far
@@ -17,19 +18,10 @@ namespace PARS
 		virtual void InitializeLevel() override;
 
 	protected:
-		void SetDefaultCameraActive();
-		void SetDefaultCameraPause();
-		virtual void SetDefaultControllerKeyEvent(bool use) {}
-		virtual void SetDefaultControllerMouseEvent(bool use) {}
+		UPtr<GameState> m_GameState = nullptr;
 
-	protected:
-		SPtr<class Pawn> m_DefaultPawn = nullptr;
-		SPtr<class CameraComponent> m_DefaultCamera = nullptr;
-		SPtr<class PlayerController> m_DefaultController = nullptr;
-
-	protected:
-		const SPtr<class Pawn>& GetDefaultPawn() const { return m_DefaultPawn; }
-		const SPtr<class PlayerController>& GetDefaultController() const { return m_DefaultController; }
+	public:
+		void InGameCursor();
 	};
 
 	class Level2D : public DefaultLevel
@@ -39,10 +31,6 @@ namespace PARS
 		virtual ~Level2D() = default;
 
 		virtual void InitializeLevel() override;
-
-	protected:
-		virtual void SetDefaultControllerKeyEvent(bool use) override final;
-		virtual void SetDefaultControllerMouseEvent(bool use) override final;
 	};
 
 	class Level3D : public DefaultLevel
@@ -52,10 +40,6 @@ namespace PARS
 		virtual ~Level3D() = default;
 
 		virtual void InitializeLevel() override;
-
-	protected:
-		virtual void SetDefaultControllerKeyEvent(bool use) override final;
-		virtual void SetDefaultControllerMouseEvent(bool use) override final;
 	};
 
 }

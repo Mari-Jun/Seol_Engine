@@ -8,6 +8,17 @@ namespace PARS
 		s_Instance = this;
 	}
 
+	void LayerManager::ProcessInput()
+	{
+		for (const auto& layer : m_Layers)
+		{
+			if (layer != nullptr && layer->GetLayerState() == Layer::LayerState::Active)
+			{
+				layer->LayerInput();
+			}
+		}
+	}
+
 	void LayerManager::Update()
 	{
 		m_IsUpdateLayers = true;

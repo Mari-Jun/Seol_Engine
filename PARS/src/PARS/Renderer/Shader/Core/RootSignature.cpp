@@ -1,16 +1,18 @@
 #include "stdafx.h"
+#include "PARS/Renderer/Core/ResourceManager.h"
 #include "PARS/Renderer/Shader/Core/RootSignature.h"
 
 namespace PARS
 {
-	RootSignature::RootSignature(const SPtr<DirectX12>& directX)
-		: m_DirectX12(directX)
+	RootSignature::RootSignature(const SPtr<ResourceManager>& resourceManager)
+		: m_ResourceManager(resourceManager)
+		, m_DirectX12(m_ResourceManager->GetDirectX12())
 	{
 	}
 
-	void RootSignature::Initialize(ID3D12Device* device)
+	void RootSignature::Initialize()
 	{
-		CreateRootSignature(device);
+		CreateRootSignature(m_DirectX12->GetDevice());
 		CreateShaders();
 	}
 
@@ -24,8 +26,11 @@ namespace PARS
 		m_Shaders.clear();
 	}
 
-	void RootSignature::Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+	void RootSignature::Update()
 	{
+		const auto& device = m_DirectX12->GetDevice();
+		const auto& commandList = m_DirectX12->GetCommandList();
+
 		RenderReady(device, commandList);
 
 		UpdateShaderVariables();
@@ -36,8 +41,9 @@ namespace PARS
 		}
 	}
 
-	void RootSignature::Draw(ID3D12GraphicsCommandList* commandList)
+	void RootSignature::Draw()
 	{
+		const auto& commandList = m_DirectX12->GetCommandList();
 		commandList->SetGraphicsRootSignature(m_RootSignature);
 
 		DrawPassFrame(commandList);

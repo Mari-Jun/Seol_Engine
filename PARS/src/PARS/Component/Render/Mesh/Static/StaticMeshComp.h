@@ -11,10 +11,10 @@ namespace PARS
 		virtual ~StaticMeshComponent() = default;
 
 		virtual void InitializeDetailFunction() override;
-		virtual void UpdateShaderVariables(std::map<std::string, BYTE*> variables) override;
 
 	public:
 		bool SetMesh(std::string&& path);
+		virtual void SetMesh(const SPtr<Mesh>& mesh) override;
 	};
 }
 

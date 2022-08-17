@@ -25,14 +25,32 @@ namespace PARS
 		const SPtr<MovementComponent>& GetMovementComp() const { return m_MovementComp; }
 		void SetSameRoationWithPawn(bool boolean) { b_IsSameRotationWithPawn = boolean; }
 
-	private:
-		float m_Pitch = 0.0f;
-
 	public:
 		void MoveForward(float axis);
 		void MoveRightward(float axis);
 		void MoveUpward(float axis);
-		void TurnMouse();
+		void Turn(float axis);
+		void LookUp(float axis);
+	};
+
+	class PlayerController2D : public PlayerController
+	{
+	public:
+		PlayerController2D(const std::string& name = "Player Controller 2D");
+		PlayerController2D(const SPtr<class Pawn>& pawn, const std::string& name = "Player Controller 2D");
+		virtual ~PlayerController2D() = default;
+
+		virtual void Initialize() override;
+	};
+
+	class PlayerController3D : public PlayerController
+	{
+	public:
+		PlayerController3D(const std::string& name = "Player Controller 3D");
+		PlayerController3D(const SPtr<class Pawn>& pawn, const std::string& name = "Player Controller 3D");
+		virtual ~PlayerController3D() = default;
+
+		virtual void Initialize() override;
 	};
 }
 

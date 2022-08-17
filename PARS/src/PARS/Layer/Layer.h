@@ -17,10 +17,13 @@ namespace PARS
 
 		virtual void Initialize() {}
 		virtual void Shutdown() {}
+		virtual void LayerInput() {}
 		virtual void Update() {}
 		virtual void ResizeLayer() {}
 
 		void AddLevel(const SPtr<class Level>& level);
+		void LoadLevel(const SPtr<class Level>& level);
+		virtual void AddLayer(const SPtr<Layer>& layer);
 
 	protected:
 		std::string m_LayerName;

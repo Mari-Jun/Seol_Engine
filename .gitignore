@@ -404,6 +404,7 @@ bin-int/
 # PARS files
 *.log
 Contents/
+EngineContents/
 
 # Visual Studio files and folder
 .vs/

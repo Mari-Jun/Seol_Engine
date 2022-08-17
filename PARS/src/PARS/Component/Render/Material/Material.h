@@ -1,20 +1,22 @@
 #pragma once
 #include "PARS/Math/Math.h"
-#include "PARS/Core/Core.h"
+#include "PARS/Util/Content/Asset.h"
 
 namespace PARS
 {
 	class Texture;
 	
-	class Material
+	class Material : public Asset
 	{
 	public:
 		Material() = default;
 		virtual ~Material() = default;
-		
-	private:
-		std::string m_Name;
 
+	public:
+		//Please Call these functions in AssetStore/ContentLayer/DetailFunctions..
+		virtual void OpenEditLayer() override;
+
+	private:
 		int m_MatCBIndex = -1;
 		int m_DiffuseMapIndex = -1;
 
@@ -28,8 +30,6 @@ namespace PARS
 		SPtr<Texture> m_DiffuseTexture;
 
 	public:
-		const std::string& GetName() const { return m_Name; }
-		void SetName(const std::string& name) { m_Name = name; }
 		int GetMatCBIndex() const { return m_MatCBIndex; }
 		int& GetMatCBIndex() { return m_MatCBIndex; }
 		void SetMatCBIndex(int index) { m_MatCBIndex = index; }

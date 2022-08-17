@@ -1,21 +1,20 @@
 #include "stdafx.h"
+#include "PARS/Renderer/Core/ResourceManager.h"
 #include "PARS/Renderer/Shader/Default/DefaultRootSignature.h"
 #include "PARS/Renderer/Shader/Core/ShaderFactory.h"
 
 namespace PARS
 {
-	ShaderFactory::ShaderFactory(const SPtr<DirectX12>& directX)
-		: m_DirectX12(directX)
+	ShaderFactory::ShaderFactory(const SPtr<ResourceManager>& resourceManager)
 	{
+		CreateRootSignatures(resourceManager);
 	}
 
 	void ShaderFactory::Initialize()
 	{
-		CreateRootSignatures();
-
 		for (auto& [name, signature] : m_RootSignatures)
 		{
-			signature->Initialize(m_DirectX12->GetDevice());
+			signature->Initialize();
 		}
 	}
 
@@ -32,17 +31,15 @@ namespace PARS
 	{
 		for (const auto& [string, signature] : m_RootSignatures)
 		{
-			signature->Update(m_DirectX12->GetDevice(), m_DirectX12->GetCommandList());
+			signature->Update();
 		}
 	}
 
 	void ShaderFactory::Draw()
 	{
-		auto commandList = m_DirectX12->GetCommandList();
-
 		for (const auto& [string, signature] : m_RootSignatures)
 		{
-			signature->Draw(commandList);
+			signature->Draw();
 		}
 
 	}
@@ -54,9 +51,9 @@ namespace PARS
 		}
 	}
 
-	void ShaderFactory::CreateRootSignatures()
+	void ShaderFactory::CreateRootSignatures(const SPtr<ResourceManager>& resourceManager)
 	{
-		m_RootSignatures.insert({ "Default", CreateUPtr<DefaultRootSignature>(m_DirectX12) });
+		m_RootSignatures.insert({ "Default", CreateUPtr<DefaultRootSignature>(resourceManager) });
 	}
 
 	const SPtr<Shader>& ShaderFactory::GetShader(MeshType type) const

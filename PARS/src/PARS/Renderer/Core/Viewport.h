@@ -1,19 +1,20 @@
 #pragma once
-#include "PARS/Component/Camera/CameraComponent.h"	
 
 namespace PARS
 {
+	class Texture;
+
 	class Viewport
 	{
 	public:
-		Viewport() = default;
+		Viewport();
 		virtual ~Viewport() = default;
 
+		void Shutdown();
+
 	public:
-		void SetLeft(float left);
-		void SetTop(float top);
-		void SetWidth(float width);
-		void SetHeight(float height);
+		void UpdateViewportSize(float left, float top, float width, float height);
+		void UpdateViewportTexture(ID3D12Device* device);
 
 		float GetLeft() const { return m_Left; }
 		float GetTop() const { return m_Top; }
@@ -27,12 +28,9 @@ namespace PARS
 		float m_Left = 0.0f, m_Top = 0.0f, m_Width = 0.0f, m_Height = 0.0f;
 		bool m_IsChangeViewport = false;
 
-	public:
-		const WPtr<CameraComponent>& GetCameraOwner() const { return m_CameraOwner; }
-		void SetCamera(const WPtr<CameraComponent>& camera) { m_CameraOwner = camera; m_IsChangeViewport = true; }
-
 	private:
-		WPtr<CameraComponent> m_CameraOwner;
+		SPtr<Texture> m_ViewTexture;
+		ID3D12DescriptorHeap* m_TextureDescriptorHeap = nullptr;
 	};
 }
 

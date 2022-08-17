@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Util/DirectX12/d3dUtil.h"
 #include "PARS/Util/DirectX12/DDSTextureLoader12.h"
+#include "d3dUtil.h"
 
 namespace PARS
 {
@@ -94,16 +95,17 @@ namespace PARS
 		return buffer;
 	}
 
-	ID3D12Resource* D3DUtil::CreateTextureResourceFromDDSFile(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, const wchar_t* fileName, ID3D12Resource** uploadBuffer, D3D12_RESOURCE_STATES resourceStates)
+	ID3D12Resource* D3DUtil::CreateTextureResourceFromDDSFile(ID3D12Device* device, ID3D12GraphicsCommandList* commandList,
+		const wchar_t* fileName, bool* isCubeMap,
+		ID3D12Resource** uploadBuffer, D3D12_RESOURCE_STATES resourceStates)
 	{
 		ID3D12Resource* texture = nullptr;
 		std::unique_ptr<uint8_t[]> ddsData;
 		std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 		DDS_ALPHA_MODE alphaMode = DDS_ALPHA_MODE_UNKNOWN;
-		bool isCubeMap = false;
 
 		HRESULT result = DirectX::LoadDDSTextureFromFileEx(device, fileName, 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT,
-			&texture, ddsData, subResources, &alphaMode, &isCubeMap);
+			&texture, ddsData, subResources, &alphaMode, isCubeMap);
 
 		D3D12_HEAP_PROPERTIES heapPropertiesDesc = {};
 		heapPropertiesDesc.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -143,5 +145,35 @@ namespace PARS
 		commandList->ResourceBarrier(1, &resourceBarrier);
 
 		return texture;
+	}
+
+	ID3D12Resource* D3DUtil::CreateTexture2DResource(ID3D12Device* device, UINT width, UINT height, UINT elements, UINT mipLevels, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS resourceFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
+	{
+		ID3D12Resource* texture = nullptr;
+
+		D3D12_HEAP_PROPERTIES heapPropertiesDesc = {};
+		heapPropertiesDesc.Type = D3D12_HEAP_TYPE_DEFAULT;
+		heapPropertiesDesc.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		heapPropertiesDesc.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapPropertiesDesc.CreationNodeMask = 1;
+		heapPropertiesDesc.VisibleNodeMask = 1;
+
+		D3D12_RESOURCE_DESC resourceDesc = {};
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDesc.Alignment = 0;
+		resourceDesc.Width = width;
+		resourceDesc.Height = height;
+		resourceDesc.DepthOrArraySize = elements;
+		resourceDesc.MipLevels = mipLevels;
+		resourceDesc.Format = format;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		resourceDesc.Flags = resourceFlags;
+
+		HRESULT result = device->CreateCommittedResource(&heapPropertiesDesc, D3D12_HEAP_FLAG_NONE,
+			&resourceDesc, resourceStates, clearValue, IID_PPV_ARGS(&texture));
+
+		return nullptr;
 	}
 }

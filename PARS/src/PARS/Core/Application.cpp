@@ -106,6 +106,7 @@ namespace PARS
 			SetAppState(AppState::Dead);
 		}
 		m_LevelManager->ProcessInput();
+		m_LayerManager->ProcessInput();
 	}
 
 	void Application::Update()
@@ -113,13 +114,17 @@ namespace PARS
 		m_Timer->Tick();
 		m_Window->Update();
 
+		m_AssetStore->Update(m_Timer->GetDeltaTime());
+
 		m_LevelManager->Update(m_Timer->GetDeltaTime());
 		m_LayerManager->Update();
-		m_AssetStore->Update(m_Timer->GetDeltaTime());
+		m_Renderer->Update();
 	}
 
 	void Application::Draw()
-	{	
+	{
 		m_Renderer->Draw();
+
+		m_AssetStore->PrepareToNextDraw();
 	}
 }

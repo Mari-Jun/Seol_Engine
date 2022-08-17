@@ -83,7 +83,7 @@ namespace PARS
         manager->m_KeyState[key] = pressed;
     }
 
-    void MouseButtonCallback(InputManager* manager, int button, int x, int y)
+    void MouseButtonCallback(InputManager* manager, int button, WPARAM wParam, int x, int y)
     {
         bool down = false;
         switch (button)
@@ -108,6 +108,22 @@ namespace PARS
             button = PARS_MOUSE_RBUTTON;
             down = false;
             break;
+        case WM_XBUTTONDOWN:
+            SetCapture(manager->m_hwnd);
+            if (GET_KEYSTATE_WPARAM(wParam) == MK_XBUTTON1)
+                button = PARS_MOUSE_XBUTTON1;
+            else if (GET_KEYSTATE_WPARAM(wParam) == MK_XBUTTON2)
+                button = PARS_MOUSE_XBUTTON2;
+            down = true;
+            break;
+        case WM_XBUTTONUP:
+            ReleaseCapture();
+            if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+                button = PARS_MOUSE_XBUTTON1;
+            else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+                button = PARS_MOUSE_XBUTTON2;
+            down = false;
+            break;
         case WM_MBUTTONDOWN:
             SetCapture(manager->m_hwnd);
             button = PARS_MOUSE_MBUTTON;
@@ -119,8 +135,20 @@ namespace PARS
             down = false;
             break;
         case WM_MOUSEMOVE:
-            manager->m_MousePosition = { static_cast<float>(x), static_cast<float>(y) };
+        {
+            auto& position = manager->m_MousePosition;
+            if (position.x != x)
+            {
+                position.x = static_cast<float>(x);
+                manager->m_KeyState[PARS_MOUSE_XMOVE] = true;
+            }
+            if (position.y != y)
+            {
+                position.y = static_cast<float>(y);
+                manager->m_KeyState[PARS_MOUSE_YMOVE] = true;
+            }
             break;
+        }
         }
 
         manager->m_KeyState[button] = down;

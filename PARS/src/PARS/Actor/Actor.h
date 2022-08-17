@@ -8,14 +8,14 @@
 
 namespace PARS
 {
+	enum class ActorState
+	{
+		Active, Paused, Dead
+	};
+
 	class Actor : public std::enable_shared_from_this<Actor>
 	{
 	public:
-		enum class ActorState
-		{
-			Active, Paused, Dead
-		};
-
 		Actor(const std::string& name = "Actor");
 		virtual ~Actor();
 
@@ -24,10 +24,15 @@ namespace PARS
 		virtual void Initialize() {}
 		virtual void InitializeDetailFunction();
 		virtual void Shutdown() {}
+
 		void ProcessInput();
 		virtual void ActorInput() {}
-		void UpdateActor(float deltaTime);
+
+		void UpdateActorEditor(float deltaTime);
+		void UpdateActorInGame(float deltaTime);
 		virtual void Update(float deltaTime) {}
+		virtual void UpdateOnlyEditor(float deltaTime) {}
+		virtual void UpdateOnlyInGame(float deltaTime) {}
 
 		void UpdateWorldMatrix();
 
@@ -79,6 +84,7 @@ namespace PARS
 
 		bool IsChangedWorldMatrix() const { return m_IsChangedWorldMatrix; }
 		void ResetChangedWorldMatrix() { m_IsChangedWorldMatrix = false; }
+		void SetIsChangedWorldMatrix(bool value) { m_IsChangedWorldMatrix = value; }
 
 	protected:
 		UPtr<ActorDetailFunction> m_DetailFunction;

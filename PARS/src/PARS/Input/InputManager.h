@@ -32,7 +32,7 @@ namespace PARS
 
 	public:
 		friend void KeyCallback(InputManager* manager, UINT message, WPARAM key, LPARAM flags);
-		friend void MouseButtonCallback(InputManager* manager, int button, int x, int y);
+		friend void MouseButtonCallback(InputManager* manager, int button, WPARAM wParam, int x, int y);
 			
 	private:
 		HWND m_hwnd;

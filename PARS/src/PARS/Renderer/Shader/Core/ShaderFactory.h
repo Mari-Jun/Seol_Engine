@@ -5,10 +5,12 @@
 
 namespace PARS
 {
+	class ResourceManager;
+
 	class ShaderFactory
 	{
 	public:
-		ShaderFactory(const SPtr<DirectX12>& directX);
+		ShaderFactory(const SPtr<ResourceManager>& resourceManager);
 		~ShaderFactory() = default;
 		
 		void Initialize();
@@ -18,13 +20,12 @@ namespace PARS
 		void PrepareToNextDraw();
 
 	private:
-		void CreateRootSignatures();
+		void CreateRootSignatures(const SPtr<ResourceManager>& resourceManager);
 
 	public:
 		const SPtr<Shader>& GetShader(MeshType type) const;
 
 	private:
-		SPtr<DirectX12> m_DirectX12;
 		std::unordered_map<std::string, UPtr<class RootSignature>> m_RootSignatures;
 	};
 }

@@ -150,7 +150,7 @@ float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
     MaterialData matData = gMaterials[input.matIndex];
     float4 diffuseAlbedo = matData.diffuseAlbedo;
     float3 fresnelR0 = matData.fresnelR0;
-    float shininess = matData.roughness;
+    float shininess = 1.0f - matData.roughness;
     
     if(matData.diffuseMapIndex >= 0)
     {
@@ -170,6 +170,8 @@ float4 PSMaterialMain(VS_MATERIAL_OUT input) : SV_TARGET
     float4 directLight = ComputeLight(gLights, mat, gLightCounts, input.basicPos, input.normal, eye);
     
     float4 result = ambientLight + directLight;
+    
+    result.a = diffuseAlbedo.a;
      
     return result;
 }

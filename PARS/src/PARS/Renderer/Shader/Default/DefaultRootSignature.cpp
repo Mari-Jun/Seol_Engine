@@ -1,9 +1,10 @@
 #include "stdafx.h"
+#include "PARS/Renderer/Core/ResourceManager.h"
 #include "PARS/Renderer/Shader/Default/DefaultRootSignature.h"
 #include "PARS/Renderer/Shader/ColorShader.h"
 #include "PARS/Renderer/Shader/MaterialShader.h"
 #include "PARS/Renderer/Core/RenderFactory.h"
-#include "PARS/Util/Content/GraphicsAssetStore.h"
+#include "PARS/Component/Camera/CameraComponent.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
@@ -11,8 +12,8 @@
 
 namespace PARS
 {
-	DefaultRootSignature::DefaultRootSignature(const SPtr<DirectX12>& directX)
-		: RootSignature(directX)
+	DefaultRootSignature::DefaultRootSignature(const SPtr<ResourceManager>& resourceManager)
+		: RootSignature(resourceManager)
 	{
 	}
 
@@ -22,12 +23,6 @@ namespace PARS
 		{
 			m_DefaultPassCB->Unmap(0, nullptr);
 			m_DefaultPassCB->Release();
-		}
-
-		if (m_MaterialCB != nullptr)
-		{
-			m_MaterialCB->Unmap(0, nullptr);
-			m_MaterialCB->Release();
 		}
 
 		if (m_SrvDescriptorHeap != nullptr)
@@ -133,79 +128,10 @@ namespace PARS
 				PARS_ERROR("ColorPass Mapping Error");
 			}
 		}
-
-		if (m_MaterialCB == nullptr)
-		{
-			PARS_INFO("나왔당");
-
-			const auto& matSize = GraphicsAssetStore::GetAssetStore()->GetMaterials().size() * sizeof(CBMaterial);
-
-			m_MaterialCB = D3DUtil::CreateBufferResource(device, commandList, nullptr, matSize,
-				D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr);
-
-			if (FAILED(m_MaterialCB->Map(0, nullptr, (void**)&m_MaterialMappedData)))
-			{
-				PARS_ERROR("MaterialCB Mapping Error");
-			}
-		}
-
-		if (m_SrvDescriptorHeap == nullptr)
-		{
-			const auto& textures = GraphicsAssetStore::GetAssetStore()->GetTextures();
-
-			D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-			srvHeapDesc.NumDescriptors = textures.size();
-			srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-			srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-			srvHeapDesc.NodeMask = 0;
-			if (FAILED(device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_SrvDescriptorHeap))))
-			{
-				PARS_ERROR("Colud not create descriptor heap");
-			}
-
-			D3D12_CPU_DESCRIPTOR_HANDLE desHandle(m_SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MostDetailedMip = 0;
-			srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-			int index = 0;
-			for (const auto& [path, texture] : textures)
-			{
-				texture->LoadTextureFromDDSFile(device, commandList, 0x01);
-				texture->SetTextureSRVIndex(index++);
-				srvDesc.Format = texture->GetResource()->GetDesc().Format;
-				srvDesc.Texture2D.MipLevels = texture->GetResource()->GetDesc().MipLevels;
-				device->CreateShaderResourceView(texture->GetResource(), &srvDesc, desHandle);
-				desHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			}
-		}
 	}
 
 	void DefaultRootSignature::UpdateShaderVariables()
 	{
-		//마찬가지로 이 부분도 계속 업데이트 할 필요가 없다.
-		//새로운 Material이 생성되면 그 때 업데이트 하면 된다.
-		//일단은 그 부분은 생각해야 할 부분이 있기 때문에 지금은 임시로 매 프레임마다 업데이트 되게 한다.
-		const auto& assetStore = GraphicsAssetStore::GetAssetStore();
-
-		int matIndex = 0;
-		for (const auto& [path, material] : assetStore->GetMaterials())
-		{
-			material->SetMatCBIndex(matIndex);
-
-			CBMaterial cbMat;
-			cbMat.diffuseAlbedo = material->GetDiffuseAlbedo();
-			cbMat.fresnelR0 = material->GetFresnelR0();
-			cbMat.roughness = material->GetRoughness();
-			const auto& texture = material->GetDiffuseTexture();
-			cbMat.diffuseMapIndex = texture != nullptr ? material->GetDiffuseTexture()->GetTextureSRVIndex() : -1;
-			memcpy(&m_MaterialMappedData[matIndex * sizeof(CBMaterial)], &cbMat, sizeof(CBMaterial));
-			++matIndex;
-		}
-
 		const auto& factory = RenderFactory::GetRenderFactory();
 		CBDefaultPass cbPass;
 
@@ -246,9 +172,8 @@ namespace PARS
 
 	void DefaultRootSignature::DrawPassFrame(ID3D12GraphicsCommandList* commandList)
 	{
-		commandList->SetDescriptorHeaps(1, &m_SrvDescriptorHeap);
-		commandList->SetGraphicsRootShaderResourceView(2, m_MaterialCB->GetGPUVirtualAddress());
-		commandList->SetGraphicsRootDescriptorTable(3, m_SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootShaderResourceView(2, m_ResourceManager->GetMaterialResource()->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootDescriptorTable(3, m_ResourceManager->GetTextureDescriptorHeap()->GetGPUDescriptorHandleForHeapStart());
 		commandList->SetGraphicsRootConstantBufferView(4, m_DefaultPassCB->GetGPUVirtualAddress());
 	}
 }

@@ -16,6 +16,22 @@ namespace PARS
 		}
 	}
 
+	void ComponentManager::UpdateEditor(float deltaTime)
+	{
+		for (const auto& component : m_Components)
+		{
+			component->UpdateOnlyEditor(deltaTime);
+		}
+	}
+
+	void ComponentManager::UpdateInGame(float deltaTime)
+	{
+		for (const auto& component : m_Components)
+		{
+			component->UpdateOnlyInGame(deltaTime);
+		}
+	}
+
 	void ComponentManager::UpdateWorldMatrix()
 	{
 		for (const auto& component : m_Components)

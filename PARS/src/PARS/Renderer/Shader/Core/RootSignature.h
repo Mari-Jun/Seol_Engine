@@ -3,19 +3,21 @@
 
 namespace PARS
 {
+	class ResourceManager;
+
 	struct CBPass
 	{};
 
 	class RootSignature
 	{
 	public:
-		RootSignature(const SPtr<DirectX12>& directX);
+		RootSignature(const SPtr<ResourceManager>& resourceManager);
 		virtual ~RootSignature() = default;
 
-		void Initialize(ID3D12Device* device);
+		void Initialize();
 		virtual void Shutdown();
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
-		void Draw(ID3D12GraphicsCommandList* commandList);
+		void Update();
+		void Draw();
 		void PrepareToNextDraw();
 
 	private:
@@ -32,6 +34,7 @@ namespace PARS
 		const std::map<ShaderType, SPtr<Shader>>& GetShaders() const { return m_Shaders; }
 
 	protected:	
+		SPtr<ResourceManager> m_ResourceManager;
 		SPtr<DirectX12> m_DirectX12;
 		ID3D12RootSignature* m_RootSignature = nullptr;
 		std::map<ShaderType, SPtr<Shader>> m_Shaders;

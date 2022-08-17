@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
+#include "PARS/Layer/EngineLayer/EditLayer/Asset/MaterialEditLayer.h"
 #include "PARS/Util/Content/AssetStore.h"
 
 namespace PARS
@@ -58,7 +59,7 @@ namespace PARS
 						ss >> name;
 						std::string tPath = FILEHELP::GetRelativePathFromAbsolute(name);
 						tPath = FILEHELP::GetParentPathFromPath(tPath) + "\\" + FILEHELP::GetStemFromPath(tPath);
-						const auto& texture = GraphicsAssetStore::GetAssetStore()->GetTexture(tPath);
+						const auto& texture = AssetStore::GetAssetStore()->GetTexture(tPath);
 						if (texture != nullptr)
 						{
 							material->SetDiffuseTexture(texture);
@@ -71,5 +72,11 @@ namespace PARS
 
 			return materials;
 		}
+	}
+
+	void Material::OpenEditLayer()
+	{
+		Asset::OpenEditLayer(CreateSPtr<MaterialEditLayer>(m_AssetInfo.name, 
+			std::reinterpret_pointer_cast<Material>(shared_from_this())));
 	}
 }

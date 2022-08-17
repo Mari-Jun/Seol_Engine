@@ -35,7 +35,7 @@ namespace PARS
 
 	void EditorLayer::Update()
 	{
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 		Vec4 Color;
 		ImGui::Begin(m_LayerName.c_str(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -58,29 +58,6 @@ namespace PARS
 
 	void EditorLayer::SetRendering()
 	{
-		m_RenderingSubjects["R_Basic"].emplace_back([this]() {ShowSimulationNode<ClearColorLevel>
-			("001", 
-				{ "You can change the background color of the window" });
-			});
-
-		m_RenderingSubjects["R_Mesh"].emplace_back([this]() {ShowSimulationNode<DrawTriangleLevel>
-			("002", 
-				{ "You can change the position of the vertex",
-				"You can change the color of the vertex" });
-			});
-
-		m_RenderingSubjects["R_Camera"].emplace_back([this]() {ShowSimulationNode<Camera2DLevel>
-			("003", 
-				{ "You can change the position of the rectangle",
-				"You can change the color of the rectangle",
-				"You can check the position of the rectangle and camera" });
-			});
-
-		m_RenderingSubjects["R_Mesh"].emplace_back([this]() {ShowSimulationNode<LoadObjLevel>
-			("004", 
-				{ "You can change the mesh by loading obj" });
-			});
-
 		m_RenderingSubjects["R_Light"].emplace_back([this]() {ShowSimulationNode<DirectionalLightLevel>
 			("005", 
 				{ "You can change rotation of the directional light",

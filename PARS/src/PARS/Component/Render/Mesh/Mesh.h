@@ -1,17 +1,16 @@
 #pragma once
-
-#include "PARS/Core/Core.h"
+#include "PARS/Util/Content/Asset.h"
 #include "PARS/Component/Render/Mesh/Vertex.h"
 
 namespace PARS
 {
-	class Mesh
+	class Mesh : public Asset
 	{
 	public:
 		Mesh();
 		virtual ~Mesh() = default;
 
-		virtual void Shutdown();
+		virtual void Shutdown() override;
 		virtual void BeginDraw(ID3D12GraphicsCommandList* commandList);
 		virtual void Draw(ID3D12GraphicsCommandList* commandList);
 		virtual void Draw(ID3D12GraphicsCommandList* commandList, UINT instanceCount, UINT subMeshCount) {}
@@ -22,12 +21,6 @@ namespace PARS
 
 		int GetVertexCount() const { return m_RealVertexCount; }
 		void SetRealVertexCount(int count) { m_RealVertexCount = count; }
-
-		const std::string& GetObjectName() const { return m_ObjectName; }
-		void SetObjectName(const std::string& name) { m_ObjectName = name; }
-
-	protected:
-		std::string m_ObjectName;
 
 	protected:
 		ID3D12Resource* m_VertexBuffer = nullptr;
