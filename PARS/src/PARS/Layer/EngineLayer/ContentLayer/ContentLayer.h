@@ -26,7 +26,7 @@ namespace PARS
 		void RecursiveFolderList(const std::filesystem::path& path);
 		void UpdateContentView(float width);
 
-		void ChangeSelectFolder(const std::string& path);
+		void ChangeSelectFolder(std::string path);
 		void ChangeFolderFromStack();
 
 	private:

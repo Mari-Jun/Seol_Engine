@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PARS/Core/Core.h"
+#include "PARS/Util/Content/Asset.h"
 #include "PARS/Input/InputFactory.h"
 #include "PARS/Layer/EngineLayer/DetailLayer/DetailFunction.h"
 
@@ -13,7 +13,7 @@ namespace PARS
 		InGame, Editor, Paused, Dead
 	};
 
-	class Level
+	class Level : public Asset
 	{
 	public:
 		Level(const std::string& name = "Defualt_Level");
@@ -31,6 +31,11 @@ namespace PARS
 
 		virtual void AddActor(const SPtr<class Actor>& actor);
 		virtual void RemoveActor(const SPtr<class Actor>& actor);
+
+	public:
+		//For file
+		void SaveLevel(std::ofstream& file);
+		void LoadLevel(std::ifstream& file);
 
 	protected:
 		std::string m_LevelName;

@@ -2,6 +2,8 @@
 #include "PARS/Util/Content/AssetStore.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+
+#include "PARS/Level/Level.h"
 #include "PARS/Component/Render/Mesh/Mesh.h"
 #include "PARS/Component/Render/Material/Material.h"
 #include "PARS/Component/Render/Texture/Texture.h"
@@ -59,6 +61,7 @@ namespace PARS
 	void AssetStore::ReloadContents()
 	{
 		GetContents(CONTENT_DIR);
+		GetContents(LEVEL_DIR);
 	}
 
 	void AssetStore::GetContents(const std::string& rootPath)
@@ -88,6 +91,10 @@ namespace PARS
 				case HashCode(".dds"):
 					if (m_LoadedContents[AssetType::Texture].find(filePath) == m_LoadedContents[AssetType::Texture].cend())
 						LoadTexture(filePath);
+					break;
+				case HashCode(".lvl"):
+					if (m_LoadedContents[AssetType::Level].find(filePath) == m_LoadedContents[AssetType::Level].cend())
+						LoadLevel(filePath);
 					break;
 				default:
 					//PARS_WARN("don't support files with this extesion yet [" + filePath + "]");
@@ -244,21 +251,58 @@ namespace PARS
 		}
 	}
 
+	SPtr<Level> AssetStore::GetLevel(const std::string& path) const
+	{
+		SPtr<Level> level(std::reinterpret_pointer_cast<Level>(GetAsset(AssetType::Level, path)));
+		return level;
+	}
+
+	void AssetStore::LoadLevel(const std::string& path)
+	{
+		std::string extension = FILEHELP::GetExtentionFromPath(path);
+		if (extension == ".lvl")
+		{
+			std::string parentPath = FILEHELP::GetParentPathFromPath(path);
+			std::string stem = FILEHELP::GetStemFromPath(path);
+
+			SPtr<Level> level = CreateSPtr<Level>(stem);
+
+			if (level != nullptr)
+			{
+				std::string realPath = parentPath + "\\" + level->GetName();
+				level->SetFilePath(realPath);
+				SaveAsset(AssetType::Level, path, realPath, extension, level);
+			}
+		}
+	}
+
 	namespace FILEHELP
 	{
 		std::string GetPathFromFile(const std::filesystem::directory_entry& file)
 		{
-			return file.path().relative_path().string();
+			std::string path = file.path().relative_path().string();
+			std::replace_if(path.begin(), path.end(), [](char text) {
+				return text == '\\';
+				}, '/');
+			return path;
 		}
 
 		std::string GetParentPathFromFile(const std::filesystem::directory_entry& file)
 		{
-			return file.path().parent_path().string();
+			std::string path = file.path().parent_path().string();
+			std::replace_if(path.begin(), path.end(), [](char text) {
+				return text == '\\';
+				}, '/');
+			return path;
 		}
 
 		std::string GetStemFromFile(const std::filesystem::directory_entry& file)
 		{
-			return file.path().stem().string();
+			std::string path = file.path().stem().string();
+			std::replace_if(path.begin(), path.end(), [](char text) {
+				return text == '\\';
+				}, '/');
+			return path;
 		}
 
 		std::string GetPathNotExtentionFromFile(const std::filesystem::directory_entry& file)
@@ -275,21 +319,21 @@ namespace PARS
 
 		std::string GetExtentionFromPath(std::string path)
 		{
-			path = path.substr(path.rfind('\\') + 1);
+			path = path.substr(path.rfind('/') + 1);
 			path = path.substr(path.rfind('.'));
 			return path;
 		}
 
 		std::string GetStemFromPath(std::string path)
 		{
-			path = path.substr(path.rfind('\\') + 1);
+			path = path.substr(path.rfind('/') + 1);
 			path = path.substr(0, path.rfind('.'));
 			return path;
 		}
 
 		std::string GetParentPathFromPath(std::string path)
 		{
-			path = path.substr(0, path.rfind('\\'));
+			path = path.substr(0, path.rfind('/'));
 			return path;			
 		}
 
@@ -303,7 +347,7 @@ namespace PARS
 		{
 			std::string curPath =  std::filesystem::current_path().string();
 			path = std::string(std::mismatch(path.begin(), path.end(), curPath.begin(), curPath.end()).first, path.end());
-			std::replace(path.begin(), path.begin() + path.find_last_of('\\'), '\\', '/');
+			std::replace(path.begin(), path.end(), '\\', '/');
 			return "../" + path;
 		}
 	}

@@ -9,10 +9,13 @@ namespace PARS
 	}
 
 	using Contents = std::vector<std::filesystem::directory_entry>;
+	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
+	using LoadContent = std::unordered_map<std::string, std::set<SPtr<Asset>>>;	// originalPath, AssetInfoµé
 
 	class Mesh;
 	class Material;
 	class Texture;
+	class Level;
 
 	class AssetStore
 	{
@@ -67,6 +70,9 @@ namespace PARS
 		SPtr<Texture> GetTexture(const std::string& path) const;
 		void LoadTexture(const std::string& path);
 		void OnAllTextureAssetExecuteFunction(std::function<void(const SPtr<Texture>& texture)> function);
+
+		SPtr<Level> GetLevel(const std::string& path) const;
+		void LoadLevel(const std::string& path);
 	};
 
 	namespace FILEHELP

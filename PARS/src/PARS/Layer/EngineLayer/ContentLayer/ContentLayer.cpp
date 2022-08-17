@@ -78,6 +78,16 @@ namespace PARS
 			RecursiveFolderList(CONTENT_DIR);
 			ImGui::TreePop();
 		}
+
+		if (ImGui::TreeNodeEx("Levels", treeFlags))
+		{
+			if (ImGui::IsItemClicked())
+				ChangeSelectFolder(LEVEL_DIR);
+			IMGUIHELP::CheckCurrentSelect(LEVEL_DIR == m_SelectFolder);
+
+			RecursiveFolderList(LEVEL_DIR);
+			ImGui::TreePop();
+		}
 	}
 
 	void ContentLayer::RecursiveFolderList(const std::filesystem::path& path)
@@ -129,10 +139,11 @@ namespace PARS
 			assets = AssetStore::GetAssetStore()->GetAssetsOfDirectory(m_SelectFolder);
 		}
 
-		const auto& folderTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\folder");
-		const auto& meshTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\mesh");
-		const auto& materialTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\material");
-		const auto& textureTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "Texture\\texture");
+		const auto& folderTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "/Texture\\folder");
+		const auto& meshTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "/Texture\\mesh");
+		const auto& materialTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "/Texture\\material");
+		const auto& textureTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "/Texture\\texture");
+		const auto& levelTex = AssetStore::GetAssetStore()->GetTexture(ENGINE_CONTENT_DIR + "/Texture\\level");
 		
 		width -= ImGui::GetStyle().WindowPadding.x * 2 + ImGui::GetStyle().FramePadding.x * 2;
 
@@ -205,6 +216,16 @@ namespace PARS
 							//ChangeSelectFolder(path);
 						}
 					} break;
+				case HashCode(".lvl"):
+					if (levelTex != nullptr && levelTex->GetResource() != nullptr)
+					{
+						ImGui::ImageButton((ImTextureID)levelTex->GetGpuHandle().ptr, ImVec2((float)cWidth, (float)cWidth * 0.9f));
+						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						{
+							LoadLevel(AssetStore::GetAssetStore()->GetLevel(asset->GetFilePath()));
+						}
+					} break;
+					break;
 				default:
 					break;
 				}
@@ -223,8 +244,11 @@ namespace PARS
 		}
 	}
 
-	void ContentLayer::ChangeSelectFolder(const std::string& path)
+	void ContentLayer::ChangeSelectFolder(std::string path)
 	{
+		std::replace_if(path.begin(), path.end(), [](char text) {
+			return text == '\\';
+			}, '/');
 		if (m_SelectFolder != path)
 		{
 			while (!m_NextSelectFolders.empty())

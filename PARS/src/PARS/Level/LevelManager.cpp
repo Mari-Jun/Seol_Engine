@@ -100,6 +100,30 @@ namespace PARS
 		}
 	}
 
+	void LevelManager::SaveOpenedLevel()
+	{
+		if (m_Level != nullptr)
+		{
+			if (m_Level->GetLevelState() == LevelState::Editor)
+			{
+				std::ofstream file{ LEVEL_DIR + m_Level->GetLevelName() + ".lvl", std::ios::binary};
+
+				if (file.is_open())
+				{
+					m_Level->SaveLevel(file);
+				}
+
+				file.close();
+
+				PARS_INFO(m_Level->GetLevelName() + " : Save Complete");
+			}
+			else
+			{
+				PARS_WARN("Please change levelstate to Editor");
+			}
+		}
+	}
+
 	void LevelManager::AddLevelToDetailLayer()
 	{
 		const auto& detailLayer = std::reinterpret_pointer_cast<LevelDetailLayer>(LayerManager::GetLayerManager()->GetLayerByName("Level Detail Layer"));

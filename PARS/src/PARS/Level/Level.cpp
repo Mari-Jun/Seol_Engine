@@ -10,6 +10,7 @@ namespace PARS
 		: m_LevelName(name)
 		, m_LevelState(LevelState::Editor)
 	{
+		m_AssetInfo.name = name;
 		m_DetailFunction = CreateUPtr<DetailFunction>();
 		m_ActorManager = CreateUPtr<ActorManager>();
 		m_EditorInputFactory = CreateUPtr<InputFactory>();
@@ -80,6 +81,18 @@ namespace PARS
 	void Level::RemoveActor(const SPtr<class Actor>& actor)
 	{
 		m_ActorManager->RemoveActor(actor);
+	}
+
+	void Level::SaveLevel(std::ofstream& file)
+	{
+		file.write((char*)this, sizeof(Level));
+	}
+
+	void Level::LoadLevel(std::ifstream& file)
+	{
+		file.read((char*)this, sizeof(Level));
+
+		std::cout << m_LevelName << std::endl;
 	}
 
 	void Level::AddOnceAction(std::string&& name, int key, const std::function<void()>& func, bool isEditor)

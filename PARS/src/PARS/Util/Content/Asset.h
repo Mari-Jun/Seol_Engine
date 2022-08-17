@@ -9,6 +9,7 @@ namespace PARS
 		Material,
 		Texture,
 
+		Level,
 	};
 
 	struct AssetInfo
@@ -62,10 +63,6 @@ namespace PARS
 			return lhs->GetAssetInfo() < rhs->GetAssetInfo();
 		}
 	};
-
-
-	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
-	using LoadContent = std::unordered_map<std::string, std::set<SPtr<Asset>>>;	// originalPath, AssetInfoµé
 }
 
 

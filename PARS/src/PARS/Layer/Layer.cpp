@@ -17,6 +17,18 @@ namespace PARS
 		levelManger->OpenLevel(level);
 	}
 
+	void Layer::LoadLevel(const SPtr<class Level>& level)
+	{
+		auto levelManger = LevelManager::GetLevelManager();
+		levelManger->OpenLevel(level);
+		std::cout << level->GetFilePath() << std::endl;
+		std::ifstream file{ level->GetFilePath() + level->GetExtension(), std::ios::binary };
+		if (file.is_open())
+		{
+			level->LoadLevel(file);
+		}
+	}
+
 	void Layer::AddLayer(const SPtr<Layer>& layer)
 	{
 		auto layerManger = LayerManager::GetLayerManager();

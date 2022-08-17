@@ -22,6 +22,11 @@ namespace PARS
 			{
 				LevelManager::GetLevelManager()->StopOpenedLevel();
 			}
+
+			if (ImGui::Button("Save"))
+			{
+				LevelManager::GetLevelManager()->SaveOpenedLevel();
+			}
 		}
 		ImGui::End();
 	}

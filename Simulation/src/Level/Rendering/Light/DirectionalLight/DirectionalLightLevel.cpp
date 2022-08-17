@@ -19,7 +19,7 @@ namespace PARS
 		actor->SetScale(100.0f);
 		AddActor(actor);
 		auto meshComp = CreateSPtr<StaticMeshComponent>();
-		meshComp->SetMesh(CONTENT_DIR + "Default\\Box");
+		meshComp->SetMesh(CONTENT_DIR + "/Default\\Box");
 		actor->AddComponent(meshComp);
 
 		actor = CreateSPtr<Actor>("Tree");
@@ -27,7 +27,7 @@ namespace PARS
 		actor->SetScale({ 100.0f });
 		AddActor(actor);
 		meshComp = CreateSPtr<StaticMeshComponent>();
-		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+		meshComp->SetMesh(CONTENT_DIR + "/LoadObj\\Tree");
 		actor->AddComponent(meshComp);
 
 		actor = CreateSPtr<Actor>("Tree");
@@ -35,7 +35,7 @@ namespace PARS
 		actor->SetScale(100.0f);
 		AddActor(actor);
 		meshComp = CreateSPtr<StaticMeshComponent>();
-		meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+		meshComp->SetMesh(CONTENT_DIR + "/LoadObj\\Tree");
 		actor->AddComponent(meshComp);
 
 		auto light = CreateSPtr<DirectionalLight>("DirectionalLight");
@@ -56,7 +56,7 @@ namespace PARS
 
 	void DirectionalLightLevel::UpdateLevel(float deltaTime)
 	{
-		/*static float time = 0.0f;
+		static float time = 0.0f;
 		static float move = 100.0f;
 
 		time += deltaTime;
@@ -68,11 +68,11 @@ namespace PARS
 			actor->SetScale(100.0f);
 			AddActor(actor);
 			auto meshComp = CreateSPtr<StaticMeshComponent>();
-			meshComp->SetMesh(CONTENT_DIR + "LoadObj\\Tree");
+			meshComp->SetMesh(CONTENT_DIR + "/LoadObj\\Tree");
 			actor->AddComponent(meshComp);
 
 			time -= 0.02f;
-			move += 1.0f;
-		}*/
+			move += 10.0f;
+		}
 	}
 }

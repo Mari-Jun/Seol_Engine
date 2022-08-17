@@ -18,6 +18,7 @@ namespace PARS
 		void ReadyOpenedLevel();
 		void StartOpenedLevel();
 		void StopOpenedLevel();
+		void SaveOpenedLevel();
 
 		const SPtr<Level>& GetOpenedLevel() const { return m_Level; }
 		inline static LevelManager* GetLevelManager() { return s_Instance; }
